@@ -3023,7 +3023,7 @@ function generateAllSections() {
   const encoded = encodeURIComponent(normalized);
 
   const url = normalized.toLowerCase().startsWith("cl")
-    ? `https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/UGS-Files/${encoded}`
+    ? `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@patch-1/UGS-Files/${encoded}`
     : `UGS-Files/${encoded}?t=${Date.now()}`;
 
   fetch(url)
