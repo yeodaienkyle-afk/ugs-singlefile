@@ -192,7 +192,7 @@ function generateAllSections() {
 
           const normalized = normalizeFileName(file);
           const encoded = encodeURIComponent(normalized);
-          const url = `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@patch-1/${encoded}`;
+          const url = `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@patch-1/offline/${encoded}`;
 
           fetch(url)
             .then((text) => {
