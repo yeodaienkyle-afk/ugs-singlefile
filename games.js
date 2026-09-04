@@ -3047,7 +3047,7 @@ function generateAllSections() {
           const encoded = encodeURIComponent(normalized);
 
           fetch(
-            `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@patch-1/games.js/${encoded}?t=${Date.now()}#L6`,
+            `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@patch-1/games.js/${encoded}#L6?t=${Date.now()}`,
           )
             .then((response) => response.text())
             .then((text) => {
