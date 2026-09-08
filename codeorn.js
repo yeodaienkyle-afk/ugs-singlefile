@@ -1,5 +1,6 @@
 // LAST GAME IS dungeons and degenerate gamble
 let files = [
+  "information",
   "cl1",
 "cl100RoomsOfEnemies",
 "cl10bullets",
