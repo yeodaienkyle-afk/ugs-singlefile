@@ -1,5 +1,6 @@
 // LAST GAME IS caseoh baldi
 let files = [
+  "information",
   "cl1",
 "cl100RoomsOfEnemies",
 "cl10bullets",
