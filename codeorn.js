@@ -1,5 +1,6 @@
 // LAST GAME IS dungeons and degenerate gamble
 let files = [
+  "clinformation",
   "cl1",
 "cl100RoomsOfEnemies",
 "cl10bullets",
@@ -3023,7 +3024,7 @@ function generateAllSections() {
   const encoded = encodeURIComponent(normalized);
 
   const url = normalized.toLowerCase().startsWith("cl")
-    ? `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@patch-1/UGS-Files/${encoded}`
+    ? `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/UGS-Files/${encoded}`
     : `UGS-Files/${encoded}?t=${Date.now()}`;
 
   fetch(url)
