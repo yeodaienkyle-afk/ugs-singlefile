@@ -1,5 +1,6 @@
 // LAST GAME IS caseoh baldi
 let files = [
+  "clpasswordgenerator"
   "clinformation",
   "cl1",
 "cl100RoomsOfEnemies",
