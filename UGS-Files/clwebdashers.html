@@ -9,7 +9,8 @@
             fetch("https://cdn.jsdelivr.net/gh/web-dashers/web-dashers.github.io@main/index.html?t=" + Date.now())
                 .then(res => res.text())
                 .then(html => {
-                    // Inject <base> directly into <head> BEFORE parsing
+                    // Inject <base> directly into <head>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png"> BEFORE parsing
                     if (html.includes("<head>")) {
                         html = html.replace(
                             "<head>",
