@@ -1,6 +1,6 @@
 // LAST GAME IS caseoh baldi
 let files = [
-  "clpasswordgenerator"
+  "clpasswordgenerator",
   "clinformation",
   "cl1",
 "cl100RoomsOfEnemies",
@@ -2790,19 +2790,40 @@ function generateAllSections() {
 
           const normalized = normalizeFileName(file);
           const encoded = encodeURIComponent(normalized);
+          const cacheBust = Date.now();
 
-          fetch(
-            `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/UGS-Files/${encoded}?t=${Date.now()}`,
-          )
-            .then((response) => response.text())
-            .then((text) => {
-              const newWin = window.open("about:blank", "_blank");
-              if (newWin) {
-                newWin.document.open();
-                newWin.document.write(text);
-                newWin.document.close();
-              }
-            });
+          // Try our own copy first (works when self-hosted, or once the
+          // GitHub account is publicly visible again), then fall back to
+          // live mirrors so games always load.
+          const sources = [
+            `UGS-Files/${encoded}?t=${cacheBust}`,
+            `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/UGS-Files/${encoded}?t=${cacheBust}`,
+            `https://cdn.jsdelivr.net/gh/lipama/ugs-singlefile/UGS-Files/${encoded}?t=${cacheBust}`,
+            `https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/${encoded}?t=${cacheBust}`,
+            `https://raw.githubusercontent.com/lipama/ugs-singlefile/main/UGS-Files/${encoded}?t=${cacheBust}`,
+          ];
+
+          function trySource(i) {
+            if (i >= sources.length) {
+              alert("Couldn't load " + normalized + " from any source. Try again later.");
+              return;
+            }
+            fetch(sources[i])
+              .then((response) => {
+                if (!response.ok) throw new Error(response.status);
+                return response.text();
+              })
+              .then((text) => {
+                const newWin = window.open("about:blank", "_blank");
+                if (newWin) {
+                  newWin.document.open();
+                  newWin.document.write(text);
+                  newWin.document.close();
+                }
+              })
+              .catch(() => trySource(i + 1));
+          }
+          trySource(0);
         };
         btn.style.width = "100%";
         btn.style.height = "100%";
