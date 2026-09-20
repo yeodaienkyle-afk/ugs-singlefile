@@ -1,0 +1,63 @@
+<html>
+  <!-- Ultimate Game Stash file: Pokemon TCG Extension v1.7 (ROM served from yeodaienkyle-afk forks via jsDelivr) -->
+  <head>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+    <script>
+      window.gameconfig = {
+        name: "Pokemon TCG Extension v1.7",
+        url: "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/roms@main/poketcg_ext%20v1.7.zip",
+        core: "gba",
+      };
+    </script>
+    <script>
+    </script>
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        background-color: #121212;
+        color: white;
+        font-family: Arial, sans-serif;
+      }
+      #game-container {
+        text-align: center;
+        width: 100%;
+        height: 100%;
+      }
+      #loading-progress {
+        font-size: 18px;
+        margin-top: 20px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        display: inline-block;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div id="game-container">
+      <div id="game"></div>
+      <div id="loading-progress">Loading game...</div>
+    </div>
+    <script>
+      document.getElementById("loading-progress").remove();
+      EJS_player = "#game";
+      EJS_core = window.gameconfig.core;
+      EJS_gameName = window.gameconfig.name;
+      EJS_color = "#0064ff";
+      EJS_startOnLoaded = true;
+      EJS_pathtodata = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/emu@master/";
+      EJS_gameUrl = window.gameconfig.url;
+      const script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/emu@master/loader.js";
+      document.body.appendChild(script);
+    </script>
+  </body>
+</html>
