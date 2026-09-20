@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word Guesser</title>
+  <style>
+    #guessInput {
+      display: none;
+    }
+
+    #wordGuesserContainer {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #wordGuesser {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    #wordDescription {
+      font-style: italic;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    #letterBoxes {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .letter-box {
+      width: 40px;
+      height: 40px;
+      margin: 0 5px;
+      border: 1px solid #ccc;
+      text-align: center;
+      line-height: 40px;
+      font-size: 20px;
+      font-weight: bold;
+      border-radius: 5px;
+    }
+
+    #buttonsContainer {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin-right: 10px;
+      border: none;
+      background-color: #007bff;
+      color: #fff;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    #messageContainer {
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    #restartContainer {
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    #message {
+      color: green;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1 style="text-align: center;">Word Guesser</h1>
+  <div id="wordGuesserContainer">
+    <p id="wordGuesser">Fetching...</p>
+    <p id="wordDescription">Fetching definition...</p>
+  </div>
+
+  <div id="buttonsContainer">
+    <form id="guessForm">
+      <div id="letterBoxes"></div>
+      <input type="text" id="guessInput" name="guessInput">
+      <button type="submit">Submit</button>
+      <button type="button" id="clueButton">Use a Clue</button>
+    </form>
+  </div>
+
+  <div id="messageContainer">
+    <p id="message"></p>
+  </div>
+  <div id="restartContainer"><button id="restartButton">Restart</button></div>
+
+  <script>
+    let submissionCount = 0;
+
+    function fetchRandomWord() {
+      return fetch('https://random-word-api.herokuapp.com/word')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch the word');
+          }
+          return response.json();
+        })
+        .then(data => data[0])
+        .catch(error => {
+          console.error('Error fetching the word:', error);
+          throw error;
+        });
+    }
+
+    function fetchDefinition(word) {
+      return fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Definition not found by dictionaryapi');
+          }
+          return response.json();
+        })
+        .then(data => {
+          const definition = data[0]?.meanings[0]?.definitions[0]?.definition || 'No definition found';
+          return definition;
+        })
+        .catch(error => {
+          console.error('Error fetching definition:', error);
+          throw error;
+        });
+    }
+
+    function startGame() {
+      const letterBoxesContainer = document.getElementById('letterBoxes');
+      letterBoxesContainer.innerHTML = '';
+      document.getElementById('messageContainer').style.display = 'none';
+      document.getElementById('restartContainer').style.display = 'none';
+      let clueUsed = false;
+      document.getElementById('clueButton').disabled = false;
+      submissionCount = 0;
+
+      fetchRandomWord()
+        .then(word => {
+          document.getElementById('wordGuesser').textContent = word;
+          return fetchDefinition(word);
+        })
+        .then(definition => {
+          document.getElementById('wordDescription').textContent = definition;
+          const wordGuesser = document.getElementById('wordGuesser').textContent;
+
+          wordGuesser.split('').forEach((letter, index) => {
+            const letterBox = document.createElement('input');
+            letterBox.type = 'text';
+            letterBox.maxLength = 1;
+            letterBox.classList.add('letter-box');
+            letterBox.value = '';
+            letterBox.dataset.index = index;
+            letterBoxesContainer.appendChild(letterBox);
+
+            letterBox.addEventListener('keypress', function (event) {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                return;
+              }
+              this.value = event.key;
+              let nextIndex = index + 1;
+              while (nextIndex < wordGuesser.length && letterBoxesContainer.children[nextIndex].disabled) {
+                nextIndex++;
+              }
+              if (nextIndex < wordGuesser.length) {
+                letterBoxesContainer.children[nextIndex].focus();
+              }
+            });
+
+            letterBox.addEventListener('keydown', function (event) {
+              let currentIndex = index;
+              if (event.key === 'Backspace') {
+                event.preventDefault();
+                this.value = '';
+                let previousIndex = currentIndex - 1;
+                while (previousIndex >= 0 && letterBoxesContainer.children[previousIndex].disabled) {
+                  previousIndex--;
+                }
+                if (previousIndex >= 0) {
+                  letterBoxesContainer.children[previousIndex].focus();
+                }
+              } else if (event.key === 'ArrowLeft') {
+                let previousIndex = currentIndex - 1;
+                while (previousIndex >= 0 && letterBoxesContainer.children[previousIndex].disabled) {
+                  previousIndex--;
+                }
+                if (previousIndex >= 0) {
+                  letterBoxesContainer.children[previousIndex].focus();
+                }
+              } else if (event.key === 'ArrowRight') {
+                let nextIndex = currentIndex + 1;
+                while (nextIndex < wordGuesser.length && letterBoxesContainer.children[nextIndex].disabled) {
+                  nextIndex++;
+                }
+                if (nextIndex < wordGuesser.length) {
+                  letterBoxesContainer.children[nextIndex].focus();
+                }
+              }
+            });
+          });
+
+          const clueButton = document.getElementById('clueButton');
+          const clueButtonClone = clueButton.cloneNode(true); // This is to clone and to prevent stacking of eventlistners
+          clueButton.parentNode.replaceChild(clueButtonClone, clueButton); // Replace the original button with the clone
+          clueButtonClone.addEventListener('click', function () {
+            if (!clueUsed) {
+              const emptyLetterBoxes = [...document.querySelectorAll('.letter-box:not([value])')];
+              if (emptyLetterBoxes.length >= 3) {
+                const firstLetterBox = emptyLetterBoxes[0];
+                firstLetterBox.value = wordGuesser[0];
+                firstLetterBox.disabled = true;
+                emptyLetterBoxes.splice(0, 1);
+                const secondRandomIndex = Math.floor(Math.random() * emptyLetterBoxes.length);
+                const secondRandomLetterBox = emptyLetterBoxes[secondRandomIndex];
+                secondRandomLetterBox.value = wordGuesser[secondRandomLetterBox.dataset.index];
+                secondRandomLetterBox.disabled = true;
+                emptyLetterBoxes.splice(secondRandomIndex, 1);
+                const thirdRandomIndex = Math.floor(Math.random() * emptyLetterBoxes.length);
+                const thirdRandomLetterBox = emptyLetterBoxes[thirdRandomIndex];
+                thirdRandomLetterBox.value = wordGuesser[thirdRandomLetterBox.dataset.index];
+                thirdRandomLetterBox.disabled = true;
+                clueUsed = true;
+                clueButtonClone.disabled = true;
+              }
+            }
+          });
+        })
+        .catch(error => {
+          document.getElementById('wordGuesser').textContent = 'Error fetching the word';
+          document.getElementById('wordDescription').textContent = 'Error fetching definition';
+          startGame();
+        });
+    }
+
+    startGame();
+    document.getElementById('guessForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+      const wordGuesser = document.getElementById('wordGuesser').textContent.trim().toLowerCase();
+      const userGuess = Array.from(document.querySelectorAll('.letter-box')).map(letterBox => letterBox.value.trim().toLowerCase()).join('');
+      submissionCount++;
+      if (userGuess === wordGuesser) {
+        document.getElementById('message').textContent = 'Congratulations! Your guess is correct!';
+        document.getElementById('message').style.color = 'green';
+        document.getElementById('messageContainer').style.display = 'block';
+        document.getElementById('restartContainer').style.display = 'block';
+      } else {
+        document.getElementById('message').textContent = 'Wrong guess, try again!';
+        document.getElementById('message').style.color = 'red';
+        document.getElementById('messageContainer').style.display = 'block';
+        if (submissionCount >= 5) {
+          document.getElementById('message').textContent = `You have submitted ${submissionCount} times without success. Do you want to give up?`;
+          document.getElementById('restartContainer').style.display = 'block';
+        }
+      }
+    });
+    document.getElementById('restartButton').addEventListener('click', function () {
+      startGame();
+    });
+  </script>
+
+</body>
+
+</html>
