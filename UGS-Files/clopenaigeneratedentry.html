@@ -1,1 +1,35 @@
-PGh0bWw+CjxoZWFkPgogICAgPCEtLSBNZXRhIHRhZ3MgYWRkZWQgZHVlIHRvIGVudHJpZXMuanMgZGVwcmVjYXRpb24gb24gSnVseSA4dGgsIDIwMjUgLS0+CiAgICA8bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLCBpbml0aWFsLXNjYWxlPTEuMCI+CiAgICA8bWV0YSBuYW1lPSJkZXNjcmlwdGlvbiIgY29udGVudD0iVGhpcyBlbnRyeSB3YXMgY29kZWQgY29tcGxldGVseSBieSBPcGVuQUkgdXNpbmcgdGhlIHByb21wdCAmcXVvdDtjb2RlIG1lIGEgZ2FtZSBpbiBvbmUgaHRtbCBmaWxlJnF1b3Q7LiI+CiAgICA8bWV0YSBuYW1lPSJhdXRob3IiIGNvbnRlbnQ9Ik9wZW5BSSI+CiAgICA8bWV0YSBuYW1lPSJnaXRodWIiIGNvbnRlbnQ9Im9wZW5haSI+CiAgICA8dGl0bGU+R3Vlc3MgdGhlIE51bWJlcjwvdGl0bGU+CjwvaGVhZD4KPGJvZHk+CjxoMT5HdWVzcyB0aGUgTnVtYmVyPC9oMT4KPHA+SSdtIHRoaW5raW5nIG9mIGEgbnVtYmVyIGJldHdlZW4gMSBhbmQgMTAwLiBDYW4geW91IGd1ZXNzIGl0PzwvcD4KPGlucHV0IHR5cGU9Im51bWJlciIgaWQ9Imd1ZXNzIj4KPGJ1dHRvbiBvbmNsaWNrPSJjaGVja0d1ZXNzKCkiPkd1ZXNzPC9idXR0b24+CjxwIGlkPSJyZXN1bHQiPjwvcD4KPHNjcmlwdD4KICAgIGNvbnN0IHRhcmdldCA9IE1hdGguZmxvb3IoTWF0aC5yYW5kb20oKSAqIDEwMCkgKyAxOwogICAgbGV0IG51bUd1ZXNzZXMgPSAwOwoKICAgIGZ1bmN0aW9uIGNoZWNrR3Vlc3MoKSB7CiAgICAgICAgbnVtR3Vlc3NlcyArPSAxOwogICAgICAgIGNvbnN0IGd1ZXNzID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImd1ZXNzIikudmFsdWU7CiAgICAgICAgY29uc3QgcmVzdWx0UGFyYWdyYXBoID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoInJlc3VsdCIpOwoKICAgICAgICBpZiAoZ3Vlc3MgPT0gdGFyZ2V0KSB7CiAgICAgICAgICAgIHJlc3VsdFBhcmFncmFwaC5pbm5lckhUTUwgPSAiWW91IGdvdCBpdCEgSXQgdG9vayB5b3UgIiArIG51bUd1ZXNzZXMgKyAiIGd1ZXNzZXMuIjsKICAgICAgICB9IGVsc2UgaWYgKGd1ZXNzIDwgdGFyZ2V0KSB7CiAgICAgICAgICAgIHJlc3VsdFBhcmFncmFwaC5pbm5lckhUTUwgPSAiWW91ciBndWVzcyBpcyB0b28gbG93LiBUcnkgYWdhaW4uIjsKICAgICAgICB9IGVsc2UgaWYgKGd1ZXNzID4gdGFyZ2V0KSB7CiAgICAgICAgICAgIHJlc3VsdFBhcmFncmFwaC5pbm5lckhUTUwgPSAiWW91ciBndWVzcyBpcyB0b28gaGlnaC4gVHJ5IGFnYWluLiI7CiAgICAgICAgfQogICAgfQo8L3NjcmlwdD4KPC9ib2R5Pgo8L2h0bWw+
+<html>
+<head>
+    <!-- Meta tags added due to entries.js deprecation on July 8th, 2025 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="This entry was coded completely by OpenAI using the prompt &quot;code me a game in one html file&quot;.">
+    <meta name="author" content="OpenAI">
+    <meta name="github" content="openai">
+    <title>Guess the Number</title>
+</head>
+<body>
+<h1>Guess the Number</h1>
+<p>I'm thinking of a number between 1 and 100. Can you guess it?</p>
+<input type="number" id="guess">
+<button onclick="checkGuess()">Guess</button>
+<p id="result"></p>
+<script>
+    const target = Math.floor(Math.random() * 100) + 1;
+    let numGuesses = 0;
+
+    function checkGuess() {
+        numGuesses += 1;
+        const guess = document.getElementById("guess").value;
+        const resultParagraph = document.getElementById("result");
+
+        if (guess == target) {
+            resultParagraph.innerHTML = "You got it! It took you " + numGuesses + " guesses.";
+        } else if (guess < target) {
+            resultParagraph.innerHTML = "Your guess is too low. Try again.";
+        } else if (guess > target) {
+            resultParagraph.innerHTML = "Your guess is too high. Try again.";
+        }
+    }
+</script>
+</body>
+</html>

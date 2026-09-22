@@ -1,1 +1,49 @@
-PCEtLSBXYXJnYW1lcyBkZW1vLCBAdmFzaWw5diAtLT4KPGh0bWw+CiAgPGhlYWQ+CiAgICA8IS0tIE1ldGEgdGFncyBhZGRlZCBkdWUgdG8gZW50cmllcy5qcyBkZXByZWNhdGlvbiBvbiBKdWx5IDh0aCwgMjAyNSAtLT4KICAgIDxtZXRhIG5hbWU9InZpZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Utd2lkdGgsIGluaXRpYWwtc2NhbGU9MS4wIj4KICAgIDxtZXRhIG5hbWU9ImRlc2NyaXB0aW9uIiBjb250ZW50PSJSZWNyZWF0aW9uIG9mIHRoZSB0ZXJtaW5hbCB3aW5kb3cgZnJvbSBhIHNjZW5lIGluIHRoZSBtb3ZpZSBXYXJnYW1lcy4iPgogICAgPG1ldGEgbmFtZT0iYXV0aG9yIiBjb250ZW50PSJWYXNpbGlvcyBEYXNrYWxvcG91bG9zIj4KICAgIDxtZXRhIG5hbWU9ImdpdGh1YiIgY29udGVudD0idmFzaWw5diI+CiAgICA8dGl0bGU+V2FyZ2FtZXM8L3RpdGxlPgogIDwvaGVhZD4KICA8Ym9keSBzdHlsZT0iYmFja2dyb3VuZC1jb2xvcjpibGFjaztmb250LWZhbWlseTpjb3VyaWVyO2NvbG9yOiMwNWZhMGQ7Ij4KICAgIDxzcGFuIGlkPSJjb250ZW50Ij48L3NwYW4+PHNwYW4gc3R5bGU9ImhlaWdodDoyMHB4O3dpZHRoOjIwcHg7YmFja2dyb3VuZC1jb2xvcjojMDVmYTBkOyI+Jm5ic3A7PC9zcGFuPgogICAgPHNjcmlwdD4KICAgICAgdmFyIG1lbnUgPSBbCiAgICAgICAgICAiQ0hFU1MiLAogICAgICAgICAgIlBPS0VSIiwKICAgICAgICAgICJGSUdIVEVSIENPTUJBVCIsCiAgICAgICAgICAiR1VFUlJJTExBIEVOR0FHRU1FTlQiLAogICAgICAgICAgIkRFU0VSVCBXQVJGQVJFIiwKICAgICAgICAgICJBSVItVE8tR1JPVU5EIEFDVElPTlMiLAogICAgICAgICAgIlRIRUFURVJXSURFIFRBQ1RJQ0FMIFdBUkZBUkUiLAogICAgICAgICAgIlRIRUFURVJXSURFIEJJT1RPWElDIEFORCBDSEVNSUNBTCBXQVJGQVJFIiwKICAgICAgICAgICIgIiwKICAgICAgICAgICJHTE9CQUwgVEhFUk1PTlVDTEVBUiBXQVIiLAogICAgICAgICAgIiAiCiAgICAgICAgXSwKICAgICAgICBpID0gMCwgaiwgaXRlbSwgaHRtbCwKICAgICAgICBlID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImNvbnRlbnQiKSwKICAgICAgICBkb0NoYXIgPSBmdW5jdGlvbigpIHsKICAgICAgICAgIGUuaW5uZXJIVE1MICs9IGl0ZW1baisrXTsKICAgICAgICAgIGlmIChqIDwgaXRlbS5sZW5ndGgpIHsKICAgICAgICAgICAgc2V0VGltZW91dChkb0NoYXIsIDEwKTsKICAgICAgICAgIH0KICAgICAgICAgIGVsc2UgewogICAgICAgICAgICBlLmlubmVySFRNTCArPSAiPGJyLz4iOwogICAgICAgICAgICBkb0l0ZW0oKTsKICAgICAgICAgIH0KICAgICAgICB9LAogICAgICAgIGRvSXRlbSA9IGZ1bmN0aW9uKCkgewogICAgICAgICAgaWYgKGkgPCBtZW51Lmxlbmd0aCkgewogICAgICAgICAgICBpdGVtID0gbWVudVtpKytdOwogICAgICAgICAgICBqID0gMDsKICAgICAgICAgICAgZG9DaGFyKCk7CiAgICAgICAgICB9CiAgICAgICAgfTsKICAgICAgZG9JdGVtKCk7CiAgICA8L3NjcmlwdD4KICA8L2JvZHk+CjwvaHRtbD4K
+<!-- Wargames demo, @vasil9v -->
+<html>
+  <head>
+    <!-- Meta tags added due to entries.js deprecation on July 8th, 2025 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Recreation of the terminal window from a scene in the movie Wargames.">
+    <meta name="author" content="Vasilios Daskalopoulos">
+    <meta name="github" content="vasil9v">
+    <title>Wargames</title>
+  </head>
+  <body style="background-color:black;font-family:courier;color:#05fa0d;">
+    <span id="content"></span><span style="height:20px;width:20px;background-color:#05fa0d;">&nbsp;</span>
+    <script>
+      var menu = [
+          "CHESS",
+          "POKER",
+          "FIGHTER COMBAT",
+          "GUERRILLA ENGAGEMENT",
+          "DESERT WARFARE",
+          "AIR-TO-GROUND ACTIONS",
+          "THEATERWIDE TACTICAL WARFARE",
+          "THEATERWIDE BIOTOXIC AND CHEMICAL WARFARE",
+          " ",
+          "GLOBAL THERMONUCLEAR WAR",
+          " "
+        ],
+        i = 0, j, item, html,
+        e = document.getElementById("content"),
+        doChar = function() {
+          e.innerHTML += item[j++];
+          if (j < item.length) {
+            setTimeout(doChar, 10);
+          }
+          else {
+            e.innerHTML += "<br/>";
+            doItem();
+          }
+        },
+        doItem = function() {
+          if (i < menu.length) {
+            item = menu[i++];
+            j = 0;
+            doChar();
+          }
+        };
+      doItem();
+    </script>
+  </body>
+</html>

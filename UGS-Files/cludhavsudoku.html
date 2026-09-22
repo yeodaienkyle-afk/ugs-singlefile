@@ -1,1 +1,780 @@
-PCFET0NUWVBFIGh0bWw+DQo8aHRtbCBsYW5nPSJlbiI+DQogIDxoZWFkPgogICAgPCEtLSBNZXRhIHRhZ3MgYWRkZWQgZHVlIHRvIGVudHJpZXMuanMgZGVwcmVjYXRpb24gb24gSnVseSA4dGgsIDIwMjUgLS0+CiAgICA8bWV0YSBuYW1lPSJkZXNjcmlwdGlvbiIgY29udGVudD0iQSBCYXNpYyBTdWRva3UgR2FtZSB3aGljaCBzb2x2ZXMgc3Vkb2t1IHB1enpsZSBpZiBwbGFjZXMgZmlsbGVkIGNvcnJlY3RseS4iPgogICAgPG1ldGEgbmFtZT0iYXV0aG9yIiBjb250ZW50PSJVZGhhdiBTaGFybWEiPgogICAgPG1ldGEgbmFtZT0iZ2l0aHViIiBjb250ZW50PSJVZGhhdlNoYXJtYTIwMDQiPg0KICAgIDxtZXRhIGNoYXJzZXQ9IlVURi04IiAvPg0KICAgIDxtZXRhIGh0dHAtZXF1aXY9IlgtVUEtQ29tcGF0aWJsZSIgY29udGVudD0iSUU9ZWRnZSIgLz4NCiAgICA8bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLCBpbml0aWFsLXNjYWxlPTEuMCIgLz4NCiAgICA8dGl0bGU+VWx0aW1hdGUgU3Vkb2t1PC90aXRsZT4NCiAgICA8c3R5bGU+DQogICAgICAqIHsNCiAgICAgICAgZm9udC1mYW1pbHk6ICJSb2JvdG8iLCBzYW5zLXNlcmlmOw0KICAgICAgICB0ZXh0LWFsaWduOiBjZW50ZXI7DQogICAgICB9DQogICAgICAjdXNlcm5hbWUgew0KICAgICAgICBjb2xvcjogcmdiKDE4LCAzOSwgMTc2KTsNCiAgICAgIH0NCiAgICAgIC50YWJsZSB7DQogICAgICAgIG1hcmdpbi10b3A6IDEwdmg7DQogICAgICAgIGRpc3BsYXk6IGdyaWQ7DQogICAgICAgIGdyaWQtdGVtcGxhdGUtY29sdW1uczogMTYwcHggMTYwcHggMTYwcHg7DQogICAgICAgIGdyaWQtdGVtcGxhdGUtcm93czogMTYwcHggMTYwcHggMTYwcHg7DQogICAgICAgIHJvdy1nYXA6IDJweDsNCiAgICAgICAgY29sdW1uLWdhcDogMnB4Ow0KICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjsNCiAgICAgICAgYWxpZ24tY29udGVudDogY2VudGVyOw0KICAgICAgfQ0KICAgICAgLmdyb3VwMzEsDQogICAgICAuZ3JvdXAzMiwNCiAgICAgIC5ncm91cDMzLA0KICAgICAgLmdyb3VwMzQsDQogICAgICAuZ3JvdXAzNSwNCiAgICAgIC5ncm91cDM2LA0KICAgICAgLmdyb3VwMzcsDQogICAgICAuZ3JvdXAzOCwNCiAgICAgIC5ncm91cDM5IHsNCiAgICAgICAgZGlzcGxheTogZ3JpZDsNCiAgICAgICAgZ3JpZC10ZW1wbGF0ZS1jb2x1bW5zOiA1MHB4IDUwcHggNTBweDsNCiAgICAgICAgZ3JpZC10ZW1wbGF0ZS1yb3dzOiA1MHB4IDUwcHggNTBweDsNCiAgICAgICAgYm9yZGVyOiBzb2xpZCA1cHggYmxhY2s7DQogICAgICB9DQogICAgICAuZWxlbSB7DQogICAgICAgIC8qIG91dGxpbmU6c29saWQgMnB4IHJlZDsgKi8NCiAgICAgICAgYm9yZGVyOiBzb2xpZCAxcHggYmxhY2s7DQogICAgICAgIGZvbnQtc2l6ZTogNDBweDsNCiAgICAgIH0NCiAgICAgIC5jb21tb24gew0KICAgICAgICBkaXNwbGF5OiBmbGV4Ow0KICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjsNCiAgICAgIH0NCiAgICAgIC5idG4gew0KICAgICAgICBtYXJnaW4tdG9wOiA3dmg7DQogICAgICAgIC8qIG91dGxpbmU6c29saWQgMnB4IHJlZDsgKi8NCiAgICAgICAgd2lkdGg6IDExMHB4Ow0KICAgICAgICBoZWlnaHQ6IDUwcHg7DQogICAgICAgIGp1c3RpZnktY29udGVudDogY2VudGVyOw0KICAgICAgICBwYWRkaW5nLXRvcDogMTVweDsNCiAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogZ3JlZW47DQogICAgICAgIGNvbG9yOiB3aGl0ZTsNCiAgICAgICAgZm9udC1zaXplOiBsYXJnZTsNCiAgICAgICAgYm9yZGVyLXJhZGl1czogMTAlOw0KICAgICAgICB0cmFuc2l0aW9uOiBhbGwgMC41cyBlYXNlLW91dDsNCiAgICAgIH0NCiAgICAgIC5idG46aG92ZXIgew0KICAgICAgICBzY2FsZTogMS4yOw0KICAgICAgICB0cmFuc2l0aW9uLWRlbGF5OiAwLjAxczsNCiAgICAgIH0NCiAgICAgIC5idG46YWN0aXZlIHsNCiAgICAgICAgc2NhbGU6IDAuOTsNCiAgICAgIH0NCiAgICAgICNvdXRwdXRzaG93IHsNCiAgICAgICAgZm9udC1zaXplOiB4LWxhcmdlOw0KICAgICAgfQ0KICAgIDwvc3R5bGU+DQogIDwvaGVhZD4NCiAgPGJvZHk+DQogICAgPCEtLSA8aW5wdXQgdHlwZT0ibnVtYmVyIiBjbGFzcz0iZWxlbSIgaWQ9ImF0OSIgcGxhY2Vob2xkZXI9IjEtOSBvciB4Ij4gLS0+DQogICAgPGgxPg0KICAgICAgV2VsY29tZSEgPHNwYW4gaWQ9InVzZXJuYW1lIj5Vc2VyPC9zcGFuPiwgdG8gVWx0aW1hdGUgU3VkdWtvIEdhbWUgU29sdmVyDQogICAgPC9oMT4NCiAgICA8aDMgaWQ9Im91dHB1dHNob3ciPjwvaDM+DQogICAgPGgyPg0KICAgICAgUGxlYXNlIGRvIG5vdCBlbnRlciBXcm9uZyB2YWx1ZXMuPGJyPkVudGVyIFZhbHVlcyByYW5naW5nIGZyb20gMS05IGluIHRoZSBib3hlcyBnaXZlbiBiZWxvdy4gRW50ZXIgMCBmb3IgdmFsdWVzDQogICAgICB5b3UgZG9uJ3Qga25vdy4NCiAgICA8L2gyPg0KICAgIDxkaXYgY2xhc3M9InRhYmxlIj4NCiAgICAgIDxkaXYgY2xhc3M9Imdyb3VwMzEiPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0MSINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQyIg0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDMiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0NCINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ1Ig0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDYiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0NyINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ4Ig0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDkiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgPC9kaXY+DQogICAgICA8ZGl2IGNsYXNzPSJncm91cDMyIj4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDEwIg0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDExIg0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDEyIg0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDEzIg0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDE0Ig0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDE1Ig0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDE2Ig0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDE3Ig0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDE4Ig0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgIDwvZGl2Pg0KICAgICAgPGRpdiBjbGFzcz0iZ3JvdXAzMyI+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQxOSINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQyMCINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQyMSINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQyMiINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQyMyINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQyNCINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQyNSINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQyNiINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQyNyINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICA8L2Rpdj4NCiAgICAgIDxkaXYgY2xhc3M9Imdyb3VwMzQiPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0MjgiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0MjkiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0MzAiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0MzEiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0MzIiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0MzMiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0MzQiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0MzUiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0MzYiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgPC9kaXY+DQogICAgICA8ZGl2IGNsYXNzPSJncm91cDM1Ij4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDM3Ig0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDM4Ig0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDM5Ig0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDQwIg0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDQxIg0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDQyIg0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDQzIg0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDQ0Ig0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDQ1Ig0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgIDwvZGl2Pg0KICAgICAgPGRpdiBjbGFzcz0iZ3JvdXAzNiI+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ0NiINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ0NyINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ0OCINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ0OSINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ1MCINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ1MSINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ1MiINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ1MyINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ1NCINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICA8L2Rpdj4NCiAgICAgIDxkaXYgY2xhc3M9Imdyb3VwMzciPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0NTUiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0NTYiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0NTciDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0NTgiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0NTkiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0NjAiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0NjEiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0NjIiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgICA8aW5wdXQNCiAgICAgICAgICBpbnB1dG1vZGU9Im51bWVyaWMiDQogICAgICAgICAgY2xhc3M9ImVsZW0iDQogICAgICAgICAgaWQ9ImF0NjMiDQogICAgICAgICAgbWF4bGVuZ3RoPSIxIg0KICAgICAgICAgIGF1dG9jb21wbGV0ZT0ib2ZmIg0KICAgICAgICAvPg0KICAgICAgPC9kaXY+DQogICAgICA8ZGl2IGNsYXNzPSJncm91cDM4Ij4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDY0Ig0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDY1Ig0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDY2Ig0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDY3Ig0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDY4Ig0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDY5Ig0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDcwIg0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDcxIg0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgICAgPGlucHV0DQogICAgICAgICAgaW5wdXRtb2RlPSJudW1lcmljIg0KICAgICAgICAgIGNsYXNzPSJlbGVtIg0KICAgICAgICAgIGlkPSJhdDcyIg0KICAgICAgICAgIG1heGxlbmd0aD0iMSINCiAgICAgICAgICBhdXRvY29tcGxldGU9Im9mZiINCiAgICAgICAgLz4NCiAgICAgIDwvZGl2Pg0KICAgICAgPGRpdiBjbGFzcz0iZ3JvdXAzOSI+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ3MyINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ3NCINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ3NSINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ3NiINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ3NyINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ3OCINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ3OSINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ4MCINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICAgIDxpbnB1dA0KICAgICAgICAgIGlucHV0bW9kZT0ibnVtZXJpYyINCiAgICAgICAgICBjbGFzcz0iZWxlbSINCiAgICAgICAgICBpZD0iYXQ4MSINCiAgICAgICAgICBtYXhsZW5ndGg9IjEiDQogICAgICAgICAgYXV0b2NvbXBsZXRlPSJvZmYiDQogICAgICAgIC8+DQogICAgICA8L2Rpdj4NCiAgICA8L2Rpdj4NCiAgICA8ZGl2IGNsYXNzPSJjb21tb24iPg0KICAgICAgPGRpdiBjbGFzcz0iYnRuIiBvbmNsaWNrPSJyZWFkZXIoKSI+U29sdmUgVGhpcyAhITwvZGl2Pg0KICAgIDwvZGl2Pg0KICA8L2JvZHk+DQogIDxzY3JpcHQ+DQogICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3VzZXJuYW1lJykuaW5uZXJUZXh0PSIiOw0KICAgIGxldCB1c2VybmFtZT1wcm9tcHQoIkVudGVyIHlvdXIgTmFtZSA6Iik7DQogICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3VzZXJuYW1lJykuaW5uZXJUZXh0PXVzZXJuYW1lOw0KICAgIGxldCBib2FyZCA9IG5ldyBBcnJheSg5KTsNCiAgICBmb3IgKGxldCBpID0gMDsgaSA8IDk7IGkrKykgew0KICAgICAgYm9hcmRbaV0gPSBuZXcgQXJyYXkoOSk7DQogICAgfQ0KICAgIGZ1bmN0aW9uIHJlYWRlcigpIHsNCiAgICAgIGZvciAobGV0IGkgPSAwOyBpIDwgOTsgaSsrKSB7DQogICAgICAgIGZvciAobGV0IGogPSAwOyBqIDwgOTsgaisrKSB7DQogICAgICAgICAgbGV0IG9iamlkID0gaSAqIDkgKyBqICsgMTsNCiAgICAgICAgICBvYmppZCA9ICJhdCIgKyBvYmppZDsNCiAgICAgICAgICBsZXQgb2JqdmFsPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKG9iamlkKS52YWx1ZTsNCiAgICAgICAgICBpZihvYmp2YWwhPSIiKQ0KICAgICAgICAgIGJvYXJkW2ldW2pdID0gb2JqdmFsOw0KICAgICAgICAgIGVsc2V7DQogICAgICAgICAgICBib2FyZFtpXVtqXT0wOw0KICAgICAgICAgIH0NCiAgICAgICAgfQ0KICAgICAgfQ0KICAgICAgbGV0IG5ld3Byb20gPSBuZXcgUHJvbWlzZSgocmVzb2x2ZSwgcmVqZWN0KSA9PiB7DQogICAgICAgIGxldCBhbnMgPSBzb2x2ZU5vdygpOw0KICAgICAgICBpZiAoYW5zKSB7DQogICAgICAgICAgY29uc29sZS5sb2coIlNvbHZlZCBpbiBuZXdwcm9tIik7DQogICAgICAgICAgcmVzb2x2ZSgpOw0KICAgICAgICB9IGVsc2Ugew0KICAgICAgICAgIGNvbnNvbGUubG9nKCJFcnJvciBpbiBuZXdwcm9tIHNvbHZlIik7DQogICAgICAgICAgcmVqZWN0KCk7DQogICAgICAgIH0NCiAgICAgIH0pOw0KICAgICAgbmV3cHJvbQ0KICAgICAgLnRoZW4oKCkgPT4gew0KICAgICAgICBjb25zb2xlLmxvZygiU29sdmVkIGluIG5ld3Byb20iKTsNCiAgICAgICAgYWZ0ZXJTb2x2ZSgpOw0KICAgICAgICBsaW5lUHJpbnRlcih0cnVlKTsNCiAgICAgIH0pDQogICAgICAuY2F0Y2goKCkgPT4gew0KICAgICAgICBjb25zb2xlLmxvZygiRXJyb3IgaW4gbmV3cHJvbSBzb2x2ZSIpOw0KICAgICAgICBsaW5lUHJpbnRlcihmYWxzZSk7DQogICAgICAgIH0pOw0KICAgIH0NCg0KICAgIGZ1bmN0aW9uIGxpbmVQcmludGVyKGFyZ3VtZW50KSB7DQogICAgICBpZiAoYXJndW1lbnQpIHsNCiAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoIm91dHB1dHNob3ciKS5pbm5lclRleHQgPQ0KICAgICAgICAgICJTdWR1a28gR2FtZSBpcyBzb2x2ZWQgU3VjY2Vzc2Z1bGx5IC4gWW91IGNhbiB2aWV3IHRoZSBPdXRwdXQgYmVsb3cuIjsNCiAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoIm91dHB1dHNob3ciKS5zdHlsZS5jb2xvciA9ICJHcmVlbiI7DQogICAgICB9IGVsc2Ugew0KICAgICAgICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgib3V0cHV0c2hvdyIpLmlubmVyVGV4dCA9DQogICAgICAgICAgIkVycm9yIGluIHNvbHZpbmcgdGhlIGdhbWUuIFJlY2hlY2sgdGhlIHZhbHVlcyBhbmQgRW50ZXIgYWdhaW4iOw0KICAgICAgICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgib3V0cHV0c2hvdyIpLnN0eWxlLmNvbG9yID0gIlJlZCI7DQogICAgICB9DQogICAgfQ0KICAgIGZ1bmN0aW9uIHNvbHZlTm93KCkgew0KICAgICAgZm9yIChsZXQgaSA9IDA7IGkgPCA5OyBpKyspIHsNCiAgICAgICAgZm9yIChsZXQgaiA9IDA7IGogPCA5OyBqKyspIHsNCiAgICAgICAgICBpZiAoYm9hcmRbaV1bal0gPT0gMCkgew0KICAgICAgICAgICAgZm9yIChsZXQgdmFsID0gMTsgdmFsIDw9IDk7IHZhbCsrKSB7DQogICAgICAgICAgICAgIGlmKGNoZWNrZXIoaSxqLHZhbCkpew0KICAgICAgICAgICAgICAgIGJvYXJkW2ldW2pdPXZhbDsNCiAgICAgICAgICAgICAgICBsZXQgbmV4dHNvbD1zb2x2ZU5vdygpOw0KICAgICAgICAgICAgICAgIGlmKCFuZXh0c29sKXsNCiAgICAgICAgICAgICAgICAgIGJvYXJkW2ldW2pdPTA7DQogICAgICAgICAgICAgICAgfQ0KICAgICAgICAgICAgICAgIGVsc2V7DQogICAgICAgICAgICAgICAgICByZXR1cm4gdHJ1ZTsNCiAgICAgICAgICAgICAgICB9DQogICAgICAgICAgICAgIH0NCiAgICAgICAgICAgIH0NCiAgICAgICAgICAgIHJldHVybiBmYWxzZTsNCiAgICAgICAgICB9DQogICAgICAgIH0NCiAgICAgIH0NCiAgICAgIHJldHVybiB0cnVlOw0KICAgIH0NCiAgICBmdW5jdGlvbiBjaGVja2VyKHJvdywgY29sLCB2YWwpIHsNCiAgICAgIGZvciAobGV0IGkgPSAwOyBpIDwgOTsgaSsrKSB7DQogICAgICAgIGlmIChib2FyZFtyb3ddW2ldID09IHZhbCkgew0KICAgICAgICAgIHJldHVybiBmYWxzZTsNCiAgICAgICAgfQ0KICAgICAgICBpZiAoYm9hcmRbaV1bY29sXSA9PSB2YWwpIHsNCiAgICAgICAgICByZXR1cm4gZmFsc2U7DQogICAgICAgIH0NCiAgICAgICAgaWYgKGJvYXJkWzMgKiBNYXRoLmZsb29yKHJvdyAvIDMpICsgTWF0aC5mbG9vcihpIC8gMyldWzMgKiBNYXRoLmZsb29yKGNvbCAvIDMpICsgKGkgJSAzKV0gPT0gdmFsKSB7DQogICAgICAgICAgcmV0dXJuIGZhbHNlOw0KICAgICAgICB9DQogICAgICB9DQogICAgICByZXR1cm4gdHJ1ZTsNCiAgICB9DQogICAgZnVuY3Rpb24gYWZ0ZXJTb2x2ZSgpIHsNCiAgICAgIGNvbnNvbGUubG9nKCJQcmludGVkIFN1Y2Nlc3NmdWxseSIpOw0KICAgICAgZm9yIChsZXQgaSA9IDA7IGkgPCA5OyBpKyspIHsNCiAgICAgICAgZm9yIChsZXQgaiA9IDA7IGogPCA5OyBqKyspIHsNCiAgICAgICAgICBsZXQgb2JqaWQgPSBpICogOSArIGogKyAxOw0KICAgICAgICAgIG9iamlkID0gImF0IiArIG9iamlkOw0KICAgICAgICAgIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKG9iamlkKS52YWx1ZSA9IGJvYXJkW2ldW2pdOw0KICAgICAgICB9DQogICAgICB9DQogICAgfQ0KICA8L3NjcmlwdD4NCjwvaHRtbD4NCg==
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Meta tags added due to entries.js deprecation on July 8th, 2025 -->
+    <meta name="description" content="A Basic Sudoku Game which solves sudoku puzzle if places filled correctly.">
+    <meta name="author" content="Udhav Sharma">
+    <meta name="github" content="UdhavSharma2004">
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ultimate Sudoku</title>
+    <style>
+      * {
+        font-family: "Roboto", sans-serif;
+        text-align: center;
+      }
+      #username {
+        color: rgb(18, 39, 176);
+      }
+      .table {
+        margin-top: 10vh;
+        display: grid;
+        grid-template-columns: 160px 160px 160px;
+        grid-template-rows: 160px 160px 160px;
+        row-gap: 2px;
+        column-gap: 2px;
+        justify-content: center;
+        align-content: center;
+      }
+      .group31,
+      .group32,
+      .group33,
+      .group34,
+      .group35,
+      .group36,
+      .group37,
+      .group38,
+      .group39 {
+        display: grid;
+        grid-template-columns: 50px 50px 50px;
+        grid-template-rows: 50px 50px 50px;
+        border: solid 5px black;
+      }
+      .elem {
+        /* outline:solid 2px red; */
+        border: solid 1px black;
+        font-size: 40px;
+      }
+      .common {
+        display: flex;
+        justify-content: center;
+      }
+      .btn {
+        margin-top: 7vh;
+        /* outline:solid 2px red; */
+        width: 110px;
+        height: 50px;
+        justify-content: center;
+        padding-top: 15px;
+        background-color: green;
+        color: white;
+        font-size: large;
+        border-radius: 10%;
+        transition: all 0.5s ease-out;
+      }
+      .btn:hover {
+        scale: 1.2;
+        transition-delay: 0.01s;
+      }
+      .btn:active {
+        scale: 0.9;
+      }
+      #outputshow {
+        font-size: x-large;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- <input type="number" class="elem" id="at9" placeholder="1-9 or x"> -->
+    <h1>
+      Welcome! <span id="username">User</span>, to Ultimate Suduko Game Solver
+    </h1>
+    <h3 id="outputshow"></h3>
+    <h2>
+      Please do not enter Wrong values.<br>Enter Values ranging from 1-9 in the boxes given below. Enter 0 for values
+      you don't know.
+    </h2>
+    <div class="table">
+      <div class="group31">
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at1"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at2"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at3"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at4"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at5"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at6"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at7"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at8"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at9"
+          maxlength="1"
+          autocomplete="off"
+        />
+      </div>
+      <div class="group32">
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at10"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at11"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at12"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at13"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at14"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at15"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at16"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at17"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at18"
+          maxlength="1"
+          autocomplete="off"
+        />
+      </div>
+      <div class="group33">
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at19"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at20"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at21"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at22"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at23"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at24"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at25"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at26"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at27"
+          maxlength="1"
+          autocomplete="off"
+        />
+      </div>
+      <div class="group34">
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at28"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at29"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at30"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at31"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at32"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at33"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at34"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at35"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at36"
+          maxlength="1"
+          autocomplete="off"
+        />
+      </div>
+      <div class="group35">
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at37"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at38"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at39"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at40"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at41"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at42"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at43"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at44"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at45"
+          maxlength="1"
+          autocomplete="off"
+        />
+      </div>
+      <div class="group36">
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at46"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at47"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at48"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at49"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at50"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at51"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at52"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at53"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at54"
+          maxlength="1"
+          autocomplete="off"
+        />
+      </div>
+      <div class="group37">
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at55"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at56"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at57"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at58"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at59"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at60"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at61"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at62"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at63"
+          maxlength="1"
+          autocomplete="off"
+        />
+      </div>
+      <div class="group38">
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at64"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at65"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at66"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at67"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at68"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at69"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at70"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at71"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at72"
+          maxlength="1"
+          autocomplete="off"
+        />
+      </div>
+      <div class="group39">
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at73"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at74"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at75"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at76"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at77"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at78"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at79"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at80"
+          maxlength="1"
+          autocomplete="off"
+        />
+        <input
+          inputmode="numeric"
+          class="elem"
+          id="at81"
+          maxlength="1"
+          autocomplete="off"
+        />
+      </div>
+    </div>
+    <div class="common">
+      <div class="btn" onclick="reader()">Solve This !!</div>
+    </div>
+  </body>
+  <script>
+    document.getElementById('username').innerText="";
+    let username=prompt("Enter your Name :");
+    document.getElementById('username').innerText=username;
+    let board = new Array(9);
+    for (let i = 0; i < 9; i++) {
+      board[i] = new Array(9);
+    }
+    function reader() {
+      for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+          let objid = i * 9 + j + 1;
+          objid = "at" + objid;
+          let objval=document.getElementById(objid).value;
+          if(objval!="")
+          board[i][j] = objval;
+          else{
+            board[i][j]=0;
+          }
+        }
+      }
+      let newprom = new Promise((resolve, reject) => {
+        let ans = solveNow();
+        if (ans) {
+          console.log("Solved in newprom");
+          resolve();
+        } else {
+          console.log("Error in newprom solve");
+          reject();
+        }
+      });
+      newprom
+      .then(() => {
+        console.log("Solved in newprom");
+        afterSolve();
+        linePrinter(true);
+      })
+      .catch(() => {
+        console.log("Error in newprom solve");
+        linePrinter(false);
+        });
+    }
+
+    function linePrinter(argument) {
+      if (argument) {
+        document.getElementById("outputshow").innerText =
+          "Suduko Game is solved Successfully . You can view the Output below.";
+        document.getElementById("outputshow").style.color = "Green";
+      } else {
+        document.getElementById("outputshow").innerText =
+          "Error in solving the game. Recheck the values and Enter again";
+        document.getElementById("outputshow").style.color = "Red";
+      }
+    }
+    function solveNow() {
+      for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+          if (board[i][j] == 0) {
+            for (let val = 1; val <= 9; val++) {
+              if(checker(i,j,val)){
+                board[i][j]=val;
+                let nextsol=solveNow();
+                if(!nextsol){
+                  board[i][j]=0;
+                }
+                else{
+                  return true;
+                }
+              }
+            }
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+    function checker(row, col, val) {
+      for (let i = 0; i < 9; i++) {
+        if (board[row][i] == val) {
+          return false;
+        }
+        if (board[i][col] == val) {
+          return false;
+        }
+        if (board[3 * Math.floor(row / 3) + Math.floor(i / 3)][3 * Math.floor(col / 3) + (i % 3)] == val) {
+          return false;
+        }
+      }
+      return true;
+    }
+    function afterSolve() {
+      console.log("Printed Successfully");
+      for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+          let objid = i * 9 + j + 1;
+          objid = "at" + objid;
+          document.getElementById(objid).value = board[i][j];
+        }
+      }
+    }
+  </script>
+</html>

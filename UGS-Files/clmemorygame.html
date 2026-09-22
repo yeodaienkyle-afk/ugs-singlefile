@@ -1,1 +1,467 @@
-PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+CiAgICA8IS0tIE1ldGEgdGFncyBhZGRlZCBkdWUgdG8gZW50cmllcy5qcyBkZXByZWNhdGlvbiBvbiBKdWx5IDh0aCwgMjAyNSAtLT4KICAgIDxtZXRhIG5hbWU9InZpZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Utd2lkdGgsIGluaXRpYWwtc2NhbGU9MS4wIj4KICAgIDxtZXRhIG5hbWU9ImRlc2NyaXB0aW9uIiBjb250ZW50PSJTaW1wbGUgbWVtb3J5IHRlc3RpbmcgZ2FtZSB0aGF0IEkgY3JlYXRlZCBkdXJpbmcgYSBmbGlnaHQgd2hpbGUgbXkgbGFwdG9wIGJhdHRlcnkgc2xvd2x5IGFwcHJvYWNoZWQgMCUuIEVhY2ggbGV2ZWwgZ2V0cyBmYXN0ZXIgJmFtcDsgYWRkcyAxIG1vcmUgY29sb3IgaW4gcmFuZG9taXplZCBvcmRlciB0byByZW1lbWJlciEiPgogICAgPG1ldGEgbmFtZT0iYXV0aG9yIiBjb250ZW50PSJTcGVuY2VyIEdyYXkiPgogICAgPG1ldGEgbmFtZT0iZ2l0aHViIiBjb250ZW50PSJzcGVuY2VyZ3JheTk2Ij4KICAgIDxtZXRhIGNoYXJzZXQ9IlVURi04Ij4KICAgIDx0aXRsZT5NZW1vcnkgR2FtZTwvdGl0bGU+CgogICAgPHN0eWxlPgogICAgICAgIGJvZHkgewogICAgICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjNTA2OTcyOwogICAgICAgICAgICBmb250LWZhbWlseTogc2Fucy1zZXJpZjsKICAgICAgICB9CgogICAgICAgIC5jb250YWluZXIgewogICAgICAgICAgICBkaXNwbGF5OiBmbGV4OwogICAgICAgICAgICBmbGV4LWRpcmVjdGlvbjogcm93OwogICAgICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjsKICAgICAgICAgICAgcGFkZGluZzogMCAyMHB4OwogICAgICAgIH0KCiAgICAgICAgLmNvbnRhaW5lci1pbm5lciB7CiAgICAgICAgICAgIHdpZHRoOiAxMDAlOwogICAgICAgICAgICBtYXgtd2lkdGg6IDEwMjRweDsKICAgICAgICB9CgogICAgICAgIC52ZXJ0aWNhbC1zcGFjZS1tYW5hZ2VyIHsKICAgICAgICAgICAgbWluLWhlaWdodDogMTAwdmg7CiAgICAgICAgICAgIGRpc3BsYXk6IGZsZXg7CiAgICAgICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47CiAgICAgICAgICAgIGp1c3RpZnktY29udGVudDogc3BhY2UtYmV0d2VlbjsKICAgICAgICAgICAgZ2FwOiAxcmVtOwogICAgICAgIH0KCiAgICAgICAgLmdhbWUtcGxheWVyIHsKICAgICAgICAgICAgbWF4LXdpZHRoOiAxMDAlOwogICAgICAgICAgICBwYWRkaW5nOiAxcmVtOwogICAgICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjRjBGMEYxOwogICAgICAgICAgICBib3JkZXItcmFkaXVzOiAxNnB4OwogICAgICAgICAgICBvdmVyZmxvdzogaGlkZGVuOwogICAgICAgIH0KCiAgICAgICAgLmdhbWUtdGl0bGUgewogICAgICAgICAgICB0ZXh0LWFsaWduOiBjZW50ZXI7CiAgICAgICAgfQoKICAgICAgICAjZ2FtZS1kZXNjcmlwdGlvbiB7CiAgICAgICAgICAgIHRleHQtYWxpZ246IGNlbnRlcjsKICAgICAgICB9CgogICAgICAgICNzdGFydC1idXR0b24tY29udGFpbmVyIHsKICAgICAgICAgICAgd2lkdGg6IDEwMCU7CiAgICAgICAgICAgIGRpc3BsYXk6IGZsZXg7CiAgICAgICAgICAgIGZsZXgtZGlyZWN0aW9uOiByb3c7CiAgICAgICAgICAgIGp1c3RpZnktY29udGVudDogY2VudGVyOwogICAgICAgICAgICBtYXJnaW4tdG9wOiAycmVtOwogICAgICAgIH0KCiAgICAgICAgLnN0YXJ0LWJ1dHRvbi1jb250YWluZXItZGlzYWJsZWQgewogICAgICAgICAgICBvcGFjaXR5OiAwOwogICAgICAgICAgICBwb2ludGVyLWV2ZW50czogbm9uZTsKICAgICAgICB9CgogICAgICAgICNzdGFydC1idXR0b24gewogICAgICAgICAgICBjb2xvcjogd2hpdGU7CiAgICAgICAgICAgIGJhY2tncm91bmQtY29sb3I6ICMxMUQ2NkQ7CiAgICAgICAgICAgIHBhZGRpbmc6IDFyZW0gMnJlbTsKICAgICAgICAgICAgYm9yZGVyOiBub25lOwogICAgICAgICAgICBib3JkZXItcmFkaXVzOiAxNnB4OwogICAgICAgICAgICBjdXJzb3I6IHBvaW50ZXI7CiAgICAgICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzOwogICAgICAgIH0KCiAgICAgICAgI3N0YXJ0LWJ1dHRvbjpob3ZlciB7CiAgICAgICAgICAgIG9wYWNpdHk6IDAuNzsKICAgICAgICB9CgogICAgICAgICNjdXJyZW50LWxldmVsLWluZm8gewogICAgICAgICAgICBtYXJnaW4tdG9wOiAxcmVtOwogICAgICAgIH0KCiAgICAgICAgI2N1cnJlbnQtbGV2ZWwtbnVtYmVyLWRpc3BsYXkgewogICAgICAgICAgICB0ZXh0LWFsaWduOiBjZW50ZXI7CiAgICAgICAgICAgIG1hcmdpbi1ib3R0b206IDJyZW07CiAgICAgICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzOwogICAgICAgICAgICBvcGFjaXR5OiAwOwogICAgICAgIH0KCiAgICAgICAgLmN1cnJlbnQtbGV2ZWwtbnVtYmVyLWRpc3BsYXktZW5hYmxlZCB7CiAgICAgICAgICAgIG9wYWNpdHk6IDEgIWltcG9ydGFudDsKICAgICAgICB9CgogICAgICAgICNjdXJyZW50LWxldmVsLWd1ZXNzZXMtbWVzc2FnZSB7CiAgICAgICAgICAgIHRleHQtYWxpZ246IGNlbnRlcjsKICAgICAgICAgICAgbWFyZ2luLWJvdHRvbTogMnJlbTsKICAgICAgICB9CgogICAgICAgICNjdXJyZW50LWxldmVsLWd1ZXNzZXMtZGlzcGxheSB7CiAgICAgICAgICAgIGRpc3BsYXk6IGZsZXg7CiAgICAgICAgICAgIGZsZXgtZGlyZWN0aW9uOiByb3c7CiAgICAgICAgICAgIGp1c3RpZnktY29udGVudDogY2VudGVyOwogICAgICAgICAgICBnYXA6IDAuNXJlbTsKICAgICAgICB9CgogICAgICAgIC5jdXJyZW50LWNvcnJlY3QtZ3Vlc3MtcGFuZWwgewogICAgICAgICAgICBmbGV4OiAxOwogICAgICAgICAgICBhc3BlY3QtcmF0aW86IDE7CiAgICAgICAgICAgIG1heC13aWR0aDogMTAlOwogICAgICAgICAgICB0cmFuc2l0aW9uOiBhbGwgMC4yczsKICAgICAgICAgICAgYm9yZGVyLXJhZGl1czogOHB4OwogICAgICAgIH0KCiAgICAgICAgI3JhbmRvbS1wYW5lbC1jb250YWluZXIgewogICAgICAgICAgICB3aWR0aDogMTAwJTsKICAgICAgICAgICAgZGlzcGxheTogZmxleDsKICAgICAgICAgICAgZmxleC1kaXJlY3Rpb246IHJvdzsKICAgICAgICAgICAganVzdGlmeS1jb250ZW50OiBjZW50ZXI7CiAgICAgICAgICAgIG1hcmdpbi10b3A6IDJyZW07CiAgICAgICAgfQoKICAgICAgICAjcmFuZG9tLXBhbmVsIHsKICAgICAgICAgICAgd2lkdGg6IDEwMCU7CiAgICAgICAgICAgIG1heC13aWR0aDogMjAwcHg7CiAgICAgICAgICAgIGFzcGVjdC1yYXRpbzogMTsKICAgICAgICAgICAgYm9yZGVyLXJhZGl1czogMTZweDsKICAgICAgICAgICAgLyp0cmFuc2l0aW9uOiBhbGwgMC4yczsqLwogICAgICAgIH0KCiAgICAgICAgLnJhbmRvbS1wYW5lbC1ub25lIHsKICAgICAgICAgICAgZGlzcGxheTogbm9uZTsKICAgICAgICB9CgogICAgICAgICNjb250cm9scyB7CiAgICAgICAgICAgIG1hcmdpbi10b3A6IDFyZW07CiAgICAgICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzOwogICAgICAgICAgICBvcGFjaXR5OiAwOwogICAgICAgICAgICBwb2ludGVyLWV2ZW50czogbm9uZTsKICAgICAgICB9CgogICAgICAgIC5jb250cm9scy1lbmFibGVkIHsKICAgICAgICAgICAgb3BhY2l0eTogMSAhaW1wb3J0YW50OwogICAgICAgICAgICBwb2ludGVyLWV2ZW50czogYWxsICFpbXBvcnRhbnQ7CiAgICAgICAgfQoKICAgICAgICAjY29udHJvbHMtaW5zdHJ1Y3Rpb25zIHsKICAgICAgICAgICAgdGV4dC1hbGlnbjogY2VudGVyOwogICAgICAgICAgICBtYXJnaW4tYm90dG9tOiAycmVtOwogICAgICAgIH0KCiAgICAgICAgI2NvbnRyb2xzLWJ0bnMtcm93IHsKICAgICAgICAgICAgbWFyZ2luLXRvcDogMXJlbTsKICAgICAgICAgICAgZGlzcGxheTogZmxleDsKICAgICAgICAgICAgZmxleC1kaXJlY3Rpb246IHJvdzsKICAgICAgICAgICAgZ2FwOiAxcmVtOwogICAgICAgIH0KCiAgICAgICAgLmNvbnRyb2xzLWJ0biB7CiAgICAgICAgICAgIGZsZXg6IDE7CiAgICAgICAgICAgIGFzcGVjdC1yYXRpbzogMTsKICAgICAgICAgICAgYm9yZGVyLXJhZGl1czogMTZweDsKICAgICAgICAgICAgY3Vyc29yOiBwb2ludGVyOwogICAgICAgICAgICB0cmFuc2l0aW9uOiBhbGwgMC4yczsKICAgICAgICB9CgogICAgICAgIC5jb250cm9scy1idG46aG92ZXIgewogICAgICAgICAgICBvcGFjaXR5OiAwLjc7CiAgICAgICAgfQoKICAgICAgICAjZ2FtZS1vdmVyLWNvbnRhaW5lciB7CiAgICAgICAgICAgIG1hcmdpbi10b3A6IDFyZW07CiAgICAgICAgICAgIGRpc3BsYXk6IG5vbmU7CiAgICAgICAgfQoKICAgICAgICAuZ2FtZS1vdmVyLWNvbnRhaW5lci12aXNpYmxlIHsKICAgICAgICAgICAgZGlzcGxheTogYmxvY2sgIWltcG9ydGFudDsKICAgICAgICB9CgogICAgICAgICNnYW1lLW92ZXItbWVzc2FnZSB7CiAgICAgICAgICAgIHRleHQtYWxpZ246IGNlbnRlcjsKICAgICAgICAgICAgY29sb3I6ICNGRjQyMzg7CiAgICAgICAgfQoKICAgICAgICAjZ2FtZS1vdmVyLWNvcnJlY3Qtc29sdXRpb24gewogICAgICAgICAgICBkaXNwbGF5OiBmbGV4OwogICAgICAgICAgICBmbGV4LWRpcmVjdGlvbjogcm93OwogICAgICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjsKICAgICAgICAgICAgZ2FwOiAwLjVyZW07CiAgICAgICAgfQoKICAgICAgICAuYmctcmVkIHsKICAgICAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogI0ZGNDIzODsKICAgICAgICB9CgogICAgICAgIC5iZy15ZWxsb3cgewogICAgICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjRkZFRTNGOwogICAgICAgIH0KCiAgICAgICAgLmJnLWdyZWVuIHsKICAgICAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogIzExRDY2RDsKICAgICAgICB9CgogICAgICAgIC5iZy1wdXJwbGUgewogICAgICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjNzg1OUU2OwogICAgICAgIH0KICAgIDwvc3R5bGU+CjwvaGVhZD4KCjxib2R5Pgo8ZGl2PgogICAgPGRpdiBjbGFzcz0iY29udGFpbmVyIj4KICAgICAgICA8ZGl2IGNsYXNzPSJjb250YWluZXItaW5uZXIiPgogICAgICAgICAgICA8ZGl2IGNsYXNzPSJ2ZXJ0aWNhbC1zcGFjZS1tYW5hZ2VyIj4KICAgICAgICAgICAgICAgIDxkaXY+CiAgICAgICAgICAgICAgICA8L2Rpdj4KCiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPSJnYW1lLXBsYXllciI+CiAgICAgICAgICAgICAgICAgICAgPGgxIGNsYXNzPSJnYW1lLXRpdGxlIj5NZW1vcnkgR2FtZTwvaDE+CiAgICAgICAgICAgICAgICAgICAgPGg1IGlkPSJnYW1lLWRlc2NyaXB0aW9uIj4KICAgICAgICAgICAgICAgICAgICAgICAgQ2xpY2sgIlN0YXJ0IEdhbWUiIGFuZCB0cnkgdG8gcmVtZW1iZXIgdGhlIGNvbG9ycyB5b3Ugc2VlITxici8+PGJyLz4KICAgICAgICAgICAgICAgICAgICAgICAgRWFjaCBsZXZlbCBpcyByYW5kb21pemVkIGZyb20gdGhlIHBydmV2aW91cyAmIGdldHMgZmFzdGVyICYgZmFzdGVyIQogICAgICAgICAgICAgICAgICAgIDwvaDU+CgogICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9InN0YXJ0LWJ1dHRvbi1jb250YWluZXIiPgogICAgICAgICAgICAgICAgICAgICAgICA8YnV0dG9uIGlkPSJzdGFydC1idXR0b24iPgogICAgICAgICAgICAgICAgICAgICAgICAgICAgU3RhcnQgR2FtZQogICAgICAgICAgICAgICAgICAgICAgICA8L2J1dHRvbj4KICAgICAgICAgICAgICAgICAgICA8L2Rpdj4KCiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD0iY3VycmVudC1sZXZlbC1pbmZvIj4KICAgICAgICAgICAgICAgICAgICAgICAgPGRpdj4KICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxoMyBpZD0iY3VycmVudC1sZXZlbC1udW1iZXItZGlzcGxheSI+PC9oMz4KICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+CgogICAgICAgICAgICAgICAgICAgICAgICA8ZGl2PgogICAgICAgICAgICAgICAgICAgICAgICAgICAgPGgzIGlkPSJjdXJyZW50LWxldmVsLWd1ZXNzZXMtbWVzc2FnZSI+PC9oMz4KCiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPSJjdXJyZW50LWxldmVsLWd1ZXNzZXMtZGlzcGxheSI+CgogICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgICAgICAgICAgIDwvZGl2PgoKICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPSJyYW5kb20tcGFuZWwtY29udGFpbmVyIj4KICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD0icmFuZG9tLXBhbmVsIj4KICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgICAgICAgICAgPC9kaXY+CgogICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9ImNvbnRyb2xzIj4KICAgICAgICAgICAgICAgICAgICAgICAgPGRpdj4KICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxoMyBpZD0iY29udHJvbHMtaW5zdHJ1Y3Rpb25zIj4KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBDbGljayB0aGUgY29sb3JzIGluIHRoZSBvcmRlciB0aGV5IGFwcGVhcmVkCiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2gzPgogICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj4KCiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9ImNvbnRyb2xzLWJ0bnMtcm93Ij4KICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9ImNvbnRyb2xzLWJ0bi1yZWQiIGNsYXNzPSJjb250cm9scy1idG4gYmctcmVkIj4KICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PgoKICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9ImNvbnRyb2xzLWJ0bi15ZWxsb3ciIGNsYXNzPSJjb250cm9scy1idG4gYmcteWVsbG93Ij4KICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PgoKICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9ImNvbnRyb2xzLWJ0bi1ncmVlbiIgY2xhc3M9ImNvbnRyb2xzLWJ0biBiZy1ncmVlbiI+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj4KCiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPSJjb250cm9scy1idG4tcHVycGxlIiBjbGFzcz0iY29udHJvbHMtYnRuIGJnLXB1cnBsZSI+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgICAgICAgICAgPC9kaXY+CgogICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9ImdhbWUtb3Zlci1jb250YWluZXIiPgogICAgICAgICAgICAgICAgICAgICAgICA8aDIgaWQ9ImdhbWUtb3Zlci1tZXNzYWdlIj4KICAgICAgICAgICAgICAgICAgICAgICAgICAgIEdhbWUgT3ZlciE8YnIvPjxici8+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICBDbGljayAiU3RhcnQgR2FtZSIgdG8gcGxheSBhZ2Fpbi48YnIvPjxici8+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICBDb3JyZWN0IHNvbHV0aW9uIGJlbG93OgogICAgICAgICAgICAgICAgICAgICAgICA8L2gyPgoKICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD0iZ2FtZS1vdmVyLWNvcnJlY3Qtc29sdXRpb24iPgoKICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgICAgICA8L2Rpdj4KCiAgICAgICAgICAgICAgICA8ZGl2PgogICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgIDwvZGl2PgogICAgPC9kaXY+CjwvZGl2PgoKPHNjcmlwdD4KICAgIC8qIEkgd3JvdGUgdGhpcyBhbGwgZHVyaW5nIGEgZmxpZ2h0LCBzbyBkb24ndCBjcml0aXF1ZSBpdCB0b28gaGFyZCEgKi8KCiAgICBjb25zb2xlLmxvZygiTm90IHRyeWluZyB0byBjaGVhdCwgYXJlIHlvdT8iKTsKCiAgICBsZXQgbGV2ZWxGbGFzaGluZ0luUHJvZ3Jlc3MgPSBmYWxzZTsKICAgIGxldCBsZXZlbCA9IDA7CiAgICBjb25zdCBiYXNlUm91bmRzID0gNDsKICAgIGNvbnN0IGJhc2VUaW1lID0gMTAwMDsKICAgIGNvbnN0IGxldmVsU3BlZWRNb2QgPSA2NTsKCiAgICBsZXQgY3VycmVudEJnOwogICAgbGV0IGN1cnJlbnRMZXZlbEJncyA9IFtdOwogICAgbGV0IGN1cnJlbnRMZXZlbEd1ZXNzZXMgPSBbXTsKICAgIGxldCBjdXJyZW50SXRlcmF0aW9uID0gMDsKCiAgICBjb25zdCBzdGFydEJ1dHRvbkNvbnRhaW5lciA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJzdGFydC1idXR0b24tY29udGFpbmVyIik7CiAgICBjb25zdCBzdGFydEJ1dHRvbiA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJzdGFydC1idXR0b24iKTsKICAgIGNvbnN0IGN1cnJlbnRMZXZlbE51bWJlckRpc3BsYXkgPSBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgiY3VycmVudC1sZXZlbC1udW1iZXItZGlzcGxheSIpOwogICAgY29uc3QgY3VycmVudExldmVsR3Vlc3Nlc01lc3NhZ2UgPSBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgiY3VycmVudC1sZXZlbC1ndWVzc2VzLW1lc3NhZ2UiKTsKICAgIGNvbnN0IGN1cnJlbnRMZXZlbEd1ZXNzZXNEaXNwbGF5ID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImN1cnJlbnQtbGV2ZWwtZ3Vlc3Nlcy1kaXNwbGF5Iik7CiAgICBjb25zdCByYW5kb21QYW5lbCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJyYW5kb20tcGFuZWwiKTsKICAgIGNvbnN0IGNvbnRyb2xzID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImNvbnRyb2xzIik7CiAgICBjb25zdCBnYW1lT3ZlckNvbnRhaW5lciA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJnYW1lLW92ZXItY29udGFpbmVyIik7CiAgICBjb25zdCBnYW1lT3ZlckNvcnJlY3RTb2x1dGlvbiA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJnYW1lLW92ZXItY29ycmVjdC1zb2x1dGlvbiIpOwoKICAgIGNvbnN0IGNvbnRyb2xzQnRuUmVkID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImNvbnRyb2xzLWJ0bi1yZWQiKTsKICAgIGNvbnN0IGNvbnRyb2xzQnRuWWVsbG93ID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImNvbnRyb2xzLWJ0bi15ZWxsb3ciKTsKICAgIGNvbnN0IGNvbnRyb2xzQnRuR3JlZW4gPSBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgiY29udHJvbHMtYnRuLWdyZWVuIik7CiAgICBjb25zdCBjb250cm9sc0J0blB1cnBsZSA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJjb250cm9scy1idG4tcHVycGxlIik7CgogICAgc3RhcnRCdXR0b24uYWRkRXZlbnRMaXN0ZW5lcigiY2xpY2siLCBzdGFydExldmVsKTsKCiAgICBjb250cm9sc0J0blJlZC5hZGRFdmVudExpc3RlbmVyKCJjbGljayIsIGd1ZXNzQ29sb3IoImJnLXJlZCIpKTsKICAgIGNvbnRyb2xzQnRuWWVsbG93LmFkZEV2ZW50TGlzdGVuZXIoImNsaWNrIiwgZ3Vlc3NDb2xvcigiYmcteWVsbG93IikpOwogICAgY29udHJvbHNCdG5HcmVlbi5hZGRFdmVudExpc3RlbmVyKCJjbGljayIsIGd1ZXNzQ29sb3IoImJnLWdyZWVuIikpOwogICAgY29udHJvbHNCdG5QdXJwbGUuYWRkRXZlbnRMaXN0ZW5lcigiY2xpY2siLCBndWVzc0NvbG9yKCJiZy1wdXJwbGUiKSk7CgogICAgZnVuY3Rpb24gZ2V0UmFuZG9tTnVtYmVySW5jbHVzaXZlKGxvd2VyLCB1cHBlcikgewogICAgICAgIHJldHVybiBNYXRoLmZsb29yKE1hdGgucmFuZG9tKCkgKiAodXBwZXIgKyAxKSAtIGxvd2VyKTsKICAgIH0KCiAgICAvLyBNYXAgdGhlIG51bWJlcnMgdG8gY2xhc3NlcyBmb3IgdGhlIHJhbmRvbSBwYW5lbAogICAgZnVuY3Rpb24gZ2V0Q2xhc3NOYW1lRnJvbU51bWJlcihudW1iZXIpIHsKICAgICAgICBzd2l0Y2gobnVtYmVyKSB7CiAgICAgICAgICAgIGNhc2UgMDoKICAgICAgICAgICAgICAgIHJldHVybiAiYmctcmVkIjsKICAgICAgICAgICAgY2FzZSAxOgogICAgICAgICAgICAgICAgcmV0dXJuICJiZy15ZWxsb3ciOwogICAgICAgICAgICBjYXNlIDI6CiAgICAgICAgICAgICAgICByZXR1cm4gImJnLWdyZWVuIjsKICAgICAgICAgICAgY2FzZSAzOgogICAgICAgICAgICBkZWZhdWx0OgogICAgICAgICAgICAgICAgcmV0dXJuICJiZy1wdXJwbGUiOwogICAgICAgIH0KICAgIH0KCiAgICBmdW5jdGlvbiBzdGFydExldmVsKCkgewogICAgICAgIGlmIChsZXZlbEZsYXNoaW5nSW5Qcm9ncmVzcykgewogICAgICAgICAgICByZXR1cm47CiAgICAgICAgfQoKICAgICAgICBsZXZlbEZsYXNoaW5nSW5Qcm9ncmVzcyA9IHRydWU7CiAgICAgICAgLy8gY2xlYXIgdGhlIGNvcnJlY3QgZ3Vlc3NlcyBzZWN0aW9uCiAgICAgICAgY3VycmVudExldmVsR3Vlc3Nlc01lc3NhZ2UuaW5uZXJUZXh0ID0gIiI7CiAgICAgICAgY3VycmVudExldmVsR3Vlc3Nlc0Rpc3BsYXkuaW5uZXJIVE1MID0gIiI7CiAgICAgICAgc3RhcnRCdXR0b25Db250YWluZXIuY2xhc3NMaXN0LmFkZCgic3RhcnQtYnV0dG9uLWNvbnRhaW5lci1kaXNhYmxlZCIpOwogICAgICAgIGdhbWVPdmVyQ29udGFpbmVyLmNsYXNzTGlzdC5yZW1vdmUoImdhbWUtb3Zlci1jb250YWluZXItdmlzaWJsZSIpOwogICAgICAgIHJhbmRvbVBhbmVsLmNsYXNzTGlzdC5yZW1vdmUoInJhbmRvbS1wYW5lbC1ub25lIik7CiAgICAgICAgY3VycmVudExldmVsTnVtYmVyRGlzcGxheS5pbm5lclRleHQgPSBgQ3VycmVudCBMZXZlbDogJHtsZXZlbCArIDF9YDsKICAgICAgICBjdXJyZW50TGV2ZWxOdW1iZXJEaXNwbGF5LmNsYXNzTGlzdC5hZGQoImN1cnJlbnQtbGV2ZWwtbnVtYmVyLWRpc3BsYXktZW5hYmxlZCIpCgogICAgICAgIGNvbnN0IGludGVydmFsU3BlZWQgPSBiYXNlVGltZSAtIChsZXZlbCAqIGxldmVsU3BlZWRNb2QgKiAoKChsZXZlbCAqIDEwMCkgLyAxMDAwKSArIDEpKTsKCiAgICAgICAgbGV0IHdvcmtpbmdDbGFzc05hbWU7CgogICAgICAgIC8vIFN0YXJ0IHRoZSBsZXZlbCwgb3IgImZsYXNoaW5nIgogICAgICAgIGNvbnN0IGZsYXNoaW5nSW50ZXJ2YWwgPSAgc2V0SW50ZXJ2YWwoKCkgPT4gewogICAgICAgICAgICBpZiAod29ya2luZ0NsYXNzTmFtZSkgewogICAgICAgICAgICAgICAgcmFuZG9tUGFuZWwuY2xhc3NMaXN0LnJlbW92ZSh3b3JraW5nQ2xhc3NOYW1lKTsgLy8gUmVtb3ZlIHRoZSBwcmV2aW91cyBjb2xvciBvZiB0aGUgZmxhc2hpbmcgZGl2CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIHdvcmtpbmdDbGFzc05hbWUgPSBnZXROZXdDbGFzcygpOyAvLyBnZW5lcmF0ZSBhIG5ldyBjbGFzcwogICAgICAgICAgICBjdXJyZW50QmcgPSB3b3JraW5nQ2xhc3NOYW1lOyAvLyBzYXZlIHRoZSBuZXcgY2xhc3MgZm9yIHJlZmVyZW5jZQogICAgICAgICAgICBjdXJyZW50TGV2ZWxCZ3MucHVzaChjdXJyZW50QmcpOwogICAgICAgICAgICByYW5kb21QYW5lbC5jbGFzc0xpc3QuYWRkKHdvcmtpbmdDbGFzc05hbWUpOyAvLyBhZGQgdGhlIG5ldyBjbGFzcyB0byB0aGUgZmxhc2hpbmcgZGl2CiAgICAgICAgICAgIGN1cnJlbnRJdGVyYXRpb24rKzsKCiAgICAgICAgICAgIGlmIChjdXJyZW50SXRlcmF0aW9uID09PSBsZXZlbCArIGJhc2VSb3VuZHMpIHsKICAgICAgICAgICAgICAgIGNsZWFySW50ZXJ2YWwoZmxhc2hpbmdJbnRlcnZhbCk7CiAgICAgICAgICAgICAgICBzZXRUaW1lb3V0KCgpID0+IHsKICAgICAgICAgICAgICAgICAgICBsZXZlbEZsYXNoaW5nSW5Qcm9ncmVzcyA9IGZhbHNlOwogICAgICAgICAgICAgICAgICAgIHByZXBhcmVQbGF5aW5nRmllbGRGb3JMZXZlbCgpOwogICAgICAgICAgICAgICAgfSwgaW50ZXJ2YWxTcGVlZCk7CiAgICAgICAgICAgIH0KICAgICAgICB9LCBpbnRlcnZhbFNwZWVkKTsgLy8gaW5jcmVtZW50cyBhIGxpdHRsZSBiaXQgZmFzdGVyIGVhY2ggbGV2ZWwKICAgIH0KCiAgICBmdW5jdGlvbiBwcmVwYXJlUGxheWluZ0ZpZWxkRm9yTGV2ZWwoKSB7CiAgICAgICAgLy8gY29uc29sZS5sb2coY3VycmVudExldmVsQmdzKTsKICAgICAgICByYW5kb21QYW5lbC5jbGFzc0xpc3QuZm9yRWFjaChjID0+IHJhbmRvbVBhbmVsLmNsYXNzTGlzdC5yZW1vdmUoYykpOwogICAgICAgIHJhbmRvbVBhbmVsLmNsYXNzTGlzdC5hZGQoInJhbmRvbS1wYW5lbC1ub25lIik7CiAgICAgICAgY29udHJvbHMuY2xhc3NMaXN0LmFkZCgiY29udHJvbHMtZW5hYmxlZCIpOwogICAgICAgIGN1cnJlbnRMZXZlbEd1ZXNzZXNNZXNzYWdlLmlubmVyVGV4dCA9IGdldEN1cnJlbnRDb3JyZWN0R3Vlc3Nlc01lc3NhZ2UoKTsKICAgIH0KCiAgICBmdW5jdGlvbiBndWVzc0NvbG9yKGNvbG9yKSB7CiAgICAgICAgcmV0dXJuICgpID0+IHsKICAgICAgICAgICAgaWYgKGNvbG9yID09PSBjdXJyZW50TGV2ZWxCZ3NbY3VycmVudExldmVsR3Vlc3Nlcy5sZW5ndGhdKSB7CiAgICAgICAgICAgICAgICBjdXJyZW50TGV2ZWxHdWVzc2VzLnB1c2goY29sb3IpOwogICAgICAgICAgICAgICAgY3VycmVudExldmVsR3Vlc3Nlc01lc3NhZ2UuaW5uZXJUZXh0ID0gZ2V0Q3VycmVudENvcnJlY3RHdWVzc2VzTWVzc2FnZSgpOwogICAgICAgICAgICAgICAgZ2V0TmV3Q3VycmVudENvcnJlY3RHdWVzc2VzRGlzcGxheShjb2xvciwgY3VycmVudExldmVsR3Vlc3Nlc0Rpc3BsYXkpOwoKICAgICAgICAgICAgICAgIGlmIChjdXJyZW50TGV2ZWxHdWVzc2VzLmxlbmd0aCA9PT0gY3VycmVudExldmVsQmdzLmxlbmd0aCkgewogICAgICAgICAgICAgICAgICAgIC8vIGNsZWFyIHRoZSBjb250cm9scwogICAgICAgICAgICAgICAgICAgIGNvbnRyb2xzLmNsYXNzTGlzdC5yZW1vdmUoImNvbnRyb2xzLWVuYWJsZWQiKTsKCiAgICAgICAgICAgICAgICAgICAgc2V0VGltZW91dCgoKSA9PiB7CiAgICAgICAgICAgICAgICAgICAgICAgIC8vIHJlc2V0IGEgd2hvbGUgdG9uIG9mIHZhcmlhYmxlcwogICAgICAgICAgICAgICAgICAgICAgICBjdXJyZW50QmcgPSBudWxsOwogICAgICAgICAgICAgICAgICAgICAgICBjdXJyZW50TGV2ZWxCZ3MgPSBbXTsKICAgICAgICAgICAgICAgICAgICAgICAgY3VycmVudExldmVsR3Vlc3NlcyA9IFtdOwogICAgICAgICAgICAgICAgICAgICAgICBjdXJyZW50SXRlcmF0aW9uID0gMDsKCiAgICAgICAgICAgICAgICAgICAgICAgIC8vIGNsZWFyIHRoZSBjb3JyZWN0IGd1ZXNzZXMgc2VjdGlvbgogICAgICAgICAgICAgICAgICAgICAgICBjdXJyZW50TGV2ZWxHdWVzc2VzTWVzc2FnZS5pbm5lclRleHQgPSAiIjsKICAgICAgICAgICAgICAgICAgICAgICAgY3VycmVudExldmVsR3Vlc3Nlc0Rpc3BsYXkuaW5uZXJIVE1MID0gIiI7CgogICAgICAgICAgICAgICAgICAgICAgICAvLyBpbmNyZW1lbnQgdGhlIGxldmVsCiAgICAgICAgICAgICAgICAgICAgICAgIGxldmVsKys7CgogICAgICAgICAgICAgICAgICAgICAgICAvLyBiZWdpbiBhZ2FpbgogICAgICAgICAgICAgICAgICAgICAgICBzdGFydExldmVsKCk7CiAgICAgICAgICAgICAgICAgICAgfSwgMTAwMCk7CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH0gZWxzZSB7CiAgICAgICAgICAgICAgICBjb25zb2xlLmxvZygieW91IGxvc2UhIChCdXQgdGhlcmUncyByZWFsbHkgbm8gd2lubmluZywgaXMgdGhlcmU/KSIpOwogICAgICAgICAgICAgICAgZ2FtZU92ZXJDb250YWluZXIuY2xhc3NMaXN0LmFkZCgiZ2FtZS1vdmVyLWNvbnRhaW5lci12aXNpYmxlIik7CiAgICAgICAgICAgICAgICByYW5kb21QYW5lbC5jbGFzc0xpc3QuYWRkKCJyYW5kb20tcGFuZWwtbm9uZSIpOwogICAgICAgICAgICAgICAgY3VycmVudExldmVsQmdzLmZvckVhY2goYyA9PiBnZXROZXdDdXJyZW50Q29ycmVjdEd1ZXNzZXNEaXNwbGF5KGMsIGdhbWVPdmVyQ29ycmVjdFNvbHV0aW9uKSk7CiAgICAgICAgICAgICAgICBjb250cm9scy5jbGFzc0xpc3QucmVtb3ZlKCJjb250cm9scy1lbmFibGVkIik7CiAgICAgICAgICAgICAgICBzdGFydEJ1dHRvbkNvbnRhaW5lci5jbGFzc0xpc3QucmVtb3ZlKCJzdGFydC1idXR0b24tY29udGFpbmVyLWRpc2FibGVkIik7CiAgICAgICAgICAgICAgICBjdXJyZW50QmcgPSBudWxsOwogICAgICAgICAgICAgICAgY3VycmVudExldmVsQmdzID0gW107CiAgICAgICAgICAgICAgICBjdXJyZW50TGV2ZWxHdWVzc2VzID0gW107CiAgICAgICAgICAgICAgICBjdXJyZW50SXRlcmF0aW9uID0gMDsKICAgICAgICAgICAgICAgIGxldmVsID0gMDsKICAgICAgICAgICAgfQogICAgICAgIH0KICAgIH0KCiAgICBmdW5jdGlvbiBnZXRDdXJyZW50Q29ycmVjdEd1ZXNzZXNNZXNzYWdlKCkgewogICAgICAgIHJldHVybiBgQ3VycmVudCBDb3JyZWN0IEd1ZXNzZXM6ICR7Y3VycmVudExldmVsR3Vlc3Nlcy5sZW5ndGh9LyR7Y3VycmVudExldmVsQmdzLmxlbmd0aH1gOwogICAgfQoKICAgIGZ1bmN0aW9uIGdldE5ld0N1cnJlbnRDb3JyZWN0R3Vlc3Nlc0Rpc3BsYXkoY2xhc3NOYW1lLCBwYXJlbnQpIHsKICAgICAgICBjb25zdCBuZXdQYW5lbCA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoImRpdiIpOwogICAgICAgIG5ld1BhbmVsLmNsYXNzTGlzdC5hZGQoImN1cnJlbnQtY29ycmVjdC1ndWVzcy1wYW5lbCIpOwogICAgICAgIG5ld1BhbmVsLmNsYXNzTGlzdC5hZGQoY2xhc3NOYW1lKTsKICAgICAgICBwYXJlbnQuYXBwZW5kKG5ld1BhbmVsKTsKICAgIH0KCiAgICBmdW5jdGlvbiBnZXROZXdDbGFzcygpIHsKICAgICAgICBjb25zdCBjbGFzc051bWJlciA9IGdldFJhbmRvbU51bWJlckluY2x1c2l2ZSgwLCAzKTsKICAgICAgICBsZXQgd29ya2luZ0NsYXNzTmFtZSA9IGdldENsYXNzTmFtZUZyb21OdW1iZXIoY2xhc3NOdW1iZXIpOwoKICAgICAgICBpZiAoY3VycmVudEJnID09PSB3b3JraW5nQ2xhc3NOYW1lKSB7CiAgICAgICAgICAgIHdvcmtpbmdDbGFzc05hbWUgPSBnZXROZXdDbGFzcygpOwogICAgICAgIH0KCiAgICAgICAgcmV0dXJuIHdvcmtpbmdDbGFzc05hbWU7CiAgICB9Cjwvc2NyaXB0Pgo8L2JvZHk+CjwvaHRtbD4K
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta tags added due to entries.js deprecation on July 8th, 2025 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Simple memory testing game that I created during a flight while my laptop battery slowly approached 0%. Each level gets faster &amp; adds 1 more color in randomized order to remember!">
+    <meta name="author" content="Spencer Gray">
+    <meta name="github" content="spencergray96">
+    <meta charset="UTF-8">
+    <title>Memory Game</title>
+
+    <style>
+        body {
+            background-color: #506972;
+            font-family: sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            padding: 0 20px;
+        }
+
+        .container-inner {
+            width: 100%;
+            max-width: 1024px;
+        }
+
+        .vertical-space-manager {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .game-player {
+            max-width: 100%;
+            padding: 1rem;
+            background-color: #F0F0F1;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .game-title {
+            text-align: center;
+        }
+
+        #game-description {
+            text-align: center;
+        }
+
+        #start-button-container {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .start-button-container-disabled {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #start-button {
+            color: white;
+            background-color: #11D66D;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #start-button:hover {
+            opacity: 0.7;
+        }
+
+        #current-level-info {
+            margin-top: 1rem;
+        }
+
+        #current-level-number-display {
+            text-align: center;
+            margin-bottom: 2rem;
+            transition: all 0.2s;
+            opacity: 0;
+        }
+
+        .current-level-number-display-enabled {
+            opacity: 1 !important;
+        }
+
+        #current-level-guesses-message {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        #current-level-guesses-display {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .current-correct-guess-panel {
+            flex: 1;
+            aspect-ratio: 1;
+            max-width: 10%;
+            transition: all 0.2s;
+            border-radius: 8px;
+        }
+
+        #random-panel-container {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        #random-panel {
+            width: 100%;
+            max-width: 200px;
+            aspect-ratio: 1;
+            border-radius: 16px;
+            /*transition: all 0.2s;*/
+        }
+
+        .random-panel-none {
+            display: none;
+        }
+
+        #controls {
+            margin-top: 1rem;
+            transition: all 0.2s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .controls-enabled {
+            opacity: 1 !important;
+            pointer-events: all !important;
+        }
+
+        #controls-instructions {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        #controls-btns-row {
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: row;
+            gap: 1rem;
+        }
+
+        .controls-btn {
+            flex: 1;
+            aspect-ratio: 1;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .controls-btn:hover {
+            opacity: 0.7;
+        }
+
+        #game-over-container {
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .game-over-container-visible {
+            display: block !important;
+        }
+
+        #game-over-message {
+            text-align: center;
+            color: #FF4238;
+        }
+
+        #game-over-correct-solution {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .bg-red {
+            background-color: #FF4238;
+        }
+
+        .bg-yellow {
+            background-color: #FFEE3F;
+        }
+
+        .bg-green {
+            background-color: #11D66D;
+        }
+
+        .bg-purple {
+            background-color: #7859E6;
+        }
+    </style>
+</head>
+
+<body>
+<div>
+    <div class="container">
+        <div class="container-inner">
+            <div class="vertical-space-manager">
+                <div>
+                </div>
+
+                <div class="game-player">
+                    <h1 class="game-title">Memory Game</h1>
+                    <h5 id="game-description">
+                        Click "Start Game" and try to remember the colors you see!<br/><br/>
+                        Each level is randomized from the prvevious & gets faster & faster!
+                    </h5>
+
+                    <div id="start-button-container">
+                        <button id="start-button">
+                            Start Game
+                        </button>
+                    </div>
+
+                    <div id="current-level-info">
+                        <div>
+                            <h3 id="current-level-number-display"></h3>
+                        </div>
+
+                        <div>
+                            <h3 id="current-level-guesses-message"></h3>
+
+                            <div id="current-level-guesses-display">
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="random-panel-container">
+                        <div id="random-panel">
+                        </div>
+                    </div>
+
+                    <div id="controls">
+                        <div>
+                            <h3 id="controls-instructions">
+                                Click the colors in the order they appeared
+                            </h3>
+                        </div>
+
+                        <div id="controls-btns-row">
+                            <div id="controls-btn-red" class="controls-btn bg-red">
+                            </div>
+
+                            <div id="controls-btn-yellow" class="controls-btn bg-yellow">
+                            </div>
+
+                            <div id="controls-btn-green" class="controls-btn bg-green">
+                            </div>
+
+                            <div id="controls-btn-purple" class="controls-btn bg-purple">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="game-over-container">
+                        <h2 id="game-over-message">
+                            Game Over!<br/><br/>
+                            Click "Start Game" to play again.<br/><br/>
+                            Correct solution below:
+                        </h2>
+
+                        <div id="game-over-correct-solution">
+
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* I wrote this all during a flight, so don't critique it too hard! */
+
+    console.log("Not trying to cheat, are you?");
+
+    let levelFlashingInProgress = false;
+    let level = 0;
+    const baseRounds = 4;
+    const baseTime = 1000;
+    const levelSpeedMod = 65;
+
+    let currentBg;
+    let currentLevelBgs = [];
+    let currentLevelGuesses = [];
+    let currentIteration = 0;
+
+    const startButtonContainer = document.getElementById("start-button-container");
+    const startButton = document.getElementById("start-button");
+    const currentLevelNumberDisplay = document.getElementById("current-level-number-display");
+    const currentLevelGuessesMessage = document.getElementById("current-level-guesses-message");
+    const currentLevelGuessesDisplay = document.getElementById("current-level-guesses-display");
+    const randomPanel = document.getElementById("random-panel");
+    const controls = document.getElementById("controls");
+    const gameOverContainer = document.getElementById("game-over-container");
+    const gameOverCorrectSolution = document.getElementById("game-over-correct-solution");
+
+    const controlsBtnRed = document.getElementById("controls-btn-red");
+    const controlsBtnYellow = document.getElementById("controls-btn-yellow");
+    const controlsBtnGreen = document.getElementById("controls-btn-green");
+    const controlsBtnPurple = document.getElementById("controls-btn-purple");
+
+    startButton.addEventListener("click", startLevel);
+
+    controlsBtnRed.addEventListener("click", guessColor("bg-red"));
+    controlsBtnYellow.addEventListener("click", guessColor("bg-yellow"));
+    controlsBtnGreen.addEventListener("click", guessColor("bg-green"));
+    controlsBtnPurple.addEventListener("click", guessColor("bg-purple"));
+
+    function getRandomNumberInclusive(lower, upper) {
+        return Math.floor(Math.random() * (upper + 1) - lower);
+    }
+
+    // Map the numbers to classes for the random panel
+    function getClassNameFromNumber(number) {
+        switch(number) {
+            case 0:
+                return "bg-red";
+            case 1:
+                return "bg-yellow";
+            case 2:
+                return "bg-green";
+            case 3:
+            default:
+                return "bg-purple";
+        }
+    }
+
+    function startLevel() {
+        if (levelFlashingInProgress) {
+            return;
+        }
+
+        levelFlashingInProgress = true;
+        // clear the correct guesses section
+        currentLevelGuessesMessage.innerText = "";
+        currentLevelGuessesDisplay.innerHTML = "";
+        startButtonContainer.classList.add("start-button-container-disabled");
+        gameOverContainer.classList.remove("game-over-container-visible");
+        randomPanel.classList.remove("random-panel-none");
+        currentLevelNumberDisplay.innerText = `Current Level: ${level + 1}`;
+        currentLevelNumberDisplay.classList.add("current-level-number-display-enabled")
+
+        const intervalSpeed = baseTime - (level * levelSpeedMod * (((level * 100) / 1000) + 1));
+
+        let workingClassName;
+
+        // Start the level, or "flashing"
+        const flashingInterval =  setInterval(() => {
+            if (workingClassName) {
+                randomPanel.classList.remove(workingClassName); // Remove the previous color of the flashing div
+            }
+
+            workingClassName = getNewClass(); // generate a new class
+            currentBg = workingClassName; // save the new class for reference
+            currentLevelBgs.push(currentBg);
+            randomPanel.classList.add(workingClassName); // add the new class to the flashing div
+            currentIteration++;
+
+            if (currentIteration === level + baseRounds) {
+                clearInterval(flashingInterval);
+                setTimeout(() => {
+                    levelFlashingInProgress = false;
+                    preparePlayingFieldForLevel();
+                }, intervalSpeed);
+            }
+        }, intervalSpeed); // increments a little bit faster each level
+    }
+
+    function preparePlayingFieldForLevel() {
+        // console.log(currentLevelBgs);
+        randomPanel.classList.forEach(c => randomPanel.classList.remove(c));
+        randomPanel.classList.add("random-panel-none");
+        controls.classList.add("controls-enabled");
+        currentLevelGuessesMessage.innerText = getCurrentCorrectGuessesMessage();
+    }
+
+    function guessColor(color) {
+        return () => {
+            if (color === currentLevelBgs[currentLevelGuesses.length]) {
+                currentLevelGuesses.push(color);
+                currentLevelGuessesMessage.innerText = getCurrentCorrectGuessesMessage();
+                getNewCurrentCorrectGuessesDisplay(color, currentLevelGuessesDisplay);
+
+                if (currentLevelGuesses.length === currentLevelBgs.length) {
+                    // clear the controls
+                    controls.classList.remove("controls-enabled");
+
+                    setTimeout(() => {
+                        // reset a whole ton of variables
+                        currentBg = null;
+                        currentLevelBgs = [];
+                        currentLevelGuesses = [];
+                        currentIteration = 0;
+
+                        // clear the correct guesses section
+                        currentLevelGuessesMessage.innerText = "";
+                        currentLevelGuessesDisplay.innerHTML = "";
+
+                        // increment the level
+                        level++;
+
+                        // begin again
+                        startLevel();
+                    }, 1000);
+                }
+            } else {
+                console.log("you lose! (But there's really no winning, is there?)");
+                gameOverContainer.classList.add("game-over-container-visible");
+                randomPanel.classList.add("random-panel-none");
+                currentLevelBgs.forEach(c => getNewCurrentCorrectGuessesDisplay(c, gameOverCorrectSolution));
+                controls.classList.remove("controls-enabled");
+                startButtonContainer.classList.remove("start-button-container-disabled");
+                currentBg = null;
+                currentLevelBgs = [];
+                currentLevelGuesses = [];
+                currentIteration = 0;
+                level = 0;
+            }
+        }
+    }
+
+    function getCurrentCorrectGuessesMessage() {
+        return `Current Correct Guesses: ${currentLevelGuesses.length}/${currentLevelBgs.length}`;
+    }
+
+    function getNewCurrentCorrectGuessesDisplay(className, parent) {
+        const newPanel = document.createElement("div");
+        newPanel.classList.add("current-correct-guess-panel");
+        newPanel.classList.add(className);
+        parent.append(newPanel);
+    }
+
+    function getNewClass() {
+        const classNumber = getRandomNumberInclusive(0, 3);
+        let workingClassName = getClassNameFromNumber(classNumber);
+
+        if (currentBg === workingClassName) {
+            workingClassName = getNewClass();
+        }
+
+        return workingClassName;
+    }
+</script>
+</body>
+</html>
