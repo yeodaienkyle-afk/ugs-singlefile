@@ -1,4 +1,4 @@
-// LAST GAME IS dungeons and degenerate gamble
+// LAST GAME IS meat on the move (one-html-page-challenge batch)
 let files = [
     "clWordGuesserGame",
   "clpasswordgenerator",
@@ -2934,7 +2934,41 @@ let files = [
 "supremeduelistfix",
 "thiefpuzzle",
 "unpkg",
-"cl?"
+"cl?",
+"claimclickchallenge",
+"clavoidthebikes",
+"clblockoverit",
+"clbotblitz",
+"clcolorquiz",
+"clcoronaparty",
+"clfallgame",
+"clfishies",
+"clgameoflife",
+"clgo",
+"clguessmynumber",
+"clhangman",
+"clknfl",
+"clmaze",
+"clmazeescaperaycaster",
+"clmeatonthemove",
+"clmemorygame",
+"clminicargame",
+"clopenaigeneratedentry",
+"clorgansfordebt",
+"cloutonalimb",
+"clpingpong",
+"clpinkvsunknowns",
+"clplatform",
+"clriskystakes",
+"clshapedodgefrenzy",
+"clsimongame",
+"clsnakegame",
+"cltictactoe",
+"cltiles",
+"cludhavsudoku",
+"clwargames",
+"clwebmine",
+"clwhackamole",
 ];
 function generateAllSections() {
   try {
