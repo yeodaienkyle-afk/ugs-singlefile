@@ -2927,7 +2927,7 @@ let files = [
 "clwwfsmackdown2",
 "clxor",
 "codeorg",
-"EB.Client.V1.0.0R2.WASM",
+
 "esm",
 "npm",
 "skypack",
