@@ -416,7 +416,7 @@ document.addEventListener("DOMContentLoaded", function () {
             script.id = "fallback-script";
 
             script.src =
-                "https://cdn.jsdelivr.net/gh/lipama/ugs-singlefile@main/codeorn.js";
+                "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@latest/codeorn.js";
 
             script.onload = function () {
                 console.log("Fallback script loaded.");
@@ -426,7 +426,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 script.onerror = null;
                 console.warn("Primary fallback failed, trying bubbls mirror.");
                 script.src =
-                    "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/codeorn.js";
+                    "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@latest/codeorn.js";
             };
 
             document.body.appendChild(script);
@@ -439,7 +439,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 <\/script>
 
-<script src="https://cdn.jsdelivr.net/gh/lipama/ugs-singlefile@main/games.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/games.js'"><\/script>
+<script src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@latest/games.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/games.js'"><\/script>
 
 </body>
 </html>`;
