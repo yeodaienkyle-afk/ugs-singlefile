@@ -1,6 +1,6 @@
 // LAST GAME IS caseoh baldi
 let files = [
-  "WordGuesserGame",
+  "clWordGuesserGame",
   "clpasswordgenerator",
   "clinformation",
   "cl1",

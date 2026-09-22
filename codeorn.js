@@ -1,7 +1,7 @@
 // LAST GAME IS dungeons and degenerate gamble
 let files = [
-    "WordGuesserGame",
-  "clpasswordgenerator"
+    "clWordGuesserGame",
+  "clpasswordgenerator",
   "clinformation",
   "cl1",
 "cl100RoomsOfEnemies",
