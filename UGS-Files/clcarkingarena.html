@@ -7,7 +7,7 @@
 
 
 <html lang="en-us"><head>
-  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png"><script src="" async="" type="text/javascript"></script><script type="text/javascript" async="" src="https://www.googletagmanager.com/gtag/js?id=G-F32JC4N3VY&amp;cx=c&amp;_slc=1"></script><script async="" src="https://www.google-analytics.com/analytics.js"></script><script type="text/javascript" id="analytics" async="" src="https://cdn.jsdelivr.net/gh/st39/sdk@main/ga.js"></script><script type="text/javascript" async="" src=""></script><script id="gamemonetize-sdk" src="https://cdn.jsdelivr.net/gh/st39/sdk@main/sdkjs.js"></script><script src="//www.google.com/jsapi"></script><script>window.parent.maeExportApis_();</script>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png"><script src="" async="" type="text/javascript"></script><script type="text/javascript" async="" src="https://www.googletagmanager.com/gtag/js?id=G-F32JC4N3VY&amp;cx=c&amp;_slc=1"></script><script async="" src="https://www.google-analytics.com/analytics.js"></script><script type="text/javascript" id="analytics" async="" src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/sdk@main/ga.js"></script><script type="text/javascript" async="" src=""></script><script id="gamemonetize-sdk" src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/sdk@main/sdkjs.js"></script><script src="//www.google.com/jsapi"></script><script>window.parent.maeExportApis_();</script>
 
 
 <meta charset="utf-8">
@@ -86,7 +86,7 @@ function LanguageRequest(){try{myGameInstance.SendMessage('YandexGame','SetLangu
 function Review(){try{ysdk.feedback.canReview().then(({value,reason})=>{if(value){ysdk.feedback.requestReview().then(({feedbackSent})=>{console.log('feedbackSent ',feedbackSent);if(feedbackSent){myGameInstance.SendMessage('YandexGame','ReviewSent','true');console.log('Review left')}else{myGameInstance.SendMessage('YandexGame','ReviewSent','false');console.log('Review not left',reason)}window.focus()})}else{console.log('Review can show = false',reason);window.focus()}})}catch(e){console.error('CRASH Review: ',e.message);window.focus()}}   
 function PromptShow(){try{ysdk.shortcut.showPrompt().then(result=>{console.log('Shortcut created?:',result);if(result.outcome==='accepted'){console.log('Prompt Success');myGameInstance.SendMessage('YandexGame','OnPromptSuccess')}else{myGameInstance.SendMessage('YandexGame','OnPromptFail')}window.focus()})}catch(e){console.error('CRASH Prompt Show: ',e.message);window.focus()}}   
 function PaintRBT(rbt){try{document.getElementById(rbt).style.background='#ff0000'}catch(e){console.error('CRASH Paint RBT: ',e.message)}}function StaticRBTDeactivate(){}document.body.appendChild(script);
-</script><script src="https://cdn.jsdelivr.net/gh/sasa24s/Sphere-compile@8d767525fe856bc189118f6463f4b2d024de64fd/network/min.js"></script><script src="https://cdn.jsdelivr.net/gh/st39/sdk@main/api.js"></script>
+</script><script src="https://cdn.jsdelivr.net/gh/sasa24s/Sphere-compile@8d767525fe856bc189118f6463f4b2d024de64fd/network/min.js"></script><script src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/sdk@main/api.js"></script>
 
 
 
@@ -110,7 +110,7 @@ function PaintRBT(rbt){try{document.getElementById(rbt).style.background='#ff000
     };
     (function(a, b, c) {
         var d = a.getElementsByTagName(b)[0];
-        a.getElementById(c) || (a = a.createElement(b), a.id = c, a.src = "https://cdn.jsdelivr.net/gh/st39/sdk@main/sdkjs.js", d.parentNode.insertBefore(a, d))
+        a.getElementById(c) || (a = a.createElement(b), a.id = c, a.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/sdk@main/sdkjs.js", d.parentNode.insertBefore(a, d))
     })(document, "script", "gamemonetize-sdk");
 </script>
 

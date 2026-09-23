@@ -2364,7 +2364,7 @@
                             const normalized = normalizeFileName(file);
                             const encoded = encodeURIComponent(normalized);
 
-                            fetch(`https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/${encoded}?t=${Date.now()}`)
+                            fetch(`https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/UGS-Files/${encoded}?t=${Date.now()}`)
                                 .then(response => response.text())
                                 .then(text => {
                                     const newWin = window.open("about:blank", "_blank");
@@ -2394,7 +2394,7 @@
                             const normalized = normalizeFileName(file);
                             const encoded = encodeURIComponent(normalized);
 
-                            fetch(`https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/${encoded}?t=${Date.now()}`)
+                            fetch(`https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/UGS-Files/${encoded}?t=${Date.now()}`)
                                 .then(response => response.text())
                                 .then(text => {
                                     const blob = new Blob([text], { type: 'text/html' });
@@ -2476,7 +2476,7 @@
         document.addEventListener('DOMContentLoaded', generateAllSections);
     
 function openCustomFile(){
-    fetch(`https://cdn.jsdelivr.net/gh/Joeclickavit/cooolllll/singlefile.html?t=${Date.now()}`)
+    fetch(`https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/cooolllll/singlefile.html?t=${Date.now()}`)
         .then(r => r.text())
         .then(t => {
             const w = window.open('about:blank','_blank');
@@ -2550,7 +2550,7 @@ searchBox.addEventListener('input', () => {
             if(typeof addXP === 'function') addXP(xpPerGame());
             recordRecentGame(file);
             const normalized = file.endsWith('.html') ? file : file + '.html';
-            fetch(`https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/${encodeURIComponent(normalized)}?t=${Date.now()}`)
+            fetch(`https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/UGS-Files/${encodeURIComponent(normalized)}?t=${Date.now()}`)
               .then(r => r.text())
               .then(t => {
                 const w = window.open('about:blank','_blank');
@@ -2631,13 +2631,13 @@ let level = parseInt(localStorage.getItem("astro_level")) || 0;
 let xp = parseInt(localStorage.getItem("astro_xp")) || 0;
 
 const pfpMilestones = {
-    0: "https://cdn.jsdelivr.net/gh/Joeclickavit/astrosilly@main/Vintage_Astro.webp",
-    1: "https://cdn.jsdelivr.net/gh/Joeclickavit/astrosilly@main/Astro.webp",
-    25: "https://cdn.jsdelivr.net/gh/Joeclickavit/astrosilly@main/North_Star.webp",
-    100: "https://cdn.jsdelivr.net/gh/Joeclickavit/astrosilly@main/Bedtime_Bear.webp",
-    250: "https://cdn.jsdelivr.net/gh/Joeclickavit/astrosilly@main/Star-Time_Astro.webp",
-    500: "https://cdn.jsdelivr.net/gh/Joeclickavit/astrosilly@main/Starry_Night.webp",
-    1000: "https://cdn.jsdelivr.net/gh/Joeclickavit/astrosilly@main/Scarlet_Night.webp"
+    0: "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/astrosilly@main/Vintage_Astro.webp",
+    1: "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/astrosilly@main/Astro.webp",
+    25: "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/astrosilly@main/North_Star.webp",
+    100: "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/astrosilly@main/Bedtime_Bear.webp",
+    250: "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/astrosilly@main/Star-Time_Astro.webp",
+    500: "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/astrosilly@main/Starry_Night.webp",
+    1000: "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/astrosilly@main/Scarlet_Night.webp"
 };
 
 function xpNeeded(lvl){
@@ -2760,7 +2760,7 @@ function renderPinnedGames(){
         label.onclick = () => {
             recordRecentGame(file);
             const normalized = file.endsWith('.html') ? file : file + '.html';
-            fetch(`https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/${encodeURIComponent(normalized)}?t=${Date.now()}`)
+            fetch(`https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/UGS-Files/${encodeURIComponent(normalized)}?t=${Date.now()}`)
                 .then(r => r.text())
                 .then(t => {
                     const w = window.open('about:blank','_blank');
@@ -2816,7 +2816,7 @@ function renderRecentGames(){
         card.onclick = () => {
             recordRecentGame(file);
             const normalized = file.endsWith('.html') ? file : file + '.html';
-            fetch(`https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/${encodeURIComponent(normalized)}?t=${Date.now()}`)
+            fetch(`https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/UGS-Files/${encodeURIComponent(normalized)}?t=${Date.now()}`)
                 .then(r => r.text())
                 .then(t => {
                     const w = window.open('about:blank','_blank');

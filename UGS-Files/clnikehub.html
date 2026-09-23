@@ -2214,14 +2214,14 @@
 
         async function launchGame(file) {
             const normalized = file.endsWith('.html') ? file : file + '.html';
-            const url = `https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/${encodeURIComponent(normalized)}`;
+            const url = `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/UGS-Files/${encodeURIComponent(normalized)}`;
             
             try {
                 const response = await fetch(url);
                 if (!response.ok) throw new Error("Fetch failed");
                 let rawGameCode = await response.text();
                 
-                const baseTag = `<base href="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/">`;
+                const baseTag = `<base href="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/UGS-Files/">`;
                 rawGameCode = rawGameCode.includes('<head>') ? rawGameCode.replace('<head>', '<head>' + baseTag) : baseTag + rawGameCode;
 
                 const encodedCode = btoa(unescape(encodeURIComponent(rawGameCode)));
