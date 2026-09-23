@@ -1840,10 +1840,10 @@ let files = [
 "clpokewhite2",
 "clpokewhite2alt",
 "clpokeyellow",
-"clPok�mon Emerald Rush Edition (20)",
-"clPok�mon Trade&_Stache (V11)",
-"clPok�mon TWO (v11)",
-"clPok�monstunningsteel",
+"clPokémon Emerald Rush Edition (20)",
+"clPokémon Trade&_Stache (V11)",
+"clPokémon TWO (v11)",
+"clPokémonstunningsteel",
 "clpolicepursuit2",
 "clpolishedcrystal",
 "clpolytrackbutnotflagged(1)",
@@ -1864,7 +1864,7 @@ let files = [
 "clpostal",
 "clpotatomanseeksthetroof",
 "clpou(1)",
-"clPou",
+"clpou",
 "clpowerslave",
 "clpraxisfighterx",
 "clprebronzeage",
@@ -1933,7 +1933,7 @@ let files = [
 "clredball2",
 "clredball3",
 "clredball4(1)",
-"clRedBall4",
+"clredball4",
 "clredball4vol2",
 "clredball4vol3",
 "clredhanded",
@@ -2721,8 +2721,6 @@ let files = [
 "clzrist",
 "clzuma",
 "clzumashooter",
-"cl�oo",
-"cl?",
 "claimclickchallenge",
 "clavoidthebikes",
 "clblockoverit",
@@ -2840,7 +2838,7 @@ function generateAllSections() {
         btn.value = file;
         btn.onclick = () => {
           function normalizeFileName(name) {
-            if (name.includes(".") && name.lastIndexOf(".") > 0) return name;
+            if (/\.html?$/i.test(name)) return name;
             return name + ".html";
           }
 
@@ -2859,9 +2857,21 @@ function generateAllSections() {
             `https://raw.githubusercontent.com/lipama/ugs-singlefile/main/UGS-Files/${encoded}?t=${cacheBust}`,
           ];
 
+          // Open during the click event. Opening after fetch resolves is blocked
+          // by most browsers because the user gesture has already ended.
+          const newWin = window.open("about:blank", "_blank");
+          if (!newWin) {
+            alert("Allow pop-ups for this page to open games.");
+            return;
+          }
+          newWin.document.write("<p>Loading " + normalized.replace(/[&<>"']/g, "") + "...</p>");
+          newWin.document.close();
+
           function trySource(i) {
             if (i >= sources.length) {
-              alert("Couldn't load " + normalized + " from any source. Try again later.");
+              newWin.document.open();
+              newWin.document.write("<p>Couldn't load this game from any source. Check your connection and try again.</p>");
+              newWin.document.close();
               return;
             }
             fetch(sources[i])
@@ -2870,12 +2880,23 @@ function generateAllSections() {
                 return response.text();
               })
               .then((text) => {
-                const newWin = window.open("about:blank", "_blank");
-                if (newWin) {
-                  newWin.document.open();
-                  newWin.document.write(text);
-                  newWin.document.close();
+                // document.write on about:blank otherwise resolves relative game
+                // assets against the launcher, not the fetched game's folder.
+                const gameUrl = new URL(sources[i], document.baseURI);
+                const baseHref = new URL(".", gameUrl).href;
+                const baseTag = '<base href="' + baseHref.replace(/&/g, "&amp;").replace(/"/g, "&quot;") + '">';
+                if (!/<base\b/i.test(text)) {
+                  if (/<head\b[^>]*>/i.test(text)) {
+                    text = text.replace(/<head\b[^>]*>/i, (head) => head + baseTag);
+                  } else if (/<html\b[^>]*>/i.test(text)) {
+                    text = text.replace(/<html\b[^>]*>/i, (html) => html + "<head>" + baseTag + "</head>");
+                  } else {
+                    text = text.replace(/^(\s*<!doctype[^>]*>\s*)?/i, (doctype) => doctype + "<head>" + baseTag + "</head>");
+                  }
                 }
+                newWin.document.open();
+                newWin.document.write(text);
+                newWin.document.close();
               })
               .catch(() => trySource(i + 1));
           }
