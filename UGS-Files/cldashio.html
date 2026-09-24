@@ -83,22 +83,22 @@
   <div id="unity-bg"></div>
 
   <div id="gameContainer">
-    <img id="intro-logo" src="https://cdn.jsdelivr.net/gh/shayderrr/portsv2@main/dashio/TemplateData/logo.png" class="logo-intro">
+    <img id="intro-logo" src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/portsv2@main/dashio/TemplateData/logo.png" class="logo-intro">
     <div id="loading-bar" class="loadingOut"></div>
     <canvas id="unity-canvas" data-pixel-art=""></canvas>
-    <script src="https://cdn.jsdelivr.net/gh/shayderrr/portsv2@main/dashio/Build/TPG_DashParty_V05.loader.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/portsv2@main/dashio/Build/TPG_DashParty_V05.loader.js"></script>
     <script>
       var canvas = document.querySelector("#unity-canvas");
       var introLogo = document.getElementById("intro-logo");
       var loadingBar = document.getElementById("loading-bar");
 
       var dataParts = [
-        "https://cdn.jsdelivr.net/gh/shayderrr/portsv2@main/dashio/Build/TPG_DashParty_V05.data.unityweb.part0",
-        "https://cdn.jsdelivr.net/gh/shayderrr/portsv2@main/dashio/Build/TPG_DashParty_V05.data.unityweb.part1",
-        "https://cdn.jsdelivr.net/gh/shayderrr/portsv2@main/dashio/Build/TPG_DashParty_V05.data.unityweb.part2",
-        "https://cdn.jsdelivr.net/gh/shayderrr/portsv2@main/dashio/Build/TPG_DashParty_V05.data.unityweb.part3",
-        "https://cdn.jsdelivr.net/gh/shayderrr/portsv2@main/dashio/Build/TPG_DashParty_V05.data.unityweb.part4",
-        "https://cdn.jsdelivr.net/gh/shayderrr/portsv2@main/dashio/Build/TPG_DashParty_V05.data.unityweb.part5"
+        "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/portsv2@main/dashio/Build/TPG_DashParty_V05.data.unityweb.part0",
+        "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/portsv2@main/dashio/Build/TPG_DashParty_V05.data.unityweb.part1",
+        "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/portsv2@main/dashio/Build/TPG_DashParty_V05.data.unityweb.part2",
+        "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/portsv2@main/dashio/Build/TPG_DashParty_V05.data.unityweb.part3",
+        "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/portsv2@main/dashio/Build/TPG_DashParty_V05.data.unityweb.part4",
+        "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/portsv2@main/dashio/Build/TPG_DashParty_V05.data.unityweb.part5"
       ];
 
       var scaleToFit;
@@ -166,8 +166,8 @@
         var mergedDataUrl = await mergeDataParts(dataParts);
         var config = {
           dataUrl: mergedDataUrl,
-          frameworkUrl: "https://cdn.jsdelivr.net/gh/shayderrr/portsv2@main/dashio/Build/TPG_DashParty_V05.framework.js.unityweb",
-          codeUrl: "https://cdn.jsdelivr.net/gh/shayderrr/portsv2@main/dashio/Build/TPG_DashParty_V05.wasm.unityweb",
+          frameworkUrl: "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/portsv2@main/dashio/Build/TPG_DashParty_V05.framework.js.unityweb",
+          codeUrl: "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/portsv2@main/dashio/Build/TPG_DashParty_V05.wasm.unityweb",
           streamingAssetsUrl: "StreamingAssets",
           companyName: "RHM Interactive",
           productName: "Dash Party",
