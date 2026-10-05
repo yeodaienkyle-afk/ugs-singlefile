@@ -1,5 +1,6 @@
 // LAST GAME IS meat on the move (one-html-page-challenge batch)
 let files = [
+  "credits",
   "altsingle",
   "cl1",
   "cl100in1nes",
