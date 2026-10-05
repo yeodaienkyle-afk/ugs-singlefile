@@ -3348,6 +3348,11 @@ const SAVE_BAR_TAG = "<script>" + SAVE_BAR_SCRIPT + "<\/script>";
 
   files.forEach((file) => {
 const lower = file.toLowerCase();
+  // Credits always appears as the very first button (top of the "0" section)
+  if (lower === "credits") {
+    filesByChar["0"].unshift(file);
+    return;
+  }
   const base = lower.startsWith("cl") ? lower.substring(2) : lower;
   if (base.length > 0) {
     const lead = (base[0].normalize("NFD").replace(/\p{M}/gu, "")[0]) || base[0];
