@@ -452,6 +452,81 @@ document.addEventListener("DOMContentLoaded", function () {
 })();
 <\/script>
 
+<script>
+/* Credits guard: makes sure a "credits" button is always the very first
+   button on this page, even if the list script that loaded is an older or
+   mirrored copy without the credits entry. */
+(function () {
+    var tries = 0;
+    var timer = setInterval(function () {
+        tries++;
+        var d = document;
+        var container = d.getElementById("sections-container");
+        var firstBtn = d.querySelector(".letter-section .buttons-container input[type=button]");
+        if (!container || !firstBtn) {
+            if (tries > 40) clearInterval(timer);
+            return;
+        }
+        clearInterval(timer);
+        var v = (firstBtn.value || "").trim();
+        if (v.toLowerCase() === "credits") return; /* already first, nothing to do */
+
+        /* credits missing from the loaded list: force it in at the very top */
+        var zero = d.getElementById("section-0");
+        if (!zero) {
+            var firstSection = d.querySelector(".letter-section");
+            if (!firstSection || !container) return;
+            zero = d.createElement("div");
+            zero.className = "letter-section";
+            zero.id = "section-0";
+            var hdr = d.createElement("div");
+            hdr.className = "letter-header";
+            hdr.textContent = "0";
+            zero.appendChild(hdr);
+            var bc = d.createElement("div");
+            bc.className = "buttons-container";
+            zero.appendChild(bc);
+            container.insertBefore(zero, firstSection);
+        }
+        var buttons = zero.querySelector(".buttons-container");
+        if (!buttons) {
+            buttons = d.createElement("div");
+            buttons.className = "buttons-container";
+            zero.appendChild(buttons);
+        }
+        if (d.querySelector("#section-0 input[value=credits]")) return;
+        var btn = d.createElement("input");
+        btn.type = "button";
+        btn.value = "credits";
+        btn.onclick = function () {
+            var w = window.open("about:blank", "_blank");
+            if (!w) {
+                alert("Allow pop-ups for this page to open the credits page.");
+                return;
+            }
+            w.document.write("<p>Loading credits.html...</p>");
+            w.document.close();
+            fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/UGS-Files/credits.html?t=" + Date.now())
+                .then(function (r) {
+                    if (!r.ok) throw new Error(r.status);
+                    return r.text();
+                })
+                .then(function (t) {
+                    w.document.open();
+                    w.document.write(t);
+                    w.document.close();
+                })
+                .catch(function () {
+                    w.document.open();
+                    w.document.write("<p>Could not load the credits page. Check your connection and try again.</p>");
+                    w.document.close();
+                });
+        };
+        buttons.insertBefore(btn, buttons.firstChild);
+    }, 400);
+})();
+<\/script>
+
 </body>
 </html>`;
 
