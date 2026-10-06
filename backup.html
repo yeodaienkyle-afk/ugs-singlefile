@@ -43,6 +43,7 @@ button:hover {
 </p>
 
 <button onclick="openPage(gamesHTML)">games</button>
+<button onclick="openPage(gamehubHTML)">game hub</button>
 <button onclick="openPage(informationHTML)">information</button>
 
 <script>
@@ -529,6 +530,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
 </body>
 </html>`;
+
+/* =========================================================
+   GAME HUB PAGE - same layout as the games page, but loads
+   gamehub.js, which lists whatever .html games are inside
+   the gamehub/ folder of the repo.
+   ========================================================= */
+
+const gamehubHTML = gamesHTML
+    .replace("<title>Home</title>", "<title>Game Hub</title>")
+    .replace("<h1>free tutoring</h1>", "<h1>game hub</h1>")
+    .replace(/codeorn\.js/g, "gamehub.js")
+    .replace(/games\.js/g, "gamehub.js");
 
 
 /* =========================================================
