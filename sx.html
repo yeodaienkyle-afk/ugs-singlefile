@@ -365,6 +365,7 @@
     <script>
     // --- preserved files list (original) ---
     const files = [
+  'credits',
   'cl1',
   'cl1',
 'cl10bullets',
@@ -2303,6 +2304,44 @@
 'wilywars'
 ];
 
+                function launchGame(file){
+            addXP(xpPerGame());
+            recordRecentGame(file);
+            function normalizeFileName(name){
+                if (name.includes('.') && name.lastIndexOf('.') > 0) return name;
+                return name + '.html';
+            }
+            const normalized = normalizeFileName(file);
+            const encoded = encodeURIComponent(normalized);
+            const cacheBust = Date.now();
+
+            // Open during the click event. Opening after fetch resolves is blocked
+            // by most browsers because the user gesture has already ended.
+            const newWin = window.open('about:blank','_blank');
+            if(!newWin){
+                alert('Allow pop-ups for this page to open games.');
+                return;
+            }
+            newWin.document.write('<p>Loading ' + normalized.replace(/[&<>"']/g,'') + '...</p>');
+            newWin.document.close();
+
+            fetch(`https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/UGS-Files/${encoded}?t=${cacheBust}`)
+                .then(response => {
+                    if(!response.ok) throw new Error(response.status);
+                    return response.text();
+                })
+                .then(text => {
+                    newWin.document.open();
+                    newWin.document.write(text);
+                    newWin.document.close();
+                })
+                .catch(() => {
+                    newWin.document.open();
+                    newWin.document.write("<p>Couldn't load this game. Check your connection and try again.</p>");
+                    newWin.document.close();
+                });
+        }
+
         function generateAllSections() {
             const allChars = ['0','1','2','3','4','5','6','7','8','9',
                             'A','B','C','D','E','F','G','H','I','J','K','L','M',
@@ -2315,13 +2354,16 @@
 
             files.forEach(file => {
                 const lower = file.toLowerCase();
-                if (lower.startsWith('cl')) {
-                    const afterCl = lower.substring(2);
-                    if (afterCl.length > 0) {
-                        const firstChar = afterCl[0].toUpperCase();
-                        if (filesByChar[firstChar]) {
-                            filesByChar[firstChar].push(file);
-                        }
+                // Credits always appears as the very first button (top of the "0" section)
+                if (lower === 'credits') {
+                    filesByChar['0'].unshift(file);
+                    return;
+                }
+                const base = lower.startsWith('cl') ? lower.substring(2) : lower;
+                if (base.length > 0) {
+                    const firstChar = base[0].toUpperCase();
+                    if (filesByChar[firstChar]) {
+                        filesByChar[firstChar].push(file);
                     }
                 }
             });
@@ -2353,28 +2395,7 @@
                         playBtn.value = file.replace(/^cl/i,'');
                         playBtn.style.flex = '1';
 
-                        playBtn.onclick = () => {
-                            addXP(xpPerGame());
-                            recordRecentGame(file);
-                            function normalizeFileName(name) {
-                                if (name.includes('.') && name.lastIndexOf('.') > 0) return name;
-                                return name + '.html';
-                            }
-
-                            const normalized = normalizeFileName(file);
-                            const encoded = encodeURIComponent(normalized);
-
-                            fetch(`https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/UGS-Files/${encoded}?t=${Date.now()}`)
-                                .then(response => response.text())
-                                .then(text => {
-                                    const newWin = window.open("about:blank", "_blank");
-                                    if (newWin) {
-                                        newWin.document.open();
-                                        newWin.document.write(text);
-                                        newWin.document.close();
-                                    }
-                                });
-                        };
+                        playBtn.onclick = () => { launchGame(file); };
 
                         const downloadBtn = document.createElement('button');
                         downloadBtn.textContent = '⬇';
@@ -2546,17 +2567,7 @@ searchBox.addEventListener('input', () => {
         const div = document.createElement('div');
         div.className = 'search-item';
         div.textContent = file.replace(/^cl/i,'');
-        div.onclick = () => {
-            if(typeof addXP === 'function') addXP(xpPerGame());
-            recordRecentGame(file);
-            const normalized = file.endsWith('.html') ? file : file + '.html';
-            fetch(`https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/UGS-Files/${encodeURIComponent(normalized)}?t=${Date.now()}`)
-              .then(r => r.text())
-              .then(t => {
-                const w = window.open('about:blank','_blank');
-                if(w){ w.document.open(); w.document.write(t); w.document.close(); }
-              });
-        };
+        div.onclick = () => { launchGame(file); };
         searchResults.appendChild(div);
     });
 });
@@ -2756,16 +2767,7 @@ function renderPinnedGames(){
         label.textContent = '📌 ' + file.replace(/^cl/i,'');
         label.style.flex = '1';
         label.style.cursor = 'pointer';
-        label.onclick = () => {
-            recordRecentGame(file);
-            const normalized = file.endsWith('.html') ? file : file + '.html';
-            fetch(`https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/UGS-Files/${encodeURIComponent(normalized)}?t=${Date.now()}`)
-                .then(r => r.text())
-                .then(t => {
-                    const w = window.open('about:blank','_blank');
-                    if(w){ w.document.open(); w.document.write(t); w.document.close(); }
-                });
-        };
+        label.onclick = () => { launchGame(file); };
 
         const unpinBtn = document.createElement('button');
         unpinBtn.className = 'unpin-btn';
@@ -2812,16 +2814,7 @@ function renderRecentGames(){
         const card = document.createElement('div');
         card.className = 'recent-card';
         card.textContent = '▶ ' + file.replace(/^cl/i,'');
-        card.onclick = () => {
-            recordRecentGame(file);
-            const normalized = file.endsWith('.html') ? file : file + '.html';
-            fetch(`https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/UGS-Files/${encodeURIComponent(normalized)}?t=${Date.now()}`)
-                .then(r => r.text())
-                .then(t => {
-                    const w = window.open('about:blank','_blank');
-                    if(w){ w.document.open(); w.document.write(t); w.document.close(); }
-                });
-        };
+        card.onclick = () => { launchGame(file); };
         container.appendChild(card);
     });
 }
