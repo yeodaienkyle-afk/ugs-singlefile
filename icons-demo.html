@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Icon Demo</title>
+<style>
+body { font-family: sans-serif; background: #111; color: #eee; margin: 40px; }
+h2 { color: #8ab4f8; margin-top: 36px; }
+.grid { display: flex; flex-wrap: wrap; gap: 18px; }
+.tile { width: 96px; padding: 16px 8px; border-radius: 10px; background: #1b1b1b;
+        text-align: center; color: #8ab4f8; font-size: 12px; }
+.tile [data-icon] { display: inline-block; }
+.tile:hover { background: #262626; color: #fff; }
+.big { color: gold; }
+</style>
+</head>
+<body>
+<h1>Portal Icon Demo</h1>
+<p>Icons load from the backend and are cached for a day. They inherit color.</p>
+
+<h2>Game Categories</h2>
+<div class="grid">
+  <div class="tile"><span data-icon="controller" data-icon-size="32"></span><br>controller</div>
+  <div class="tile"><span data-icon="racing" data-icon-size="32"></span><br>racing</div>
+  <div class="tile"><span data-icon="sports" data-icon-size="32"></span><br>sports</div>
+  <div class="tile"><span data-icon="shooter" data-icon-size="32"></span><br>shooter</div>
+  <div class="tile"><span data-icon="puzzle" data-icon-size="32"></span><br>puzzle</div>
+  <div class="tile"><span data-icon="arcade" data-icon-size="32"></span><br>arcade</div>
+  <div class="tile"><span data-icon="cards" data-icon-size="32"></span><br>cards</div>
+  <div class="tile"><span data-icon="adventure" data-icon-size="32"></span><br>adventure</div>
+  <div class="tile"><span data-icon="strategy" data-icon-size="32"></span><br>strategy</div>
+  <div class="tile"><span data-icon="music" data-icon-size="32"></span><br>music</div>
+  <div class="tile"><span data-icon="dice" data-icon-size="32"></span><br>dice</div>
+</div>
+
+<h2>Portal UI</h2>
+<div class="grid">
+  <div class="tile"><span data-icon="search" data-icon-size="32"></span><br>search</div>
+  <div class="tile"><span data-icon="settings" data-icon-size="32"></span><br>settings</div>
+  <div class="tile"><span data-icon="pin" data-icon-size="32"></span><br>pin</div>
+  <div class="tile"><span data-icon="star" data-icon-size="32"></span><br>star</div>
+  <div class="tile big"><span data-icon="trophy" data-icon-size="32"></span><br>trophy (XP)</div>
+  <div class="tile"><span data-icon="home" data-icon-size="32"></span><br>home</div>
+  <div class="tile"><span data-icon="hub" data-icon-size="32"></span><br>hub</div>
+  <div class="tile"><span data-icon="credits" data-icon-size="32"></span><br>credits</div>
+  <div class="tile"><span data-icon="download" data-icon-size="32"></span><br>download</div>
+  <div class="tile"><span data-icon="close" data-icon-size="32"></span><br>close</div>
+  <div class="tile"><span data-icon="menu" data-icon-size="32"></span><br>menu</div>
+  <div class="tile"><span data-icon="user" data-icon-size="32"></span><br>user</div>
+  <div class="tile"><span data-icon="fire" data-icon-size="32"></span><br>fire (popular)</div>
+  <div class="tile"><span data-icon="zap" data-icon-size="32"></span><br>zap (XP)</div>
+  <div class="tile"><span data-icon="clock" data-icon-size="32"></span><br>clock (recent)</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/icons.js"></script>
+</body>
+</html>
