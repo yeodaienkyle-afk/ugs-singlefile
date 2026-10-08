@@ -168,6 +168,7 @@ body.noglow * { box-shadow: none !important; }
     pointer-events: none;
     z-index: 2147483647;
     animation: orb-hue 5s linear infinite;
+    will-change: transform;
 }
 @keyframes orb-hue { to { filter: hue-rotate(360deg); } }
 </style>
@@ -304,7 +305,7 @@ var TITLE_PHRASES = [
     var vl = document.getElementById("view-list");
     var rot = document.getElementById("rot-toggle");
     var glow = document.getElementById("glow-toggle");
-    var view = localStorage.getItem("ug_view") || "cards";
+    var view = localStorage.getItem("ug_view") || "list";
     var rotate = localStorage.getItem("ug_rotate") !== "0";
     var gl = localStorage.getItem("ug_glow") !== "0";
     function apply() {
@@ -615,6 +616,7 @@ body.listmode .buttons-container { display: grid; }
     pointer-events: none;
     z-index: 2147483647;
     animation: orb-hue 5s linear infinite;
+    will-change: transform;
 }
 @keyframes orb-hue { to { filter: hue-rotate(360deg); } }
 </style>
@@ -733,7 +735,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var vl = document.getElementById("view-list");
     var rot = document.getElementById("rot-toggle");
     var glow = document.getElementById("glow-toggle");
-    var view = localStorage.getItem("ug_view") || "cards";
+    var view = localStorage.getItem("ug_view") || "list";
     var rotate = localStorage.getItem("ug_rotate") !== "0";
     var gl = localStorage.getItem("ug_glow") !== "0";
     function apply() {
@@ -1030,10 +1032,9 @@ var UG = (function () {
     window.addEventListener("pointermove", function (e) { tx = e.clientX; ty = e.clientY; }, { passive: true });
     window.addEventListener("touchmove", function (e) { if (e.touches && e.touches[0]) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; } }, { passive: true });
     (function tick() {
-        cx += (tx - cx) * 0.14;
-        cy += (ty - cy) * 0.14;
-        orb.style.left = cx + "px";
-        orb.style.top = cy + "px";
+        cx += (tx - cx) * 0.4;
+        cy += (ty - cy) * 0.4;
+        orb.style.transform = "translate3d(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px,0)";
         requestAnimationFrame(tick);
     })();
 })();
@@ -1513,6 +1514,7 @@ body {
     pointer-events: none;
     z-index: 2147483647;
     animation: orb-hue 5s linear infinite;
+    will-change: transform;
 }
 @keyframes orb-hue { to { filter: hue-rotate(360deg); } }
 </style>
@@ -1888,10 +1890,9 @@ body {
     window.addEventListener("pointermove", function (e) { tx = e.clientX; ty = e.clientY; }, { passive: true });
     window.addEventListener("touchmove", function (e) { if (e.touches && e.touches[0]) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; } }, { passive: true });
     (function tick() {
-        cx += (tx - cx) * 0.14;
-        cy += (ty - cy) * 0.14;
-        orb.style.left = cx + "px";
-        orb.style.top = cy + "px";
+        cx += (tx - cx) * 0.4;
+        cy += (ty - cy) * 0.4;
+        orb.style.transform = "translate3d(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px,0)";
         requestAnimationFrame(tick);
     })();
 })();
@@ -1910,10 +1911,9 @@ body {
     window.addEventListener("pointermove", function (e) { tx = e.clientX; ty = e.clientY; }, { passive: true });
     window.addEventListener("touchmove", function (e) { if (e.touches && e.touches[0]) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; } }, { passive: true });
     (function tick() {
-        cx += (tx - cx) * 0.14;
-        cy += (ty - cy) * 0.14;
-        orb.style.left = cx + "px";
-        orb.style.top = cy + "px";
+        cx += (tx - cx) * 0.4;
+        cy += (ty - cy) * 0.4;
+        orb.style.transform = "translate3d(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px,0)";
         requestAnimationFrame(tick);
     })();
 })();
