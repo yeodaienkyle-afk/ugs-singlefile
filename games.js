@@ -3341,6 +3341,31 @@ const SAVE_BAR_SCRIPT = `(function () {
 })();`;
 const SAVE_BAR_TAG = "<script>" + SAVE_BAR_SCRIPT + "<\/script>";
 
+/* ---- tab disguise (sls / google classroom) ---- */
+const DISGUISE_ICONS = {
+  classroom: "https://ssl.gstatic.com/classroom/favicon.png",
+  sls: "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png"
+};
+function getDisguiseIcon() {
+  var d = "classroom";
+  try { d = localStorage.getItem("ug_disguise") || "classroom"; } catch (e) {}
+  return DISGUISE_ICONS[d] || DISGUISE_ICONS.classroom;
+}
+// strips any existing icon/title from a game's HTML, then adds ours
+function applyDisguise(html) {
+  html = html.replace(/<link\b[^>]*rel\s*=\s*["'][^"']*icon[^"']*["'][^>]*>/gi, "");
+  html = html.replace(/<title\b[^>]*>[\s\S]*?<\/title>/gi, "");
+  var tag = '<title>Home</title><link rel="icon" href="' + getDisguiseIcon() + '">';
+  // keep the title "Home" even if the game script changes it later
+  var guard = '<script>(function(){var t="Home";function f(){if(document.title!==t)document.title=t;}f();try{new MutationObserver(f).observe(document.querySelector("title")||document.documentElement,{subtree:true,childList:true,characterData:true});}catch(e){}setInterval(f,1000);})();<\/script>';
+  if (/<head\b[^>]*>/i.test(html)) {
+    return html.replace(/<head\b[^>]*>/i, function (h) { return h + tag + guard; });
+  } else if (/<html\b[^>]*>/i.test(html)) {
+    return html.replace(/<html\b[^>]*>/i, function (h) { return h + "<head>" + tag + guard + "</head>"; });
+  }
+  return html.replace(/^(\s*<!doctype[^>]*>\s*)?/i, function (d) { return d + "<head>" + tag + guard + "</head>"; });
+}
+
   const filesByChar = {};
   allChars.forEach((char) => {
     filesByChar[char] = [];
@@ -3410,7 +3435,7 @@ const lower = file.toLowerCase();
             alert("Allow pop-ups for this page to open games.");
             return;
           }
-          newWin.document.write("<p>Loading " + normalized.replace(/[&<>"']/g, "") + "...</p>");
+          newWin.document.write('<title>Home</title><link rel="icon" href="' + getDisguiseIcon() + '"><p>Loading ' + normalized.replace(/[&<>"\']/g, "") + "...</p>");
           newWin.document.close();
 
           function trySource(i) {
@@ -3447,6 +3472,7 @@ if (/<head\b[^>]*>/i.test(text)) {
                 } else {
                   text = text.replace(/^(\s*<!doctype[^>]*>\s*)?/i, (d) => d + SAVE_BAR_TAG);
                 }
+                text = applyDisguise(text);
                 newWin.document.open();
                 newWin.document.write(text);
                 newWin.document.close();
