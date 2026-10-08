@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+<title>Home</title>
+<style>
+:root {
+    --blue: #1a73e8;
+    --blue-dark: #174ea6;
+    --green: #188038;
+    --orange: #e37400;
+    --purple: #9334e6;
+    --teal: #00796b;
+    --red: #c5221f;
+    --indigo: #3f51b5;
+    --ink: #202124;
+    --muted: #5f6368;
+    --line: #dadce0;
+    --bg: #f8fafd;
+    --card: #ffffff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+    font-family: 'Google Sans', Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+}
+.material {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.material:hover { background: #e8eaed; }
+svg.icon { width: 22px; height: 22px; fill: #444746; }
+
+.appbar {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; gap: 12px;
+    background: var(--card);
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--line);
+}
+.appbar .title {
+    font-size: 21px;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: #5f6368;
+    user-select: none;
+}
+.avatar {
+    margin-left: auto;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    font-size: 15px; font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+    user-select: none;
+}
+.classes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 22px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 20px 12px;
+}
+.class-card {
+    background: var(--card);
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 2px rgba(60,64,67,.15);
+    cursor: pointer;
+    overflow: hidden;
+    transition: box-shadow .2s ease, transform .2s ease;
+}
+.class-card:hover { box-shadow: 0 3px 8px rgba(60,64,67,.3); transform: translateY(-2px); }
+.class-banner {
+    height: 110px;
+    padding: 16px 16px 0;
+    color: #fff;
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: .3px;
+    position: relative;
+}
+.class-banner .dots {
+    position: absolute; top: 8px; right: 10px;
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+}
+.class-card .body { padding: 14px 16px 18px; }
+.class-card .teacher { font-size: 14px; color: var(--ink); }
+.class-card .meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.g-blue   { background: linear-gradient(135deg, #4285f4 0%, #1a56d6 100%); }
+.g-green  { background: linear-gradient(135deg, #34a853 0%, #0d652d 100%); }
+.g-indigo { background: linear-gradient(135deg, #7986cb 0%, #303f9f 100%); }
+.hint {
+    max-width: 1200px; margin: 0 auto; padding: 4px 20px 28px;
+    font-size: 12px; color: var(--muted); text-align: center;
+}
+</style>
+</head>
+<body>
+
+<div class="appbar">
+    <div class="material"><svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></div>
+    <span class="title">free tutoring</span>
+    <div class="avatar">K</div>
+</div>
+
+<div class="classes-grid">
+
+    <div class="class-card" onclick="openPage(gamesHTML)">
+        <div class="class-banner g-blue">
+            <span>games</span>
+            <span class="dots"><svg class="icon" style="fill:#fff;width:18px;height:18px" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></span>
+        </div>
+        <div class="body">
+            <div class="teacher">mr tan</div>
+            <div class="meta">full game list &middot; opens as about:blank</div>
+        </div>
+    </div>
+
+    <div class="class-card" onclick="openPage(gamehubHTML)">
+        <div class="class-banner g-green">
+            <span>game hub</span>
+            <span class="dots"><svg class="icon" style="fill:#fff;width:18px;height:18px" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></span>
+        </div>
+        <div class="body">
+            <div class="teacher">mr tan</div>
+            <div class="meta">gamehub folder &middot; opens as about:blank</div>
+        </div>
+    </div>
+
+    <div class="class-card" onclick="openPage(informationHTML)">
+        <div class="class-banner g-indigo">
+            <span>information</span>
+            <span class="dots"><svg class="icon" style="fill:#fff;width:18px;height:18px" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></span>
+        </div>
+        <div class="body">
+            <div class="teacher">mr tan</div>
+            <div class="meta">night sky &middot; opens as about:blank</div>
+        </div>
+    </div>
+
+</div>
+
+<p class="hint">Pop-ups open in new tabs that stay labelled about:blank. Allow pop-ups for this page if nothing opens.</p>
+
+<script>
+
+function openPage(htmlContent) {
+    const win = window.open("about:blank", "_blank");
+    if (!win) {
+        alert("Popup was blocked. Please allow popups for this site.");
+        return;
+    }
+    win.document.open();
+    win.document.write(htmlContent);
+    win.document.close();
+}
+
+/* =========================================================
+   GAMES PAGE - new interface, same DOM contract as before:
+   games.js / gamehub.js need #sidebar, #sections-container,
+   #lolbutton (they remove it once loaded) and generate
+   .letter-section / .letter-header / .buttons-container /
+   .sidebar-btn / .empty-message elements.
+   ========================================================= */
+
+const gamesHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+<title>Home</title>
+<style>
+:root {
+    --blue: #1a73e8;
+    --ink: #202124;
+    --muted: #5f6368;
+    --line: #dadce0;
+    --bg: #f8fafd;
+    --card: #ffffff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: 'Google Sans', Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+}
+.appbar {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+    background: var(--card);
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--line);
+}
+.appbar h1 {
+    font-size: 21px; font-weight: 400; color: var(--muted);
+    user-select: none;
+}
+.material {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: 50%; cursor: pointer; flex-shrink: 0;
+}
+.material:hover { background: #e8eaed; }
+svg.icon { width: 22px; height: 22px; fill: #444746; }
+.avatar {
+    margin-left: auto;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--blue); color: #fff;
+    font-size: 15px; font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+    user-select: none;
+}
+.toolbar {
+    display: flex; align-items: center; gap: 14px;
+    max-width: 1160px; margin: 20px auto 6px; padding: 0 20px;
+    flex-wrap: wrap;
+}
+.searchbox {
+    display: flex; align-items: center; gap: 10px;
+    background: #f1f3f4; border-radius: 24px;
+    padding: 0 16px; flex: 1; min-width: 220px; max-width: 560px;
+    height: 46px;
+}
+.searchbox svg { fill: var(--muted); width: 20px; height: 20px; flex-shrink: 0; }
+#searchInput {
+    border: none; outline: none; background: transparent;
+    font-size: 15px; color: var(--ink); width: 100%;
+}
+#lolbutton {
+    height: 38px; padding: 0 18px;
+    border: 1px solid var(--line); border-radius: 19px;
+    background: var(--card); color: var(--blue);
+    font-size: 13px; font-weight: 500; cursor: pointer;
+}
+#lolbutton:hover { background: #e8f0fe; border-color: var(--blue); }
+.mrtan {
+    max-width: 1160px; margin: 2px auto 10px; padding: 0 20px;
+    font-size: 12px; color: var(--muted);
+}
+.mrtan a { color: var(--blue); text-decoration: none; }
+.layout {
+    display: flex; gap: 14px;
+    max-width: 1160px; margin: 0 auto; padding: 0 20px 40px;
+}
+#sidebar {
+    position: sticky; top: 84px;
+    width: 44px; flex-shrink: 0;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px; max-height: calc(100vh - 100px);
+    overflow-y: auto; padding-bottom: 8px;
+}
+#sidebar::-webkit-scrollbar { width: 0; }
+.sidebar-btn {
+    width: 34px; height: 34px; border: none; border-radius: 50%;
+    background: transparent; color: var(--muted);
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    font-family: 'Google Sans', Roboto, Arial, sans-serif;
+}
+.sidebar-btn:hover { background: #e8f0fe; color: var(--blue); }
+.sidebar-btn.empty { opacity: .28; cursor: default; }
+.sidebar-btn.empty:hover { background: transparent; color: var(--muted); }
+#sections-container { flex: 1; min-width: 0; }
+.letter-section {
+    background: var(--card);
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 2px rgba(60,64,67,.12);
+    margin-bottom: 22px;
+    overflow: hidden;
+}
+.letter-section.empty { opacity: .55; }
+.letter-header {
+    min-height: 56px;
+    display: flex; align-items: center;
+    padding: 0 22px;
+    color: #fff;
+    font-size: 22px; font-weight: 500;
+    letter-spacing: .5px;
+}
+#sections-container .letter-section:nth-of-type(7n+2) .letter-header { background: linear-gradient(135deg,#4285f4,#1a56d6); }
+#sections-container .letter-section:nth-of-type(7n+3) .letter-header { background: linear-gradient(135deg,#34a853,#0d652d); }
+#sections-container .letter-section:nth-of-type(7n+4) .letter-header { background: linear-gradient(135deg,#f9ab00,#e37400); }
+#sections-container .letter-section:nth-of-type(7n+5) .letter-header { background: linear-gradient(135deg,#a142f4,#6f2db8); }
+#sections-container .letter-section:nth-of-type(7n+6) .letter-header { background: linear-gradient(135deg,#26a69b,#00796b); }
+#sections-container .letter-section:nth-of-type(7n+7) .letter-header { background: linear-gradient(135deg,#f28b82,#c5221f); }
+#sections-container .letter-section:nth-of-type(7n+1) .letter-header { background: linear-gradient(135deg,#7986cb,#303f9f); }
+.buttons-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    grid-auto-rows: 42px;
+    gap: 10px;
+    padding: 16px 22px 20px;
+}
+.buttons-container input[type="button"] {
+    width: 100%; height: 100%;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0 14px;
+    font-size: 13px;
+    color: var(--ink);
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease, box-shadow .15s ease;
+    font-family: 'Google Sans', Roboto, Arial, sans-serif;
+}
+.buttons-container input[type="button"]:hover {
+    background: #e8f0fe;
+    border-color: var(--blue);
+    box-shadow: 0 1px 3px rgba(26,115,232,.25);
+}
+.empty-message {
+    grid-column: 1 / -1;
+    color: var(--muted); font-style: italic;
+    font-size: 13px; text-align: center; padding: 14px 0;
+}
+@media (max-width: 768px) {
+    #sidebar { display: none; }
+    .toolbar { margin-top: 14px; }
+    .buttons-container { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+</style>
+</head>
+<body>
+
+<div class="appbar">
+    <div class="material"><svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></div>
+    <h1 class="app-title">free tutoring</h1>
+    <div class="avatar">K</div>
+</div>
+
+<div class="toolbar">
+    <div class="searchbox">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" placeholder="find the game to your heart's desire" id="searchInput">
+    </div>
+    <button id="lolbutton">Click to load if it isn't loading</button>
+</div>
+
+<div class="mrtan">game ported by powerenkyle2 &middot; visit <a href="https://sites.google.com/view/mr-tan-free-tutoring/home" target="_blank" rel="noopener noreferrer">main site</a> &middot; also by mr tan who never did any work</div>
+
+<div class="layout">
+    <div class="sidebar" id="sidebar"></div>
+    <div id="sections-container"></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("searchInput");
+    if (searchInput) {
+        searchInput.addEventListener("input", function () {
+            const query = this.value.toLowerCase().trim();
+            const sections = document.querySelectorAll(".letter-section");
+            sections.forEach(function (section) {
+                const buttons = section.querySelectorAll('input[type="button"]');
+                let anyVisible = false;
+                buttons.forEach(function (btn) {
+                    const label = btn.value.toLowerCase();
+                    const matches = query === "" || label.includes(query);
+                    btn.style.display = matches ? "" : "none";
+                    if (matches) { anyVisible = true; }
+                });
+                if (buttons.length > 0) {
+                    section.style.display = anyVisible ? "" : "none";
+                }
+            });
+        });
+    }
+
+    const fallbackButton = document.getElementById("lolbutton");
+    if (fallbackButton) {
+        fallbackButton.addEventListener("click", function () {
+            if (document.getElementById("fallback-script")) { return; }
+            const script = document.createElement("script");
+            script.id = "fallback-script";
+            script.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/codeorn.js?t=" + Date.now();
+            script.onload = function () { console.log("Fallback script loaded."); };
+            script.onerror = function () {
+                script.onerror = null;
+                console.warn("Primary fallback failed, trying bubbls mirror.");
+                script.src = "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/codeorn.js?t=" + Date.now();
+            };
+            document.body.appendChild(script);
+        });
+    }
+});
+<\/script>
+
+<script>
+(function () {
+    var t = Date.now();
+    var s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/games.js?t=" + t;
+    s.onerror = function () {
+        s.onerror = null;
+        console.warn("Main list failed, trying bubbls mirror.");
+        s.src = "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/games.js?t=" + t;
+    };
+    document.body.appendChild(s);
+})();
+<\/script>
+
+<script>
+/* Credits guard: makes sure a "credits" button is always the very first
+   button on this page, even if the list script that loaded is an older or
+   mirrored copy without the credits entry. */
+(function () {
+    var tries = 0;
+    var timer = setInterval(function () {
+        tries++;
+        var d = document;
+        var container = d.getElementById("sections-container");
+        var firstBtn = d.querySelector(".letter-section .buttons-container input[type=button]");
+        if (!container || !firstBtn) {
+            if (tries > 40) clearInterval(timer);
+            return;
+        }
+        clearInterval(timer);
+        var v = (firstBtn.value || "").trim();
+        if (v.toLowerCase() === "credits") return; /* already first, nothing to do */
+
+        /* credits missing from the loaded list: force it in at the very top */
+        var zero = d.getElementById("section-0");
+        if (!zero) {
+            var firstSection = d.querySelector(".letter-section");
+            if (!firstSection || !container) return;
+            zero = d.createElement("div");
+            zero.className = "letter-section";
+            zero.id = "section-0";
+            var hdr = d.createElement("div");
+            hdr.className = "letter-header";
+            hdr.textContent = "0";
+            zero.appendChild(hdr);
+            var bc = d.createElement("div");
+            bc.className = "buttons-container";
+            zero.appendChild(bc);
+            container.insertBefore(zero, firstSection);
+        }
+        var buttons = zero.querySelector(".buttons-container");
+        if (!buttons) {
+            buttons = d.createElement("div");
+            buttons.className = "buttons-container";
+            zero.appendChild(buttons);
+        }
+        if (d.querySelector("#section-0 input[value=credits]")) return;
+        var btn = d.createElement("input");
+        btn.type = "button";
+        btn.value = "credits";
+        btn.onclick = function () {
+            var w = window.open("about:blank", "_blank");
+            if (!w) {
+                alert("Allow pop-ups for this page to open the credits page.");
+                return;
+            }
+            w.document.write("<p>Loading credits.html...</p>");
+            w.document.close();
+            fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/UGS-Files/credits.html?t=" + Date.now())
+                .then(function (r) {
+                    if (!r.ok) throw new Error(r.status);
+                    return r.text();
+                })
+                .then(function (t) {
+                    w.document.open();
+                    w.document.write(t);
+                    w.document.close();
+                })
+                .catch(function () {
+                    w.document.open();
+                    w.document.write("<p>Could not load the credits page. Check your connection and try again.</p>");
+                    w.document.close();
+                });
+        };
+        buttons.insertBefore(btn, buttons.firstChild);
+    }, 400);
+})();
+<\/script>
+
+</body>
+</html>`;
+
+/* =========================================================
+   GAME HUB PAGE - same new interface, loads gamehub.js
+   ========================================================= */
+
+const gamehubHTML = gamesHTML
+    .replace("<title>Home</title>", "<title>Game Hub</title>")
+    .replace('<h1 class="app-title">free tutoring</h1>', '<h1 class="app-title">game hub</h1>')
+    .replace(/codeorn\.js/g, "gamehub.js")
+    .replace(/games\.js/g, "gamehub.js");
+
+
+const informationHTML = `<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+
+<title>Home</title>
+
+<script>
+alert("Night sky brought to you by powerenkyle");
+<\/script>
+
+<style>
+
+:root {
+    --accent: #bcd4f0;
+    --text: #f4f7f8;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    font-family: Georgia, 'Times New Roman', serif;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    background:
+        radial-gradient(
+            ellipse at 70% 15%,
+            #14213d 0%,
+            #0b1226 35%,
+            #05060f 75%,
+            #020208 100%
+        );
+}
+
+.sky {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.haze {
+    position: absolute;
+    top: -10%;
+    left: -20%;
+    width: 140%;
+    height: 70%;
+    background:
+        linear-gradient(
+            115deg,
+            transparent 30%,
+            rgba(160, 180, 220, 0.05) 45%,
+            rgba(190, 200, 230, 0.09) 50%,
+            rgba(160, 180, 220, 0.05) 55%,
+            transparent 70%
+        );
+    transform: rotate(-8deg);
+    filter: blur(4px);
+}
+
+.clouds {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.cloud {
+    position: absolute;
+    filter: blur(1px);
+    opacity: 0.5;
+}
+
+.cloud::before,
+.cloud::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background:
+        radial-gradient(
+            circle,
+            rgba(210, 218, 235, 0.9),
+            rgba(210, 218, 235, 0)
+        );
+}
+
+.cloud-layer-1 {
+    top: 8%;
+    width: 280px;
+    height: 60px;
+    opacity: 0.35;
+    animation: drift 70s linear infinite;
+}
+
+.cloud-layer-1::before {
+    width: 160px;
+    height: 60px;
+    top: 0;
+    left: 20px;
+}
+
+.cloud-layer-1::after {
+    width: 220px;
+    height: 80px;
+    top: -15px;
+    left: 90px;
+}
+
+.cloud-layer-2 {
+    top: 26%;
+    width: 340px;
+    height: 70px;
+    opacity: 0.28;
+    animation: drift 95s linear infinite;
+}
+
+.cloud-layer-2::before {
+    width: 190px;
+    height: 70px;
+    top: 0;
+    left: 0;
+}
+
+.cloud-layer-2::after {
+    width: 260px;
+    height: 90px;
+    top: -20px;
+    left: 110px;
+}
+
+.cloud-layer-3 {
+    top: 44%;
+    width: 240px;
+    height: 50px;
+    opacity: 0.2;
+    animation: drift 55s linear infinite;
+}
+
+.cloud-layer-3::before {
+    width: 130px;
+    height: 50px;
+    top: 0;
+    left: 10px;
+}
+
+.cloud-layer-3::after {
+    width: 180px;
+    height: 65px;
+    top: -12px;
+    left: 80px;
+}
+
+@keyframes drift {
+    from {
+        transform: translateX(-30vw);
+    }
+
+    to {
+        transform: translateX(130vw);
+    }
+}
+
+.star {
+    position: absolute;
+    background: #fff;
+    border-radius: 50%;
+    animation: twinkle ease-in-out infinite;
+}
+
+.moon {
+    position: absolute;
+    top: 7%;
+    right: 13%;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background:
+        radial-gradient(
+            circle at 62% 40%,
+            rgba(180,180,170,0.5) 0%,
+            transparent 9%
+        ),
+        radial-gradient(
+            circle at 40% 65%,
+            rgba(170,170,160,0.45) 0%,
+            transparent 7%
+        ),
+        radial-gradient(
+            circle at 55% 55%,
+            rgba(190,190,180,0.35) 0%,
+            transparent 12%
+        ),
+        radial-gradient(
+            circle at 30% 30%,
+            rgba(200,200,190,0.3) 0%,
+            transparent 8%
+        ),
+        radial-gradient(
+            circle at 38% 42%,
+            #fdfaf0,
+            #e9e4d2 55%,
+            #cfc9b6 100%
+        );
+
+    box-shadow:
+        0 0 40px 8px rgba(240, 238, 220, 0.5),
+        0 0 90px 40px rgba(240, 238, 220, 0.18),
+        0 0 160px 90px rgba(200, 210, 230, 0.06);
+}
+
+.mountains {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    z-index: 1;
+}
+
+.mountains svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.mist {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 18%;
+    background:
+        linear-gradient(
+            to top,
+            rgba(180, 195, 220, 0.18),
+            transparent
+        );
+    z-index: 2;
+    filter: blur(2px);
+}
+
+.cabin {
+    position: absolute;
+    bottom: 6%;
+    left: 12%;
+    z-index: 3;
+    width: 160px;
+    height: 144px;
+}
+
+.cabin svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    filter:
+        drop-shadow(
+            3px 4px 4px rgba(0,0,0,0.5)
+        );
+}
+
+.window-glow {
+    position: absolute;
+    top: 10%;
+    left: -20%;
+    width: 320px;
+    height: 140px;
+    background:
+        radial-gradient(
+            ellipse at 45% 55%,
+            rgba(240, 200, 120, 0.2),
+            transparent 65%
+        );
+    pointer-events: none;
+}
+
+.smoke {
+    position: absolute;
+    top: -3%;
+    left: 68%;
+    width: 14px;
+    height: 14px;
+}
+
+.smoke span {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 12px;
+    height: 9px;
+    background: rgba(205, 210, 222, 0.5);
+    filter: blur(2px);
+    animation: rise 8s ease-in infinite;
+}
+
+.smoke span:nth-child(1) {
+    border-radius:
+        60% 40% 55% 45% /
+        55% 60% 40% 50%;
+    animation-delay: 0s;
+}
+
+.smoke span:nth-child(2) {
+    border-radius:
+        45% 55% 40% 60% /
+        60% 45% 55% 40%;
+    animation-delay: 2s;
+}
+
+.smoke span:nth-child(3) {
+    border-radius:
+        55% 45% 60% 40% /
+        40% 55% 45% 60%;
+    animation-delay: 4s;
+}
+
+.smoke span:nth-child(4) {
+    border-radius:
+        40% 60% 45% 55% /
+        50% 40% 60% 45%;
+    animation-delay: 6s;
+}
+
+@keyframes rise {
+
+    0% {
+        transform:
+            translate(0, 0)
+            scale(0.5)
+            rotate(0deg);
+        opacity: 0;
+    }
+
+    12% {
+        opacity: 0.5;
+    }
+
+    40% {
+        transform:
+            translate(8px, -35px)
+            scale(1.3)
+            rotate(15deg);
+        opacity: 0.4;
+    }
+
+    70% {
+        transform:
+            translate(-6px, -70px)
+            scale(2)
+            rotate(-10deg);
+        opacity: 0.22;
+    }
+
+    100% {
+        transform:
+            translate(14px, -110px)
+            scale(2.8)
+            rotate(20deg);
+        opacity: 0;
+    }
+}
+
+@keyframes twinkle {
+
+    0%, 100% {
+        opacity: var(--min-op, 0.25);
+    }
+
+    50% {
+        opacity: var(--max-op, 1);
+    }
+}
+
+.container {
+    position: relative;
+    z-index: 3;
+    text-align: center;
+    padding: 3rem 4rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    backdrop-filter: blur(6px);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4);
+    animation: fadeIn 1.2s ease-out;
+}
+
+.container h1 {
+    font-size: 3.5rem;
+    letter-spacing: 2px;
+    background:
+        linear-gradient(
+            90deg,
+            var(--accent),
+            #ffffff,
+            var(--accent)
+        );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.container p {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    color: rgba(244, 247, 248, 0.75);
+    font-style: italic;
+}
+
+.container a {
+    display: inline;
+    color: #79aadb;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+@keyframes fadeIn {
+
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="sky" id="sky">
+
+    <div class="haze"></div>
+
+    <div class="clouds">
+
+        <div class="cloud cloud-layer-1"
+             style="left: -30%;"></div>
+
+        <div class="cloud cloud-layer-1"
+             style="left: 60%;"></div>
+
+        <div class="cloud cloud-layer-2"
+             style="left: -10%;"></div>
+
+        <div class="cloud cloud-layer-2"
+             style="left: 80%;"></div>
+
+        <div class="cloud cloud-layer-3"
+             style="left: -50%;"></div>
+
+        <div class="cloud cloud-layer-3"
+             style="left: 40%;"></div>
+
+    </div>
+
+    <div class="moon"></div>
+
+    <div class="mountains">
+
+        <svg
+            viewBox="0 0 1000 400"
+            preserveAspectRatio="none"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+
+            <defs>
+
+                <linearGradient
+                    id="farMtn"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                >
+                    <stop
+                        offset="0%"
+                        stop-color="#2b3a5c"
+                    />
+
+                    <stop
+                        offset="100%"
+                        stop-color="#1c2740"
+                    />
+                </linearGradient>
+
+                <linearGradient
+                    id="midMtn"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                >
+                    <stop
+                        offset="0%"
+                        stop-color="#19203a"
+                    />
+
+                    <stop
+                        offset="100%"
+                        stop-color="#0f1526"
+                    />
+                </linearGradient>
+
+                <linearGradient
+                    id="nearMtn"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                >
+                    <stop
+                        offset="0%"
+                        stop-color="#0a0e1c"
+                    />
+
+                    <stop
+                        offset="100%"
+                        stop-color="#04060d"
+                    />
+                </linearGradient>
+
+            </defs>
+
+            <polygon
+                points="0,400 0,230 60,190 120,235 190,160 230,190 280,140 260,200 340,175 400,120 430,170 480,150 520,195 580,130 610,175 670,150 700,205 760,165 810,220 860,180 920,230 970,190 1000,220 1000,400"
+                fill="url(#farMtn)"
+                opacity="0.9"
+            />
+
+            <polygon
+                points="190,160 230,190 210,192 195,175"
+                fill="#dfe6f2"
+                opacity="0.55"
+            />
+
+            <polygon
+                points="400,120 430,170 405,172 398,145"
+                fill="#dfe6f2"
+                opacity="0.6"
+            />
+
+            <polygon
+                points="580,130 610,175 588,178 578,150"
+                fill="#dfe6f2"
+                opacity="0.55"
+            />
+
+            <polygon
+                points="0,400 0,280 90,220 170,270 260,200 330,260 410,210 470,265 560,195 640,255 720,215 800,270 880,230 950,265 1000,240 1000,400"
+                fill="url(#midMtn)"
+            />
+
+            <polygon
+                points="0,400 0,320 100,270 210,330 300,255 400,325 500,270 610,335 720,275 830,330 930,285 1000,310 1000,400"
+                fill="url(#nearMtn)"
+            />
+
+        </svg>
+
+    </div>
+
+    <div class="mist"></div>
+
+    <div class="cabin">
+
+        <div class="window-glow"></div>
+
+        <svg
+            viewBox="0 0 200 180"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+
+            <defs>
+
+                <linearGradient
+                    id="cabinWall"
+                    x1="0"
+                    y1="0"
+                    x2="1"
+                    y2="0"
+                >
+                    <stop
+                        offset="0%"
+                        stop-color="#0a0e1c"
+                    />
+
+                    <stop
+                        offset="55%"
+                        stop-color="#0a0e1c"
+                    />
+
+                    <stop
+                        offset="100%"
+                        stop-color="#161f36"
+                    />
+                </linearGradient>
+
+                <linearGradient
+                    id="cabinRoof"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                >
+                    <stop
+                        offset="0%"
+                        stop-color="#0d1120"
+                    />
+
+                    <stop
+                        offset="100%"
+                        stop-color="#050710"
+                    />
+                </linearGradient>
+
+            </defs>
+
+            <rect
+                x="132"
+                y="6"
+                width="22"
+                height="55"
+                fill="url(#cabinRoof)"
+            />
+
+            <rect
+                x="129"
+                y="2"
+                width="28"
+                height="8"
+                fill="#04060d"
+            />
+
+            <polygon
+                points="100,14 14,84 186,84"
+                fill="url(#cabinRoof)"
+            />
+
+            <rect
+                x="34"
+                y="84"
+                width="132"
+                height="86"
+                fill="url(#cabinWall)"
+            />
+
+            <rect
+                x="56"
+                y="112"
+                width="26"
+                height="26"
+                fill="#ffdd99"
+            />
+
+            <rect
+                x="56"
+                y="112"
+                width="26"
+                height="26"
+                fill="none"
+                stroke="#4a3418"
+                stroke-width="3"
+            />
+
+        </svg>
+
+        <div class="smoke">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="container">
+
+    <h1>free tutoring</h1>
+
+    <p>
+        all of the games are brought to you by powerenkyle2
+    </p>
+
+    <p>
+        also by mr tan who never contributed
+    </p>
+
+    <p>
+        visit our
+    </p>
+
+    <h2>
+        <a
+            href="https://sites.google.com/view/mr-tan-free-tutoring/home"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            main site
+        </a>
+    </h2>
+
+</div>
+
+<script>
+
+(function () {
+
+    var sky =
+        document.getElementById('sky');
+
+    var count = 220;
+
+    for (var i = 0; i < count; i++) {
+
+        var star =
+            document.createElement('div');
+
+        star.className = 'star';
+
+        var size =
+            Math.random() * 1.8 + 0.5;
+
+        var top =
+            Math.random() * 65;
+
+        var left =
+            Math.random() * 100;
+
+        var duration =
+            (Math.random() * 3 + 2).toFixed(2);
+
+        var delay =
+            (Math.random() * 5).toFixed(2);
+
+        var minOp =
+            (Math.random() * 0.3 + 0.1).toFixed(2);
+
+        var maxOp =
+            (Math.random() * 0.4 + 0.6).toFixed(2);
+
+        star.style.width =
+            size + 'px';
+
+        star.style.height =
+            size + 'px';
+
+        star.style.top =
+            top + '%';
+
+        star.style.left =
+            left + '%';
+
+        star.style.setProperty(
+            '--min-op',
+            minOp
+        );
+
+        star.style.setProperty(
+            '--max-op',
+            maxOp
+        );
+
+        star.style.animationDuration =
+            duration + 's';
+
+        star.style.animationDelay =
+            delay + 's';
+
+        if (size > 1.6) {
+
+            star.style.boxShadow =
+                '0 0 ' +
+                (size * 2) +
+                'px rgba(255,255,255,0.6)';
+
+        }
+
+        sky.appendChild(star);
+
+    }
+
+})();
+
+<\/script>
+
+</body>
+</html>`;
+
+</script>
+
+</body>
+</html>
