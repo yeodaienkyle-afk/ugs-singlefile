@@ -249,7 +249,7 @@ var TITLE_PHRASES = [
         shown.push(pick);
         if (shown.length > 10) { shown.shift(); }
         els.forEach(function (el) {
-            el.textContent = pick;
+            el.innerHTML = pick;
             el.classList.toggle("is-link", pick === "visit main site");
         });
     }
@@ -759,7 +759,7 @@ var TITLE_PHRASES = [
         var pick = pool[Math.floor(Math.random() * pool.length)];
         shown.push(pick);
         if (shown.length > 10) { shown.shift(); }
-        el.textContent = pick;
+        el.innerHTML = pick;
         el.classList.toggle("is-link", pick === "visit main site");
     }
     setInterval(step, 10000);
