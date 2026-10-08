@@ -7,7 +7,6 @@
 <title>Home</title>
 <style>
 :root {
-    --blue: #1a73e8;
     --ink: #e8eaed;
     --muted: #9aa3b2;
     --line: #232838;
@@ -17,82 +16,143 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
 body {
-    font-family: 'Google Sans', Roboto, Arial, sans-serif;
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
     background: var(--bg);
     color: var(--ink);
+}
+/* ============ top bar ============ */
+.appbar {
+    position: sticky; top: 0; z-index: 30;
+    display: flex; align-items: center; gap: 12px;
+    background: #0d1017;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--line);
 }
 .material {
     display: inline-flex; align-items: center; justify-content: center;
     width: 40px; height: 40px; border-radius: 50%; cursor: pointer; flex-shrink: 0;
+    border: none; background: transparent;
 }
 .material:hover { background: #1c2130; }
 svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
-
-.appbar {
-    position: sticky; top: 0; z-index: 10;
-    display: flex; align-items: center; gap: 12px;
-    background: #0d1017;
-    padding: 8px 16px;
-    border-bottom: 1px solid var(--line);
-}
+.title-row { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
 .bar-title {
-    font-size: 21px; font-weight: 500;
-    background: linear-gradient(90deg, #ff5f6d, #ffc371, #47f0a3, #4facfe, #a46bff, #ff5f6d);
+    font-size: 22px; font-weight: 700;
+    background: linear-gradient(90deg, #ff5f6d, #ffc371, #f7ff47, #47f0a3, #4facfe, #a46bff, #ff5f6d);
     background-size: 300% 100%;
     -webkit-background-clip: text; background-clip: text; color: transparent;
     animation: rainbow-slide 6s linear infinite;
     cursor: default; user-select: none;
-    white-space: nowrap; max-width: 70vw; overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap; max-width: 62vw; overflow: hidden; text-overflow: ellipsis;
 }
 .bar-title.is-link { cursor: pointer; }
 @keyframes rainbow-slide { to { background-position: 300% 0; } }
+.gear-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 1px solid var(--line); background: transparent; cursor: pointer;
+    flex-shrink: 0;
+}
+.gear-btn:hover { border-color: #a46bff; box-shadow: 0 0 10px rgba(164,107,255,.4); }
+.gear-btn svg { width: 18px; height: 18px; fill: var(--muted); }
 .avatar {
-    margin-left: auto;
     width: 34px; height: 34px; border-radius: 50%;
     background: linear-gradient(135deg, #4285f4, #a46bff);
-    color: #fff; font-size: 15px; font-weight: 500;
+    color: #fff; font-size: 15px; font-weight: 600;
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 0 12px rgba(79,172,254,.4);
-    user-select: none;
+    user-select: none; flex-shrink: 0;
 }
-.classes-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 22px;
-    max-width: 1200px; margin: 0 auto;
-    padding: 32px 20px 12px;
-}
-.class-card {
-    background: var(--card);
-    border-radius: 12px;
+/* ============ settings dropdown ============ */
+.settings-panel {
+    position: fixed; top: 62px; right: 16px; z-index: 60;
+    width: 240px;
+    background: #12161f;
     border: 1px solid var(--line);
-    box-shadow: 0 0 0 1px rgba(0,0,0,.2), 0 0 14px rgba(164,107,255,.10);
-    cursor: pointer;
-    overflow: hidden;
-    transition: box-shadow .25s ease, transform .25s ease;
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.55);
+    display: none;
 }
-.class-card:hover { box-shadow: 0 0 22px rgba(164,107,255,.35); transform: translateY(-2px); }
-.class-banner {
-    height: 110px;
-    padding: 16px 16px 0;
-    color: #fff;
-    font-size: 26px; font-weight: 500; letter-spacing: .3px;
+.settings-panel.open { display: block; }
+.settings-panel h3 { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .8px; }
+.set-row { margin-bottom: 12px; }
+.set-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.seg { display: flex; gap: 6px; }
+.seg button {
+    flex: 1; height: 32px; border-radius: 8px;
+    border: 1px solid var(--line); background: transparent;
+    color: var(--muted); font-size: 12px; cursor: pointer;
+}
+.seg button.active {
+    border-color: #a46bff; color: #fff;
+    box-shadow: 0 0 10px rgba(164,107,255,.4);
+}
+.toggle {
+    width: 100%; height: 32px; border-radius: 8px;
+    border: 1px solid var(--line); background: transparent;
+    color: var(--muted); font-size: 12px; cursor: pointer;
+}
+.toggle.on { border-color: #47f0a3; color: #fff; box-shadow: 0 0 10px rgba(71,240,163,.35); }
+body.noglow * { box-shadow: none !important; }
+/* ============ launcher ============ */
+.launcher-hero {
+    max-width: 1200px; margin: 0 auto; padding: 60px 20px 20px;
+    text-align: center;
+}
+.big-logo {
+    font-size: clamp(40px, 7vw, 64px);
+    font-weight: 800;
+    background: linear-gradient(90deg, #ff5f6d, #ffc371, #f7ff47, #47f0a3, #4facfe, #a46bff, #ff5f6d);
+    background-size: 300% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: rainbow-slide 6s linear infinite;
+    filter: drop-shadow(0 0 18px rgba(164,107,255,.35));
+    cursor: default; user-select: none;
+}
+.big-logo.is-link { cursor: pointer; }
+.tagline { margin-top: 10px; font-size: 14px; color: var(--muted); }
+.nav-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+    max-width: 900px; margin: 40px auto 0;
+    padding: 0 20px 30px;
+}
+.nav-card {
     position: relative;
+    background: var(--card);
+    border-radius: 14px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform .2s ease;
 }
-.class-banner .dots {
-    position: absolute; top: 8px; right: 10px;
-    width: 34px; height: 34px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff;
+.nav-card::before {
+    content: "";
+    position: absolute; inset: -2px; z-index: -1;
+    border-radius: 16px;
+    background: conic-gradient(from 0deg, #ff5f6d, #ffc371, #f7ff47, #47f0a3, #4facfe, #a46bff, #ff5f6d);
+    animation: rainbow-spin 6s linear infinite;
+    filter: blur(0.5px);
+    opacity: .8;
 }
-.class-card .body { padding: 14px 16px 18px; }
-.class-card .teacher { font-size: 14px; color: var(--ink); }
-.class-card .meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
-.g-blue   { background: linear-gradient(135deg, #4285f4 0%, #1a56d6 100%); }
-.g-green  { background: linear-gradient(135deg, #34a853 0%, #0d652d 100%); }
-.g-indigo { background: linear-gradient(135deg, #7986cb 0%, #303f9f 100%); }
+.nav-card::after {
+    content: "";
+    position: absolute; inset: 1px; z-index: -1;
+    border-radius: 13px;
+    background: var(--card);
+}
+.nav-card:hover { transform: translateY(-3px); }
+.nav-card:hover::before { filter: blur(2px); }
+@keyframes rainbow-spin { to { filter: hue-rotate(360deg); } }
+.nav-icon { font-size: 44px; line-height: 1; }
+.nav-name { margin-top: 14px; font-size: 18px; font-weight: 700; }
+.nav-desc { margin-top: 6px; font-size: 12px; color: var(--muted); }
 .hint {
-    max-width: 1200px; margin: 0 auto; padding: 4px 20px 28px;
+    max-width: 1200px; margin: 0 auto; padding: 4px 20px 34px;
     font-size: 12px; color: var(--muted); text-align: center;
 }
 </style>
@@ -100,44 +160,58 @@ svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
 <body>
 
 <div class="appbar">
-    <div class="material"><svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></div>
-    <h1 id="site-title" class="bar-title">free tutoring</h1>
+    <button class="material"><svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+    <div class="title-row">
+        <h1 id="site-title" class="bar-title">free tutoring</h1>
+    </div>
+    <button class="gear-btn" id="gear" title="settings">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+    </button>
     <div class="avatar">K</div>
 </div>
 
-<div class="classes-grid">
-
-    <div class="class-card" onclick="openPage(gamesHTML)">
-        <div class="class-banner g-blue">
-            <span>games</span>
-            <span class="dots"><svg class="icon" style="fill:#fff;width:18px;height:18px" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></span>
-        </div>
-        <div class="body">
-            <div class="teacher">mr tan</div>
-            <div class="meta">full game list &middot; opens as about:blank</div>
+<div class="settings-panel" id="settings">
+    <h3>Settings</h3>
+    <div class="set-row">
+        <div class="set-label">Game view</div>
+        <div class="seg">
+            <button id="view-cards" class="active">cards</button>
+            <button id="view-list">list</button>
         </div>
     </div>
+    <div class="set-row">
+        <div class="set-label">Auto-rotate strips</div>
+        <button id="rot-toggle" class="toggle on">ON</button>
+    </div>
+    <div class="set-row">
+        <div class="set-label">Rainbow glow</div>
+        <button id="glow-toggle" class="toggle on">ON</button>
+    </div>
+</div>
 
-    <div class="class-card" onclick="openPage(gamehubHTML)">
-        <div class="class-banner g-green">
-            <span>game hub</span>
-            <span class="dots"><svg class="icon" style="fill:#fff;width:18px;height:18px" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></span>
-        </div>
-        <div class="body">
-            <div class="teacher">mr tan</div>
-            <div class="meta">gamehub folder &middot; opens as about:blank</div>
-        </div>
+<div class="launcher-hero">
+    <div id="hero-logo" class="big-logo">free tutoring</div>
+    <p class="tagline">made ported by powerenkyle2 and mr tan who never did work</p>
+</div>
+
+<div class="nav-grid">
+
+    <div class="nav-card" onclick="openPage(gamesHTML)">
+        <div class="nav-icon">&#127918;</div>
+        <div class="nav-name">games</div>
+        <div class="nav-desc">full game list &middot; opens as about:blank</div>
     </div>
 
-    <div class="class-card" onclick="openPage(informationHTML)">
-        <div class="class-banner g-indigo">
-            <span>information</span>
-            <span class="dots"><svg class="icon" style="fill:#fff;width:18px;height:18px" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></span>
-        </div>
-        <div class="body">
-            <div class="teacher">mr tan</div>
-            <div class="meta">night sky &middot; opens as about:blank</div>
-        </div>
+    <div class="nav-card" onclick="openPage(gamehubHTML)">
+        <div class="nav-icon">&#128193;</div>
+        <div class="nav-name">game hub</div>
+        <div class="nav-desc">gamehub folder &middot; opens as about:blank</div>
+    </div>
+
+    <div class="nav-card" onclick="openPage(informationHTML)">
+        <div class="nav-icon">&#128260;</div>
+        <div class="nav-name">information</div>
+        <div class="nav-desc">night sky &middot; opens as about:blank</div>
     </div>
 
 </div>
@@ -182,10 +256,9 @@ var TITLE_PHRASES = [
 ];
 
 (function () {
-    var el = document.getElementById("site-title");
-    if (!el) { return; }
+    var els = [document.getElementById("site-title"), document.getElementById("hero-logo")].filter(Boolean);
     var SITE_URL = "https://sites.google.com/view/mr-tan-free-tutoring/home";
-    var shown = [el.textContent.trim()];
+    var shown = [els.length ? els[0].textContent.trim() : ""];
     function step() {
         var pool = TITLE_PHRASES.filter(function (p) { return shown.indexOf(p) === -1; });
         if (pool.length === 0) {
@@ -195,19 +268,57 @@ var TITLE_PHRASES = [
         var pick = pool[Math.floor(Math.random() * pool.length)];
         shown.push(pick);
         if (shown.length > 10) { shown.shift(); }
-        el.textContent = pick;
-        el.classList.toggle("is-link", pick === "visit main site");
+        els.forEach(function (el) {
+            el.textContent = pick;
+            el.classList.toggle("is-link", pick === "visit main site");
+        });
     }
     setInterval(step, 10000);
-    el.addEventListener("click", function () {
-        if (el.textContent.trim() === "visit main site") { window.open(SITE_URL, "_blank"); }
+    els.forEach(function (el) {
+        el.addEventListener("click", function () {
+            if (el.textContent.trim() === "visit main site") { window.open(SITE_URL, "_blank"); }
+        });
     });
 })();
 
+/* settings gear - shared behaviour, saved to localStorage */
+(function () {
+    var gear = document.getElementById("gear");
+    var panel = document.getElementById("settings");
+    if (!gear || !panel) { return; }
+    gear.addEventListener("click", function (e) {
+        e.stopPropagation();
+        panel.classList.toggle("open");
+    });
+    document.addEventListener("click", function (e) {
+        if (!panel.contains(e.target) && e.target !== gear) { panel.classList.remove("open"); }
+    });
+    var vc = document.getElementById("view-cards");
+    var vl = document.getElementById("view-list");
+    var rot = document.getElementById("rot-toggle");
+    var glow = document.getElementById("glow-toggle");
+    var view = localStorage.getItem("ug_view") || "cards";
+    var rotate = localStorage.getItem("ug_rotate") !== "0";
+    var gl = localStorage.getItem("ug_glow") !== "0";
+    function apply() {
+        vc.classList.toggle("active", view === "cards");
+        vl.classList.toggle("active", view === "list");
+        rot.classList.toggle("on", rotate); rot.textContent = rotate ? "ON" : "OFF";
+        glow.classList.toggle("on", gl); glow.textContent = gl ? "ON" : "OFF";
+        document.body.classList.toggle("noglow", !gl);
+    }
+    vc.addEventListener("click", function () { view = "cards"; localStorage.setItem("ug_view", view); apply(); });
+    vl.addEventListener("click", function () { view = "list"; localStorage.setItem("ug_view", view); apply(); });
+    rot.addEventListener("click", function () { rotate = !rotate; localStorage.setItem("ug_rotate", rotate ? "1" : "0"); apply(); });
+    glow.addEventListener("click", function () { gl = !gl; localStorage.setItem("ug_glow", gl ? "1" : "0"); apply(); });
+    apply();
+})();
+
 /* =========================================================
-   GAMES PAGE - dark theme with rainbow glow. Same DOM
-   contract as before: #sidebar, #sections-container,
-   #lolbutton, #searchInput.
+   GAMES PAGE - UBG style: dark, rainbow glow, horizontal
+   auto-rotating strips of thumbnail cards. Keeps the same
+   DOM contract for the list scripts: #sidebar, #sections-container,
+   #lolbutton, #searchInput, .letter-section, .buttons-container.
    ========================================================= */
 
 const gamesHTML = `<!DOCTYPE html>
@@ -219,7 +330,6 @@ const gamesHTML = `<!DOCTYPE html>
 <title>Home</title>
 <style>
 :root {
-    --blue: #1a73e8;
     --ink: #e8eaed;
     --muted: #9aa3b2;
     --line: #232838;
@@ -228,7 +338,7 @@ const gamesHTML = `<!DOCTYPE html>
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-    font-family: 'Google Sans', Roboto, Arial, sans-serif;
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
     background: var(--bg);
     color: var(--ink);
 }
@@ -242,6 +352,7 @@ body {
 .material {
     display: inline-flex; align-items: center; justify-content: center;
     width: 40px; height: 40px; border-radius: 50%; cursor: pointer; flex-shrink: 0;
+    border: none; background: transparent;
 }
 .material:hover { background: #1c2130; }
 svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
@@ -249,20 +360,21 @@ svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
     margin-left: auto;
     width: 34px; height: 34px; border-radius: 50%;
     background: linear-gradient(135deg, #4285f4, #a46bff);
-    color: #fff; font-size: 15px; font-weight: 500;
+    color: #fff; font-size: 15px; font-weight: 600;
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 0 12px rgba(79,172,254,.4);
-    user-select: none;
+    user-select: none; flex-shrink: 0;
 }
 .hero {
-    max-width: 1160px; margin: 26px auto 4px; padding: 0 20px;
-    text-align: center;
+    max-width: 1240px; margin: 24px auto 4px; padding: 0 20px;
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    flex-wrap: wrap;
 }
+.title-block { text-align: center; min-width: 0; }
 .site-title {
-    font-size: clamp(26px, 4vw, 40px);
-    font-weight: 600;
-    line-height: 1.25;
-    min-height: 1.25em;
+    font-size: clamp(26px, 4.5vw, 42px);
+    font-weight: 800;
+    line-height: 1.2;
     background: linear-gradient(90deg, #ff5f6d, #ffc371, #f7ff47, #47f0a3, #4facfe, #a46bff, #ff5f6d);
     background-size: 300% 100%;
     -webkit-background-clip: text; background-clip: text; color: transparent;
@@ -270,19 +382,55 @@ svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
     filter: drop-shadow(0 0 14px rgba(164,107,255,.35));
     cursor: default; user-select: none;
     transition: filter .25s ease;
+    display: inline-block;
+    max-width: 100%;
 }
-.site-title.is-link {
-    cursor: pointer;
-    filter: drop-shadow(0 0 22px rgba(71,240,163,.65));
-}
+.site-title.is-link { cursor: pointer; filter: drop-shadow(0 0 22px rgba(71,240,163,.65)); }
 @keyframes rainbow-slide { to { background-position: 300% 0; } }
 .credits {
     margin-top: 8px;
     font-size: 13px; color: var(--muted);
 }
+.gear-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 1px solid var(--line); background: transparent; cursor: pointer;
+    flex-shrink: 0;
+}
+.gear-btn:hover { border-color: #a46bff; box-shadow: 0 0 12px rgba(164,107,255,.45); }
+.gear-btn svg { width: 20px; height: 20px; fill: var(--muted); }
+.settings-panel {
+    position: fixed; top: 74px; right: 16px; z-index: 60;
+    width: 240px;
+    background: #12161f;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.55);
+    display: none;
+}
+.settings-panel.open { display: block; }
+.settings-panel h3 { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .8px; }
+.set-row { margin-bottom: 12px; }
+.set-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.seg { display: flex; gap: 6px; }
+.seg button {
+    flex: 1; height: 32px; border-radius: 8px;
+    border: 1px solid var(--line); background: transparent;
+    color: var(--muted); font-size: 12px; cursor: pointer;
+}
+.seg button.active { border-color: #a46bff; color: #fff; box-shadow: 0 0 10px rgba(164,107,255,.4); }
+.toggle {
+    width: 100%; height: 32px; border-radius: 8px;
+    border: 1px solid var(--line); background: transparent;
+    color: var(--muted); font-size: 12px; cursor: pointer;
+}
+.toggle.on { border-color: #47f0a3; color: #fff; box-shadow: 0 0 10px rgba(71,240,163,.35); }
+body.noglow * { box-shadow: none !important; }
+body.norotate .strip { animation: none !important; }
 .toolbar {
     display: flex; align-items: center; gap: 14px;
-    max-width: 1160px; margin: 20px auto 6px; padding: 0 20px;
+    max-width: 1240px; margin: 18px auto 6px; padding: 0 20px;
     flex-wrap: wrap;
 }
 .search-glow {
@@ -312,49 +460,20 @@ svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
     font-size: 13px; font-weight: 500; cursor: pointer;
 }
 #lolbutton:hover { border-color: #a46bff; box-shadow: 0 0 12px rgba(164,107,255,.45); color: #fff; }
-.layout {
-    display: flex; gap: 14px;
-    max-width: 1160px; margin: 0 auto; padding: 0 20px 40px;
-}
-#sidebar {
-    position: sticky; top: 84px;
-    width: 44px; flex-shrink: 0;
-    display: flex; flex-direction: column; align-items: center;
-    gap: 4px; max-height: calc(100vh - 100px);
-    overflow-y: auto; padding-bottom: 8px;
-}
-#sidebar::-webkit-scrollbar { width: 0; }
-.sidebar-btn {
-    width: 34px; height: 34px; border: none; border-radius: 50%;
-    background: transparent; color: var(--muted);
-    font-size: 13px; font-weight: 500; cursor: pointer;
-    font-family: 'Google Sans', Roboto, Arial, sans-serif;
-    --hue: 220;
-}
-.sidebar-btn:hover {
-    background: hsl(var(--hue) 90% 55% / .16);
-    color: hsl(var(--hue) 95% 72%);
-    box-shadow: 0 0 10px hsl(var(--hue) 90% 55% / .35);
-}
-.sidebar-btn.empty { opacity: .28; cursor: default; }
-.sidebar-btn.empty:hover { background: transparent; color: var(--muted); box-shadow: none; }
-#sections-container { flex: 1; min-width: 0; }
+#sections-container { max-width: 1240px; margin: 0 auto; padding: 10px 20px 40px; }
 .letter-section {
-    background: var(--card);
-    border-radius: 12px;
-    border: 1px solid var(--line);
-    margin-bottom: 22px;
-    overflow: hidden;
-    box-shadow: 0 0 10px rgba(0,0,0,.25);
+    background: transparent;
+    margin-bottom: 26px;
 }
-.letter-section.empty { opacity: .55; }
 .letter-header {
-    min-height: 56px;
-    display: flex; align-items: center;
-    padding: 0 22px;
+    display: inline-flex; align-items: center;
+    min-height: 34px;
+    padding: 2px 18px;
+    border-radius: 10px;
     color: #fff;
-    font-size: 22px; font-weight: 500;
+    font-size: 17px; font-weight: 700;
     letter-spacing: .5px;
+    margin-bottom: 12px;
     text-shadow: 0 0 10px rgba(255,255,255,.35);
 }
 #sections-container .letter-section:nth-of-type(7n+1) .letter-header { background: linear-gradient(135deg,#7986cb,#303f9f); }
@@ -364,13 +483,88 @@ svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
 #sections-container .letter-section:nth-of-type(7n+5) .letter-header { background: linear-gradient(135deg,#a142f4,#6f2db8); }
 #sections-container .letter-section:nth-of-type(7n+6) .letter-header { background: linear-gradient(135deg,#26a69b,#00796b); }
 #sections-container .letter-section:nth-of-type(7n+7) .letter-header { background: linear-gradient(135deg,#f28b82,#c5221f); }
-.buttons-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-    grid-auto-rows: 42px;
-    gap: 10px;
-    padding: 16px 22px 20px;
+.letter-section.empty { opacity: .55; }
+.empty-message { color: var(--muted); font-style: italic; font-size: 13px; padding: 8px 0 4px; }
+/* ---------- CARD VIEW: horizontal auto-rotating strip ---------- */
+.strip {
+    display: flex; gap: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: auto;
+    padding: 4px 2px 10px;
+    scrollbar-width: none;
 }
+.strip::-webkit-scrollbar { display: none; }
+body.cardmode .strip { display: flex; }
+body.listmode .strip { display: none; }
+body.cardmode .buttons-container { display: none; }
+body.listmode .buttons-container { display: grid; }
+.gcard {
+    flex: 0 0 196px;
+    width: 196px;
+    border-radius: 12px;
+    background: var(--card);
+    border: 1px solid hsl(var(--hue, 210) 95% 60% / .45);
+    box-shadow: 0 0 10px hsl(var(--hue, 210) 95% 55% / .20);
+    cursor: pointer;
+    overflow: hidden;
+    transition: box-shadow .18s ease, border-color .18s ease, transform .18s ease;
+    user-select: none;
+}
+.gcard:hover {
+    transform: translateY(-2px);
+    border-color: hsl(var(--hue, 210) 95% 68%);
+    box-shadow: 0 0 18px hsl(var(--hue, 210) 95% 55% / .6);
+}
+.gthumb {
+    position: relative;
+    width: 100%; height: 122px;
+    background:
+        linear-gradient(135deg, hsl(var(--hue, 210) 80% 22%), #171b26 70%),
+        var(--card);
+    overflow: hidden;
+}
+.gthumb img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: top left;
+    image-rendering: auto;
+    display: none;
+}
+.gthumb img.loaded { display: block; }
+.gthumb .ph {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 34px; font-weight: 800;
+    color: hsl(var(--hue, 210) 95% 70% / .85);
+    text-shadow: 0 0 14px hsl(var(--hue, 210) 95% 60% / .5);
+}
+.gthumb img.loaded + .ph { display: none; }
+.gmeta { padding: 8px 10px 10px; }
+.gtitle {
+    font-size: 13px; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    color: var(--ink);
+}
+.gdesc {
+    margin-top: 3px;
+    font-size: 11px;
+    line-height: 1.35;
+    color: var(--muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 30px;
+}
+/* ---------- LIST VIEW: dense text grid, no images ---------- */
+.buttons-container {
+    display: none;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    grid-auto-rows: 40px;
+    gap: 9px;
+}
+body.listmode .buttons-container { display: grid; }
 .buttons-container input[type="button"] {
     width: 100%; height: 100%;
     background: #12161f;
@@ -385,37 +579,55 @@ svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
     text-overflow: ellipsis;
     cursor: pointer;
     --hue: 210;
-    box-shadow: 0 0 7px hsl(var(--hue, 210) 95% 55% / .22), inset 0 0 6px hsl(var(--hue, 210) 95% 50% / .08);
+    box-shadow: 0 0 7px hsl(var(--hue, 210) 95% 55% / .22);
     transition: box-shadow .18s ease, background .18s ease, border-color .18s ease;
-    font-family: 'Google Sans', Roboto, Arial, sans-serif;
 }
 .buttons-container input[type="button"]:hover {
     background: hsl(var(--hue, 210) 90% 55% / .13);
     border-color: hsl(var(--hue, 210) 95% 68%);
-    box-shadow: 0 0 16px hsl(var(--hue, 210) 95% 55% / .6), inset 0 0 10px hsl(var(--hue, 210) 95% 50% / .18);
-}
-.empty-message {
-    grid-column: 1 / -1;
-    color: var(--muted); font-style: italic;
-    font-size: 13px; text-align: center; padding: 14px 0;
+    box-shadow: 0 0 16px hsl(var(--hue, 210) 95% 55% / .6);
 }
 @media (max-width: 768px) {
-    #sidebar { display: none; }
-    .hero { margin-top: 18px; }
+    .gcard { flex-basis: 160px; width: 160px; }
+    .gthumb { height: 100px; }
     .buttons-container { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
 }
 </style>
 </head>
-<body>
+<body class="cardmode">
 
 <div class="appbar">
-    <div class="material"><svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></div>
+    <button class="material"><svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
     <div class="avatar">K</div>
 </div>
 
 <div class="hero">
-    <h1 id="site-title" class="site-title">free tutoring</h1>
-    <p class="credits">made ported by powerenkyle2 and mr tan who never did work</p>
+    <div class="title-block">
+        <h1 id="site-title" class="site-title">free tutoring</h1>
+        <p class="credits">made ported by powerenkyle2 and mr tan who never did work</p>
+    </div>
+    <button class="gear-btn" id="gear" title="settings">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+    </button>
+</div>
+
+<div class="settings-panel" id="settings">
+    <h3>Settings</h3>
+    <div class="set-row">
+        <div class="set-label">Game view</div>
+        <div class="seg">
+            <button id="view-cards" class="active">cards</button>
+            <button id="view-list">list</button>
+        </div>
+    </div>
+    <div class="set-row">
+        <div class="set-label">Auto-rotate strips</div>
+        <button id="rot-toggle" class="toggle on">ON</button>
+    </div>
+    <div class="set-row">
+        <div class="set-label">Rainbow glow</div>
+        <button id="glow-toggle" class="toggle on">ON</button>
+    </div>
 </div>
 
 <div class="toolbar">
@@ -428,10 +640,7 @@ svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
     <button id="lolbutton">Click to load if it isn't loading</button>
 </div>
 
-<div class="layout">
-    <div class="sidebar" id="sidebar"></div>
-    <div id="sections-container"></div>
-</div>
+<div id="sections-container"></div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -442,6 +651,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const sections = document.querySelectorAll(".letter-section");
             sections.forEach(function (section) {
                 const buttons = section.querySelectorAll('input[type="button"]');
+                const cards = section.querySelectorAll(".gcard");
                 let anyVisible = false;
                 buttons.forEach(function (btn) {
                     const label = btn.value.toLowerCase();
@@ -449,7 +659,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     btn.style.display = matches ? "" : "none";
                     if (matches) { anyVisible = true; }
                 });
-                if (buttons.length > 0) {
+                cards.forEach(function (card) {
+                    const label = (card.getAttribute("data-name") || "").toLowerCase();
+                    const matches = query === "" || label.includes(query);
+                    card.style.display = matches ? "" : "none";
+                    if (matches) { anyVisible = true; }
+                });
+                if (buttons.length > 0 || cards.length > 0) {
                     section.style.display = anyVisible ? "" : "none";
                 }
             });
@@ -476,37 +692,44 @@ document.addEventListener("DOMContentLoaded", function () {
 <\/script>
 
 <script>
-/* rainbow glow painter: gives every game button (and sidebar chip) its own
-   hue so the grid glows in the colours of the rainbow. runs again whenever
-   the list script adds more buttons. */
+/* ============ settings (view mode / rotate / glow) ============ */
 (function () {
-    var idx = 0;
-    function paint(root) {
-        var els = root.querySelectorAll('.buttons-container input[type="button"], .sidebar-btn:not(.empty)');
-        for (var i = 0; i < els.length; i++) {
-            if (!els[i].style.getPropertyValue("--hue")) {
-                els[i].style.setProperty("--hue", ((idx * 7) % 360));
-                idx++;
-            }
-        }
+    var gear = document.getElementById("gear");
+    var panel = document.getElementById("settings");
+    if (!gear || !panel) { return; }
+    gear.addEventListener("click", function (e) {
+        e.stopPropagation();
+        panel.classList.toggle("open");
+    });
+    document.addEventListener("click", function (e) {
+        if (!panel.contains(e.target) && e.target !== gear) { panel.classList.remove("open"); }
+    });
+    var vc = document.getElementById("view-cards");
+    var vl = document.getElementById("view-list");
+    var rot = document.getElementById("rot-toggle");
+    var glow = document.getElementById("glow-toggle");
+    var view = localStorage.getItem("ug_view") || "cards";
+    var rotate = localStorage.getItem("ug_rotate") !== "0";
+    var gl = localStorage.getItem("ug_glow") !== "0";
+    function apply() {
+        vc.classList.toggle("active", view === "cards");
+        vl.classList.toggle("active", view === "list");
+        rot.classList.toggle("on", rotate); rot.textContent = rotate ? "ON" : "OFF";
+        glow.classList.toggle("on", gl); glow.textContent = gl ? "ON" : "OFF";
+        document.body.classList.toggle("cardmode", view === "cards");
+        document.body.classList.toggle("listmode", view === "list");
+        document.body.classList.toggle("noglow", !gl);
     }
-    paint(document);
-    var pending = false;
-    var target = document.getElementById("sections-container");
-    if (target && window.MutationObserver) {
-        new MutationObserver(function () {
-            if (pending) { return; }
-            pending = true;
-            setTimeout(function () { pending = false; paint(document); }, 120);
-        }).observe(target, { childList: true, subtree: true });
-    }
+    vc.addEventListener("click", function () { view = "cards"; localStorage.setItem("ug_view", view); apply(); });
+    vl.addEventListener("click", function () { view = "list"; localStorage.setItem("ug_view", view); apply(); });
+    rot.addEventListener("click", function () { rotate = !rotate; localStorage.setItem("ug_rotate", rotate ? "1" : "0"); apply(); });
+    glow.addEventListener("click", function () { gl = !gl; localStorage.setItem("ug_glow", gl ? "1" : "0"); apply(); });
+    apply();
 })();
 <\/script>
 
 <script>
-/* rotating title - changes every 10 seconds, random, never twice in a row,
-   and a phrase only comes back after 10 different phrases have been shown.
-   "visit main site" is clickable and opens the main Google site. */
+/* ============ rotating title (10s, random, no repeats for 10) ============ */
 var TITLE_PHRASES = [
     "free tutoring",
     "made ported by powerenkyle2",
@@ -548,6 +771,135 @@ var TITLE_PHRASES = [
     el.addEventListener("click", function () {
         if (el.textContent.trim() === "visit main site") { window.open(SITE_URL, "_blank"); }
     });
+})();
+<\/script>
+
+<script>
+/* ============ card builder: turns every game button from the list
+   script into a thumbnail card in a horizontal strip. clicking the
+   card clicks the original button, so the game opens exactly the
+   same way as before. ============ */
+var UG = (function () {
+    var manifest = null;          /* name -> {t, d} from ug-thumbs repo */
+    var manifestWaiters = [];
+    var hue = 0;
+    var THUMB_BASE = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ug-thumbs@main/thumbs/";
+
+    fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ug-thumbs@main/manifest.json?t=" + Date.now())
+        .then(function (r) { return r.ok ? r.json() : {}; })
+        .then(function (m) {
+            manifest = m || {};
+            manifestWaiters.forEach(function (fn) { try { fn(); } catch (e) {} });
+            manifestWaiters = [];
+        })
+        .catch(function () { manifest = {}; manifestWaiters.forEach(function (fn) { try { fn(); } catch (e) {} }); manifestWaiters = []; });
+
+    function nextHue() { hue = (hue + 7) % 360; return hue; }
+
+    function buildCard(btn) {
+        if (btn.getAttribute("data-carded")) { return; }
+        btn.setAttribute("data-carded", "1");
+        var section = btn.closest(".letter-section");
+        var container = btn.closest(".buttons-container");
+        if (!section || !container) { return; }
+        var strip = section.querySelector(".strip");
+        if (!strip) {
+            strip = document.createElement("div");
+            strip.className = "strip";
+            section.appendChild(strip);
+        }
+        var name = (btn.value || "").replace(/ \(maintenance\)$/, "");
+        var card = document.createElement("div");
+        card.className = "gcard";
+        card.style.setProperty("--hue", nextHue());
+        card.setAttribute("data-name", btn.value || "");
+        var thumb = document.createElement("div");
+        thumb.className = "gthumb";
+        var img = document.createElement("img");
+        img.loading = "lazy";
+        img.alt = name;
+        img.addEventListener("load", function () { this.classList.add("loaded"); });
+        thumb.appendChild(img);
+        var ph = document.createElement("div");
+        ph.className = "ph";
+        ph.textContent = (name || "?").charAt(0).toUpperCase();
+        thumb.appendChild(ph);
+        var meta = document.createElement("div");
+        meta.className = "gmeta";
+        var title = document.createElement("div");
+        title.className = "gtitle";
+        title.textContent = btn.value || name;
+        var desc = document.createElement("div");
+        desc.className = "gdesc";
+        desc.textContent = "tap to play";
+        meta.appendChild(title);
+        meta.appendChild(desc);
+        card.appendChild(thumb);
+        card.appendChild(meta);
+        card.addEventListener("click", function () { btn.click(); });
+        function applyManifest() {
+            if (!manifest || !manifest[name]) { return; }
+            var info = manifest[name] || {};
+            desc.textContent = info.d || info.t || "tap to play";
+            img.src = THUMB_BASE + encodeURIComponent(name) + ".jpg";
+        }
+        if (manifest) { applyManifest(); } else { manifestWaiters.push(applyManifest); }
+        /* keep cards in the same order as the buttons: find the button's
+           carded neighbours and insert after the previous card */
+        var prev = btn.previousElementSibling;
+        while (prev && !prev.getAttribute || !prev.getAttribute("data-carded")) { prev = prev.previousElementSibling; }
+        if (prev) {
+            var prevCard = strip.querySelector('[data-name="' + CSS.escape(prev.value || "") + '"]');
+            if (prevCard && prevCard.nextElementSibling) { strip.insertBefore(card, prevCard.nextElementSibling); }
+            else { strip.appendChild(card); }
+        } else {
+            strip.insertBefore(card, strip.firstChild);
+        }
+    }
+
+    function transformAll(root) {
+        var btns = root.querySelectorAll('.buttons-container input[type="button"]');
+        for (var i = 0; i < btns.length; i++) { buildCard(btns[i]); }
+    }
+
+    /* auto-rotate every strip: slow crawl, wraps back to the start,
+       pauses while the mouse is over it */
+    var paused = new WeakSet();
+    document.addEventListener("mouseover", function (e) {
+        var s = e.target.closest ? e.target.closest(".strip") : null;
+        if (s) { paused.add(s); }
+    });
+    document.addEventListener("mouseout", function (e) {
+        var s = e.target.closest ? e.target.closest(".strip") : null;
+        if (s) { paused.delete(s); }
+    });
+    var SPEED = 0.35;
+    function tick() {
+        if (!document.body.classList.contains("listmode") &&
+            localStorage.getItem("ug_rotate") !== "0") {
+            var strips = document.querySelectorAll(".strip");
+            for (var i = 0; i < strips.length; i++) {
+                var s = strips[i];
+                if (paused.has(s)) { continue; }
+                if (s.scrollLeft >= s.scrollWidth - s.clientWidth - 2) {
+                    s.scrollLeft = 0;
+                } else {
+                    s.scrollLeft += SPEED;
+                }
+            }
+        }
+        requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+
+    transformAll(document);
+    var target = document.getElementById("sections-container");
+    if (target && window.MutationObserver) {
+        new MutationObserver(function () {
+            transformAll(document);
+        }).observe(target, { childList: true, subtree: true });
+    }
+    return { transformAll: transformAll };
 })();
 <\/script>
 
@@ -644,7 +996,7 @@ var TITLE_PHRASES = [
 </html>`;
 
 /* =========================================================
-   GAME HUB PAGE - same dark rainbow interface, loads gamehub.js
+   GAME HUB PAGE - same UBG interface, loads gamehub.js
    ========================================================= */
 
 const gamehubHTML = gamesHTML
