@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png"><script>(function(){try{if(localStorage.getItem("ug_disguise")==="sls"){var l=document.querySelector('link[rel~="icon"]');if(l)l.href="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png";}}catch(e){}})();</script>
 <title>Home</title>
 <style>
 :root {
@@ -180,34 +180,6 @@ body.noglow * { box-shadow: none !important; }
     <div class="title-row">
         <h1 id="site-title" class="bar-title">free tutoring</h1>
     </div>
-    <button class="gear-btn" id="gear" title="settings">
-        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-    </button>
-    <div class="avatar">K</div>
-</div>
-
-<div class="settings-panel" id="settings">
-    <h3>Settings</h3>
-    <div class="set-row">
-        <div class="set-label">Game view</div>
-        <div class="seg">
-            <button id="view-cards" class="active">cards</button>
-            <button id="view-list">list</button>
-        </div>
-    </div>
-    <div class="set-row">
-        <div class="set-label">Auto-rotate strips</div>
-        <button id="rot-toggle" class="toggle on">ON</button>
-    </div>
-    <div class="set-row">
-        <div class="set-label">Rainbow glow</div>
-        <button id="glow-toggle" class="toggle on">ON</button>
-    </div>
-</div>
-
-<div class="launcher-hero">
-    <div id="hero-logo" class="big-logo">free tutoring</div>
-    <p class="tagline">ported by powerenkyle2 and mr tan who never did work</p>
 </div>
 
 <div class="nav-grid">
@@ -289,38 +261,7 @@ var TITLE_PHRASES = [
     });
 })();
 
-/* settings gear - shared behaviour, saved to localStorage */
-(function () {
-    var gear = document.getElementById("gear");
-    var panel = document.getElementById("settings");
-    if (!gear || !panel) { return; }
-    gear.addEventListener("click", function (e) {
-        e.stopPropagation();
-        panel.classList.toggle("open");
-    });
-    document.addEventListener("click", function (e) {
-        if (!panel.contains(e.target) && e.target !== gear) { panel.classList.remove("open"); }
-    });
-    var vc = document.getElementById("view-cards");
-    var vl = document.getElementById("view-list");
-    var rot = document.getElementById("rot-toggle");
-    var glow = document.getElementById("glow-toggle");
-    var view = localStorage.getItem("ug_view") || "list";
-    var rotate = localStorage.getItem("ug_rotate") !== "0";
-    var gl = localStorage.getItem("ug_glow") !== "0";
-    function apply() {
-        vc.classList.toggle("active", view === "cards");
-        vl.classList.toggle("active", view === "list");
-        rot.classList.toggle("on", rotate); rot.textContent = rotate ? "ON" : "OFF";
-        glow.classList.toggle("on", gl); glow.textContent = gl ? "ON" : "OFF";
-        document.body.classList.toggle("noglow", !gl);
-    }
-    vc.addEventListener("click", function () { view = "cards"; localStorage.setItem("ug_view", view); apply(); });
-    vl.addEventListener("click", function () { view = "list"; localStorage.setItem("ug_view", view); apply(); });
-    rot.addEventListener("click", function () { rotate = !rotate; localStorage.setItem("ug_rotate", rotate ? "1" : "0"); apply(); });
-    glow.addEventListener("click", function () { gl = !gl; localStorage.setItem("ug_glow", gl ? "1" : "0"); apply(); });
-    apply();
-})();
+
 
 /* =========================================================
    GAMES PAGE - UBG style: dark, rainbow glow, horizontal
@@ -334,7 +275,7 @@ const gamesHTML = `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png"><script>(function(){try{if(localStorage.getItem("ug_disguise")==="sls"){var l=document.querySelector('link[rel~="icon"]');if(l)l.href="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png";}}catch(e){}})();<\/script>
 <title>Home</title>
 <style>
 :root {
@@ -625,7 +566,6 @@ body.listmode .buttons-container { display: grid; }
 
 <div class="appbar">
     <button class="material"><svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
-    <div class="avatar">K</div>
 </div>
 
 <div class="hero">
@@ -654,6 +594,13 @@ body.listmode .buttons-container { display: grid; }
     <div class="set-row">
         <div class="set-label">Rainbow glow</div>
         <button id="glow-toggle" class="toggle on">ON</button>
+    </div>
+    <div class="set-row">
+        <div class="set-label">Tab disguise</div>
+        <div class="seg">
+            <button id="dis-sls">sls</button>
+            <button id="dis-classroom" class="active">google classroom</button>
+        </div>
     </div>
 </div>
 
@@ -738,7 +685,28 @@ document.addEventListener("DOMContentLoaded", function () {
     var view = localStorage.getItem("ug_view") || "list";
     var rotate = localStorage.getItem("ug_rotate") !== "0";
     var gl = localStorage.getItem("ug_glow") !== "0";
+    var ICONS = {
+        classroom: "https://ssl.gstatic.com/classroom/favicon.png",
+        sls: "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png"
+    };
+    var dSls = document.getElementById("dis-sls");
+    var dCls = document.getElementById("dis-classroom");
+    var disguise = localStorage.getItem("ug_disguise") || "classroom";
+    function setFavicon() {
+        var links = document.querySelectorAll('link[rel~="icon"]');
+        links.forEach(function (l) { l.parentNode.removeChild(l); });
+        var l = document.createElement("link");
+        l.rel = "icon";
+        l.href = ICONS[disguise] || ICONS.classroom;
+        document.head.appendChild(l);
+        document.title = "Home";
+    }
+    dSls.addEventListener("click", function () { disguise = "sls"; localStorage.setItem("ug_disguise", disguise); apply(); });
+    dCls.addEventListener("click", function () { disguise = "classroom"; localStorage.setItem("ug_disguise", disguise); apply(); });
     function apply() {
+        dSls.classList.toggle("active", disguise === "sls");
+        dCls.classList.toggle("active", disguise === "classroom");
+        setFavicon();
         vc.classList.toggle("active", view === "cards");
         vl.classList.toggle("active", view === "list");
         rot.classList.toggle("on", rotate); rot.textContent = rotate ? "ON" : "OFF";
@@ -1062,7 +1030,7 @@ const informationHTML = `<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png"><script>(function(){try{if(localStorage.getItem("ug_disguise")==="sls"){var l=document.querySelector('link[rel~="icon"]');if(l)l.href="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png";}}catch(e){}})();<\/script>
 
 <title>Home</title>
 
