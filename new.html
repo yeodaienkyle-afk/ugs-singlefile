@@ -848,7 +848,7 @@ var UG = (function () {
             if (!manifest || !manifest[name]) { return; }
             var info = manifest[name] || {};
             desc.textContent = info.d || info.t || "tap to play";
-            img.src = THUMB_BASE + encodeURIComponent(name) + ".jpg";
+            img.src = THUMB_BASE + encodeURIComponent(name) + ".jpg?v=2";
         }
         if (manifest) { applyManifest(); } else { manifestWaiters.push(applyManifest); }
         /* keep cards in the same order as the buttons: find the button's
