@@ -8,18 +8,11 @@
 <style>
 :root {
     --blue: #1a73e8;
-    --blue-dark: #174ea6;
-    --green: #188038;
-    --orange: #e37400;
-    --purple: #9334e6;
-    --teal: #00796b;
-    --red: #c5221f;
-    --indigo: #3f51b5;
-    --ink: #202124;
-    --muted: #5f6368;
-    --line: #dadce0;
-    --bg: #f8fafd;
-    --card: #ffffff;
+    --ink: #e8eaed;
+    --muted: #9aa3b2;
+    --line: #232838;
+    --bg: #0b0d12;
+    --card: #13161f;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
@@ -29,66 +22,61 @@ body {
     color: var(--ink);
 }
 .material {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: 50%; cursor: pointer; flex-shrink: 0;
 }
-.material:hover { background: #e8eaed; }
-svg.icon { width: 22px; height: 22px; fill: #444746; }
+.material:hover { background: #1c2130; }
+svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
 
 .appbar {
     position: sticky; top: 0; z-index: 10;
     display: flex; align-items: center; gap: 12px;
-    background: var(--card);
+    background: #0d1017;
     padding: 8px 16px;
     border-bottom: 1px solid var(--line);
 }
-.appbar .title {
-    font-size: 21px;
-    font-weight: 400;
-    letter-spacing: 0;
-    color: #5f6368;
-    user-select: none;
+.bar-title {
+    font-size: 21px; font-weight: 500;
+    background: linear-gradient(90deg, #ff5f6d, #ffc371, #47f0a3, #4facfe, #a46bff, #ff5f6d);
+    background-size: 300% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: rainbow-slide 6s linear infinite;
+    cursor: default; user-select: none;
+    white-space: nowrap; max-width: 70vw; overflow: hidden; text-overflow: ellipsis;
 }
+.bar-title.is-link { cursor: pointer; }
+@keyframes rainbow-slide { to { background-position: 300% 0; } }
 .avatar {
     margin-left: auto;
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    background: var(--blue);
-    color: #fff;
-    font-size: 15px; font-weight: 500;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(135deg, #4285f4, #a46bff);
+    color: #fff; font-size: 15px; font-weight: 500;
     display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 12px rgba(79,172,254,.4);
     user-select: none;
 }
 .classes-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 22px;
-    max-width: 1200px;
-    margin: 0 auto;
+    max-width: 1200px; margin: 0 auto;
     padding: 32px 20px 12px;
 }
 .class-card {
     background: var(--card);
     border-radius: 12px;
-    border: 1px solid #e0e0e0;
-    box-shadow: 0 1px 2px rgba(60,64,67,.15);
+    border: 1px solid var(--line);
+    box-shadow: 0 0 0 1px rgba(0,0,0,.2), 0 0 14px rgba(164,107,255,.10);
     cursor: pointer;
     overflow: hidden;
-    transition: box-shadow .2s ease, transform .2s ease;
+    transition: box-shadow .25s ease, transform .25s ease;
 }
-.class-card:hover { box-shadow: 0 3px 8px rgba(60,64,67,.3); transform: translateY(-2px); }
+.class-card:hover { box-shadow: 0 0 22px rgba(164,107,255,.35); transform: translateY(-2px); }
 .class-banner {
     height: 110px;
     padding: 16px 16px 0;
     color: #fff;
-    font-size: 26px;
-    font-weight: 500;
-    letter-spacing: .3px;
+    font-size: 26px; font-weight: 500; letter-spacing: .3px;
     position: relative;
 }
 .class-banner .dots {
@@ -113,7 +101,7 @@ svg.icon { width: 22px; height: 22px; fill: #444746; }
 
 <div class="appbar">
     <div class="material"><svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></div>
-    <span class="title">free tutoring</span>
+    <h1 id="site-title" class="bar-title">free tutoring</h1>
     <div class="avatar">K</div>
 </div>
 
@@ -169,12 +157,57 @@ function openPage(htmlContent) {
     win.document.close();
 }
 
+/* rotating title phrases - changes every 10 seconds, random,
+   never the same one twice in a row, and a phrase only comes
+   back after 10 different phrases have been shown */
+var TITLE_PHRASES = [
+    "free tutoring",
+    "made ported by powerenkyle2",
+    "mr tan who never did work",
+    "visit main site",
+    "99% games, 1% tutoring",
+    "mr tan approved (he didn't)",
+    "the only class you never skip",
+    "homework? do it later",
+    "your firewall can't stop this",
+    "10/10 teachers hate this site",
+    "the tutoring is free, the fun is priceless",
+    "mr tan's contribution: existing",
+    "shhh, the tab says about:blank",
+    "powered by boredom and wifi",
+    "study? in this economy?",
+    "better than actual class",
+    "loading education... just kidding",
+    "attendance: 100% by accident"
+];
+
+(function () {
+    var el = document.getElementById("site-title");
+    if (!el) { return; }
+    var SITE_URL = "https://sites.google.com/view/mr-tan-free-tutoring/home";
+    var shown = [el.textContent.trim()];
+    function step() {
+        var pool = TITLE_PHRASES.filter(function (p) { return shown.indexOf(p) === -1; });
+        if (pool.length === 0) {
+            shown = shown.slice(-1);
+            pool = TITLE_PHRASES.filter(function (p) { return shown.indexOf(p) === -1; });
+        }
+        var pick = pool[Math.floor(Math.random() * pool.length)];
+        shown.push(pick);
+        if (shown.length > 10) { shown.shift(); }
+        el.textContent = pick;
+        el.classList.toggle("is-link", pick === "visit main site");
+    }
+    setInterval(step, 10000);
+    el.addEventListener("click", function () {
+        if (el.textContent.trim() === "visit main site") { window.open(SITE_URL, "_blank"); }
+    });
+})();
+
 /* =========================================================
-   GAMES PAGE - new interface, same DOM contract as before:
-   games.js / gamehub.js need #sidebar, #sections-container,
-   #lolbutton (they remove it once loaded) and generate
-   .letter-section / .letter-header / .buttons-container /
-   .sidebar-btn / .empty-message elements.
+   GAMES PAGE - dark theme with rainbow glow. Same DOM
+   contract as before: #sidebar, #sections-container,
+   #lolbutton, #searchInput.
    ========================================================= */
 
 const gamesHTML = `<!DOCTYPE html>
@@ -187,11 +220,11 @@ const gamesHTML = `<!DOCTYPE html>
 <style>
 :root {
     --blue: #1a73e8;
-    --ink: #202124;
-    --muted: #5f6368;
-    --line: #dadce0;
-    --bg: #f8fafd;
-    --card: #ffffff;
+    --ink: #e8eaed;
+    --muted: #9aa3b2;
+    --line: #232838;
+    --bg: #0b0d12;
+    --card: #13161f;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -202,56 +235,83 @@ body {
 .appbar {
     position: sticky; top: 0; z-index: 20;
     display: flex; align-items: center; gap: 12px;
-    background: var(--card);
+    background: #0d1017;
     padding: 8px 16px;
     border-bottom: 1px solid var(--line);
-}
-.appbar h1 {
-    font-size: 21px; font-weight: 400; color: var(--muted);
-    user-select: none;
 }
 .material {
     display: inline-flex; align-items: center; justify-content: center;
     width: 40px; height: 40px; border-radius: 50%; cursor: pointer; flex-shrink: 0;
 }
-.material:hover { background: #e8eaed; }
-svg.icon { width: 22px; height: 22px; fill: #444746; }
+.material:hover { background: #1c2130; }
+svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
 .avatar {
     margin-left: auto;
     width: 34px; height: 34px; border-radius: 50%;
-    background: var(--blue); color: #fff;
-    font-size: 15px; font-weight: 500;
+    background: linear-gradient(135deg, #4285f4, #a46bff);
+    color: #fff; font-size: 15px; font-weight: 500;
     display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 12px rgba(79,172,254,.4);
     user-select: none;
+}
+.hero {
+    max-width: 1160px; margin: 26px auto 4px; padding: 0 20px;
+    text-align: center;
+}
+.site-title {
+    font-size: clamp(26px, 4vw, 40px);
+    font-weight: 600;
+    line-height: 1.25;
+    min-height: 1.25em;
+    background: linear-gradient(90deg, #ff5f6d, #ffc371, #f7ff47, #47f0a3, #4facfe, #a46bff, #ff5f6d);
+    background-size: 300% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: rainbow-slide 6s linear infinite;
+    filter: drop-shadow(0 0 14px rgba(164,107,255,.35));
+    cursor: default; user-select: none;
+    transition: filter .25s ease;
+}
+.site-title.is-link {
+    cursor: pointer;
+    filter: drop-shadow(0 0 22px rgba(71,240,163,.65));
+}
+@keyframes rainbow-slide { to { background-position: 300% 0; } }
+.credits {
+    margin-top: 8px;
+    font-size: 13px; color: var(--muted);
 }
 .toolbar {
     display: flex; align-items: center; gap: 14px;
     max-width: 1160px; margin: 20px auto 6px; padding: 0 20px;
     flex-wrap: wrap;
 }
+.search-glow {
+    flex: 1; min-width: 220px; max-width: 560px;
+    padding: 2px; border-radius: 27px;
+    background: conic-gradient(from 0deg, #ff5f6d, #ffc371, #f7ff47, #47f0a3, #4facfe, #a46bff, #ff5f6d);
+    animation: rainbow-spin 5s linear infinite;
+    box-shadow: 0 0 18px rgba(164,107,255,.25);
+}
+@keyframes rainbow-spin { to { filter: hue-rotate(360deg); } }
 .searchbox {
+    height: 44px; border-radius: 25px;
+    background: #12161f;
     display: flex; align-items: center; gap: 10px;
-    background: #f1f3f4; border-radius: 24px;
-    padding: 0 16px; flex: 1; min-width: 220px; max-width: 560px;
-    height: 46px;
+    padding: 0 16px;
 }
 .searchbox svg { fill: var(--muted); width: 20px; height: 20px; flex-shrink: 0; }
 #searchInput {
     border: none; outline: none; background: transparent;
     font-size: 15px; color: var(--ink); width: 100%;
 }
+#searchInput::placeholder { color: #6b7385; }
 #lolbutton {
     height: 38px; padding: 0 18px;
-    border: 1px solid var(--line); border-radius: 19px;
-    background: var(--card); color: var(--blue);
+    border: 1px solid rgba(255,255,255,.14); border-radius: 19px;
+    background: #12161f; color: #c9d2e0;
     font-size: 13px; font-weight: 500; cursor: pointer;
 }
-#lolbutton:hover { background: #e8f0fe; border-color: var(--blue); }
-.mrtan {
-    max-width: 1160px; margin: 2px auto 10px; padding: 0 20px;
-    font-size: 12px; color: var(--muted);
-}
-.mrtan a { color: var(--blue); text-decoration: none; }
+#lolbutton:hover { border-color: #a46bff; box-shadow: 0 0 12px rgba(164,107,255,.45); color: #fff; }
 .layout {
     display: flex; gap: 14px;
     max-width: 1160px; margin: 0 auto; padding: 0 20px 40px;
@@ -269,18 +329,23 @@ svg.icon { width: 22px; height: 22px; fill: #444746; }
     background: transparent; color: var(--muted);
     font-size: 13px; font-weight: 500; cursor: pointer;
     font-family: 'Google Sans', Roboto, Arial, sans-serif;
+    --hue: 220;
 }
-.sidebar-btn:hover { background: #e8f0fe; color: var(--blue); }
+.sidebar-btn:hover {
+    background: hsl(var(--hue) 90% 55% / .16);
+    color: hsl(var(--hue) 95% 72%);
+    box-shadow: 0 0 10px hsl(var(--hue) 90% 55% / .35);
+}
 .sidebar-btn.empty { opacity: .28; cursor: default; }
-.sidebar-btn.empty:hover { background: transparent; color: var(--muted); }
+.sidebar-btn.empty:hover { background: transparent; color: var(--muted); box-shadow: none; }
 #sections-container { flex: 1; min-width: 0; }
 .letter-section {
     background: var(--card);
     border-radius: 12px;
-    border: 1px solid #e0e0e0;
-    box-shadow: 0 1px 2px rgba(60,64,67,.12);
+    border: 1px solid var(--line);
     margin-bottom: 22px;
     overflow: hidden;
+    box-shadow: 0 0 10px rgba(0,0,0,.25);
 }
 .letter-section.empty { opacity: .55; }
 .letter-header {
@@ -290,14 +355,15 @@ svg.icon { width: 22px; height: 22px; fill: #444746; }
     color: #fff;
     font-size: 22px; font-weight: 500;
     letter-spacing: .5px;
+    text-shadow: 0 0 10px rgba(255,255,255,.35);
 }
+#sections-container .letter-section:nth-of-type(7n+1) .letter-header { background: linear-gradient(135deg,#7986cb,#303f9f); }
 #sections-container .letter-section:nth-of-type(7n+2) .letter-header { background: linear-gradient(135deg,#4285f4,#1a56d6); }
 #sections-container .letter-section:nth-of-type(7n+3) .letter-header { background: linear-gradient(135deg,#34a853,#0d652d); }
 #sections-container .letter-section:nth-of-type(7n+4) .letter-header { background: linear-gradient(135deg,#f9ab00,#e37400); }
 #sections-container .letter-section:nth-of-type(7n+5) .letter-header { background: linear-gradient(135deg,#a142f4,#6f2db8); }
 #sections-container .letter-section:nth-of-type(7n+6) .letter-header { background: linear-gradient(135deg,#26a69b,#00796b); }
 #sections-container .letter-section:nth-of-type(7n+7) .letter-header { background: linear-gradient(135deg,#f28b82,#c5221f); }
-#sections-container .letter-section:nth-of-type(7n+1) .letter-header { background: linear-gradient(135deg,#7986cb,#303f9f); }
 .buttons-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
@@ -307,8 +373,8 @@ svg.icon { width: 22px; height: 22px; fill: #444746; }
 }
 .buttons-container input[type="button"] {
     width: 100%; height: 100%;
-    background: var(--card);
-    border: 1px solid var(--line);
+    background: #12161f;
+    border: 1px solid hsl(var(--hue, 210) 95% 60% / .55);
     border-radius: 10px;
     padding: 0 14px;
     font-size: 13px;
@@ -318,13 +384,15 @@ svg.icon { width: 22px; height: 22px; fill: #444746; }
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: pointer;
-    transition: background .15s ease, border-color .15s ease, box-shadow .15s ease;
+    --hue: 210;
+    box-shadow: 0 0 7px hsl(var(--hue, 210) 95% 55% / .22), inset 0 0 6px hsl(var(--hue, 210) 95% 50% / .08);
+    transition: box-shadow .18s ease, background .18s ease, border-color .18s ease;
     font-family: 'Google Sans', Roboto, Arial, sans-serif;
 }
 .buttons-container input[type="button"]:hover {
-    background: #e8f0fe;
-    border-color: var(--blue);
-    box-shadow: 0 1px 3px rgba(26,115,232,.25);
+    background: hsl(var(--hue, 210) 90% 55% / .13);
+    border-color: hsl(var(--hue, 210) 95% 68%);
+    box-shadow: 0 0 16px hsl(var(--hue, 210) 95% 55% / .6), inset 0 0 10px hsl(var(--hue, 210) 95% 50% / .18);
 }
 .empty-message {
     grid-column: 1 / -1;
@@ -333,7 +401,7 @@ svg.icon { width: 22px; height: 22px; fill: #444746; }
 }
 @media (max-width: 768px) {
     #sidebar { display: none; }
-    .toolbar { margin-top: 14px; }
+    .hero { margin-top: 18px; }
     .buttons-container { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
 }
 </style>
@@ -342,19 +410,23 @@ svg.icon { width: 22px; height: 22px; fill: #444746; }
 
 <div class="appbar">
     <div class="material"><svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></div>
-    <h1 class="app-title">free tutoring</h1>
     <div class="avatar">K</div>
 </div>
 
+<div class="hero">
+    <h1 id="site-title" class="site-title">free tutoring</h1>
+    <p class="credits">made ported by powerenkyle2 and mr tan who never did work</p>
+</div>
+
 <div class="toolbar">
-    <div class="searchbox">
-        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-        <input type="text" placeholder="find the game to your heart's desire" id="searchInput">
+    <div class="search-glow">
+        <div class="searchbox">
+            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <input type="text" placeholder="find the game to your heart's desire" id="searchInput">
+        </div>
     </div>
     <button id="lolbutton">Click to load if it isn't loading</button>
 </div>
-
-<div class="mrtan">game ported by powerenkyle2 &middot; visit <a href="https://sites.google.com/view/mr-tan-free-tutoring/home" target="_blank" rel="noopener noreferrer">main site</a> &middot; also by mr tan who never did any work</div>
 
 <div class="layout">
     <div class="sidebar" id="sidebar"></div>
@@ -401,6 +473,82 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+<\/script>
+
+<script>
+/* rainbow glow painter: gives every game button (and sidebar chip) its own
+   hue so the grid glows in the colours of the rainbow. runs again whenever
+   the list script adds more buttons. */
+(function () {
+    var idx = 0;
+    function paint(root) {
+        var els = root.querySelectorAll('.buttons-container input[type="button"], .sidebar-btn:not(.empty)');
+        for (var i = 0; i < els.length; i++) {
+            if (!els[i].style.getPropertyValue("--hue")) {
+                els[i].style.setProperty("--hue", ((idx * 7) % 360));
+                idx++;
+            }
+        }
+    }
+    paint(document);
+    var pending = false;
+    var target = document.getElementById("sections-container");
+    if (target && window.MutationObserver) {
+        new MutationObserver(function () {
+            if (pending) { return; }
+            pending = true;
+            setTimeout(function () { pending = false; paint(document); }, 120);
+        }).observe(target, { childList: true, subtree: true });
+    }
+})();
+<\/script>
+
+<script>
+/* rotating title - changes every 10 seconds, random, never twice in a row,
+   and a phrase only comes back after 10 different phrases have been shown.
+   "visit main site" is clickable and opens the main Google site. */
+var TITLE_PHRASES = [
+    "free tutoring",
+    "made ported by powerenkyle2",
+    "mr tan who never did work",
+    "visit main site",
+    "99% games, 1% tutoring",
+    "mr tan approved (he didn't)",
+    "the only class you never skip",
+    "homework? do it later",
+    "your firewall can't stop this",
+    "10/10 teachers hate this site",
+    "the tutoring is free, the fun is priceless",
+    "mr tan's contribution: existing",
+    "shhh, the tab says about:blank",
+    "powered by boredom and wifi",
+    "study? in this economy?",
+    "better than actual class",
+    "loading education... just kidding",
+    "attendance: 100% by accident"
+];
+(function () {
+    var el = document.getElementById("site-title");
+    if (!el) { return; }
+    var SITE_URL = "https://sites.google.com/view/mr-tan-free-tutoring/home";
+    var shown = [el.textContent.trim()];
+    function step() {
+        var pool = TITLE_PHRASES.filter(function (p) { return shown.indexOf(p) === -1; });
+        if (pool.length === 0) {
+            shown = shown.slice(-1);
+            pool = TITLE_PHRASES.filter(function (p) { return shown.indexOf(p) === -1; });
+        }
+        var pick = pool[Math.floor(Math.random() * pool.length)];
+        shown.push(pick);
+        if (shown.length > 10) { shown.shift(); }
+        el.textContent = pick;
+        el.classList.toggle("is-link", pick === "visit main site");
+    }
+    setInterval(step, 10000);
+    el.addEventListener("click", function () {
+        if (el.textContent.trim() === "visit main site") { window.open(SITE_URL, "_blank"); }
+    });
+})();
 <\/script>
 
 <script>
@@ -496,12 +644,13 @@ document.addEventListener("DOMContentLoaded", function () {
 </html>`;
 
 /* =========================================================
-   GAME HUB PAGE - same new interface, loads gamehub.js
+   GAME HUB PAGE - same dark rainbow interface, loads gamehub.js
    ========================================================= */
 
 const gamehubHTML = gamesHTML
     .replace("<title>Home</title>", "<title>Game Hub</title>")
-    .replace('<h1 class="app-title">free tutoring</h1>', '<h1 class="app-title">game hub</h1>')
+    .replace('<h1 id="site-title" class="site-title">free tutoring</h1>', '<h1 id="site-title" class="site-title">game hub</h1>')
+    .replace('"free tutoring",', '"game hub", "free tutoring",')
     .replace(/codeorn\.js/g, "gamehub.js")
     .replace(/games\.js/g, "gamehub.js");
 
