@@ -155,6 +155,21 @@ body.noglow * { box-shadow: none !important; }
     max-width: 1200px; margin: 0 auto; padding: 4px 20px 34px;
     font-size: 12px; color: var(--muted); text-align: center;
 }
+/* rainbow circle cursor */
+* { cursor: none !important; }
+#cursor-orb {
+    position: fixed; left: 0; top: 0;
+    width: 34px; height: 34px; margin: -17px 0 0 -17px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    background: hsl(210 95% 62% / 0.2);
+    border: 2px solid hsl(210 95% 72% / 0.95);
+    box-shadow: 0 0 14px hsl(210 95% 62% / 0.65), 0 0 36px hsl(285 95% 60% / 0.45);
+    pointer-events: none;
+    z-index: 2147483647;
+    animation: orb-hue 5s linear infinite;
+}
+@keyframes orb-hue { to { filter: hue-rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -197,19 +212,11 @@ body.noglow * { box-shadow: none !important; }
 <div class="nav-grid">
 
     <div class="nav-card" onclick="openPage(gamesHTML)">
-        <div class="nav-icon">&#127918;</div>
         <div class="nav-name">games</div>
         <div class="nav-desc">full game list &middot; opens as about:blank</div>
     </div>
 
-    <div class="nav-card" onclick="openPage(gamehubHTML)">
-        <div class="nav-icon">&#128193;</div>
-        <div class="nav-name">game hub</div>
-        <div class="nav-desc">gamehub folder &middot; opens as about:blank</div>
-    </div>
-
     <div class="nav-card" onclick="openPage(informationHTML)">
-        <div class="nav-icon">&#128260;</div>
         <div class="nav-name">information</div>
         <div class="nav-desc">night sky &middot; opens as about:blank</div>
     </div>
@@ -595,6 +602,21 @@ body.listmode .buttons-container { display: grid; }
     .gthumb { height: 100px; }
     .buttons-container { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
 }
+/* rainbow circle cursor */
+* { cursor: none !important; }
+#cursor-orb {
+    position: fixed; left: 0; top: 0;
+    width: 34px; height: 34px; margin: -17px 0 0 -17px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    background: hsl(210 95% 62% / 0.2);
+    border: 2px solid hsl(210 95% 72% / 0.95);
+    box-shadow: 0 0 14px hsl(210 95% 62% / 0.65), 0 0 36px hsl(285 95% 60% / 0.45);
+    pointer-events: none;
+    z-index: 2147483647;
+    animation: orb-hue 5s linear infinite;
+}
+@keyframes orb-hue { to { filter: hue-rotate(360deg); } }
 </style>
 </head>
 <body class="cardmode">
@@ -999,6 +1021,23 @@ var UG = (function () {
 })();
 <\/script>
 
+<div id="cursor-orb"></div>
+<script>
+(function () {
+    var orb = document.getElementById("cursor-orb");
+    var tx = window.innerWidth / 2, ty = window.innerHeight / 2;
+    var cx = tx, cy = ty;
+    window.addEventListener("pointermove", function (e) { tx = e.clientX; ty = e.clientY; }, { passive: true });
+    window.addEventListener("touchmove", function (e) { if (e.touches && e.touches[0]) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; } }, { passive: true });
+    (function tick() {
+        cx += (tx - cx) * 0.14;
+        cy += (ty - cy) * 0.14;
+        orb.style.left = cx + "px";
+        orb.style.top = cy + "px";
+        requestAnimationFrame(tick);
+    })();
+})();
+<\/script>
 </body>
 </html>`;
 
@@ -1461,6 +1500,21 @@ body {
     }
 }
 
+/* rainbow circle cursor */
+* { cursor: none !important; }
+#cursor-orb {
+    position: fixed; left: 0; top: 0;
+    width: 34px; height: 34px; margin: -17px 0 0 -17px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    background: hsl(210 95% 62% / 0.2);
+    border: 2px solid hsl(210 95% 72% / 0.95);
+    box-shadow: 0 0 14px hsl(210 95% 62% / 0.65), 0 0 36px hsl(285 95% 60% / 0.45);
+    pointer-events: none;
+    z-index: 2147483647;
+    animation: orb-hue 5s linear infinite;
+}
+@keyframes orb-hue { to { filter: hue-rotate(360deg); } }
 </style>
 
 </head>
@@ -1825,10 +1879,44 @@ body {
 
 <\/script>
 
+<div id="cursor-orb"></div>
+<script>
+(function () {
+    var orb = document.getElementById("cursor-orb");
+    var tx = window.innerWidth / 2, ty = window.innerHeight / 2;
+    var cx = tx, cy = ty;
+    window.addEventListener("pointermove", function (e) { tx = e.clientX; ty = e.clientY; }, { passive: true });
+    window.addEventListener("touchmove", function (e) { if (e.touches && e.touches[0]) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; } }, { passive: true });
+    (function tick() {
+        cx += (tx - cx) * 0.14;
+        cy += (ty - cy) * 0.14;
+        orb.style.left = cx + "px";
+        orb.style.top = cy + "px";
+        requestAnimationFrame(tick);
+    })();
+})();
+<\/script>
 </body>
 </html>`;
 
 </script>
 
+<div id="cursor-orb"></div>
+<script>
+(function () {
+    var orb = document.getElementById("cursor-orb");
+    var tx = window.innerWidth / 2, ty = window.innerHeight / 2;
+    var cx = tx, cy = ty;
+    window.addEventListener("pointermove", function (e) { tx = e.clientX; ty = e.clientY; }, { passive: true });
+    window.addEventListener("touchmove", function (e) { if (e.touches && e.touches[0]) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; } }, { passive: true });
+    (function tick() {
+        cx += (tx - cx) * 0.14;
+        cy += (ty - cy) * 0.14;
+        orb.style.left = cx + "px";
+        orb.style.top = cy + "px";
+        requestAnimationFrame(tick);
+    })();
+})();
+</script>
 </body>
 </html>
