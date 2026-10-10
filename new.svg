@@ -168,7 +168,7 @@ svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
 
 
 <div class="appbar">
-    <button class="material"><svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+    <button class="material"><svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
     <div class="title-row">
         <h1 id="site-title" class="bar-title">free tutoring</h1>
     </div>
@@ -188,13 +188,13 @@ svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
     </div>
 
     <div class="nav-card" onclick="openPage(informationHTML)">
-        <div class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.4"/><circle cx="12" cy="7.9" r=".6" fill="currentColor"/></svg></div>
+        <div class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.4"/><circle cx="12" cy="7.9" r=".6" fill="currentColor"/></svg></div>
         <div class="nav-name">information</div>
         <div class="nav-desc">night sky &#183; opens as about:blank</div>
     </div>
 
     <div class="nav-card" onclick="openPage(contactHTML)">
-        <div class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="5" width="18.4" height="14" rx="2.4"/><path d="M3.4 6.6l8.6 6.4 8.6-6.4"/></svg></div>
+        <div class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="5" width="18.4" height="14" rx="2.4"/><path d="M3.4 6.6l8.6 6.4 8.6-6.4"/></svg></div>
         <div class="nav-name">contact</div>
         <div class="nav-desc">hit us up &#183; opens as about:blank</div>
     </div>
@@ -657,7 +657,7 @@ body.listmode .buttons-container { display: grid; }
 
 <div class="appbar">
     <!-- the hamburger is fake btw, its just part of the disguise -->
-    <button class="material"><svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+    <button class="material"><svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
 </div>
 
 <div class="hero">
@@ -666,7 +666,7 @@ body.listmode .buttons-container { display: grid; }
         <p class="credits">ported by powerenkyle2 and mr tan who never did work</p>
     </div>
     <button class="gear-btn" id="gear" title="settings">
-        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
     </button>
 </div>
 
@@ -710,7 +710,7 @@ body.listmode .buttons-container { display: grid; }
 <div class="toolbar">
     <div class="search-glow">
         <div class="searchbox">
-            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
             <input type="text" placeholder="find the game to your heart's desire" id="searchInput" autocomplete="off" spellcheck="false">
         </div>
     </div>
@@ -988,7 +988,7 @@ var UG = (function () {
         thumb.appendChild(ph);
         var pin = document.createElement("button");
         pin.className = "pinbtn" + (isPinned(name) ? " on" : "");
-        pin.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l-1 6 3.2 3.6V14H12.8v6h-1.6v-6H6.8v-1.4L10 9z"/></svg>';
+        pin.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l-1 6 3.2 3.6V14H12.8v6h-1.6v-6H6.8v-1.4L10 9z"/></svg>';
         pin.title = isPinned(name) ? "unpin" : "pin";
         pin.addEventListener("click", function (e) {
             e.stopPropagation();
@@ -1128,7 +1128,7 @@ var UG = (function () {
         if (pinned) {
             var pb = document.createElement("button");
             pb.className = "pinbtn on";
-            pb.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l-1 6 3.2 3.6V14H12.8v6h-1.6v-6H6.8v-1.4L10 9z"/></svg>';
+            pb.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l-1 6 3.2 3.6V14H12.8v6h-1.6v-6H6.8v-1.4L10 9z"/></svg>';
             pb.title = "unpin";
             pb.addEventListener("click", function (e) { e.stopPropagation(); togglePin(name); });
             th.appendChild(pb);
