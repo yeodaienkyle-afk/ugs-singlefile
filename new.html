@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0d12">
 <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png"><script>(function(){try{if(localStorage.getItem("ug_disguise")==="sls"){var l=document.querySelector('link[rel~="icon"]');if(l)l.href="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png";}}catch(e){}})();</script>
 <title>Home</title>
 <style>
 :root {
+    color-scheme: dark;
     --ink: #e8eaed;
     --muted: #9aa3b2;
     --line: #232838;
@@ -20,7 +22,7 @@ body {
     background: var(--bg);
     color: var(--ink);
 }
-/* ============ top bar ============ */
+/* top bar */
 .appbar {
     position: sticky; top: 0; z-index: 30;
     display: flex; align-items: center; gap: 12px;
@@ -47,55 +49,7 @@ svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
 }
 .bar-title.is-link { cursor: pointer; }
 @keyframes rainbow-slide { to { background-position: 300% 0; } }
-.gear-btn {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 34px; height: 34px; border-radius: 50%;
-    border: 1px solid var(--line); background: transparent; cursor: pointer;
-    flex-shrink: 0;
-}
-.gear-btn:hover { border-color: #a46bff; box-shadow: 0 0 10px rgba(164,107,255,.4); }
-.gear-btn svg { width: 18px; height: 18px; fill: var(--muted); }
-.avatar {
-    width: 34px; height: 34px; border-radius: 50%;
-    background: linear-gradient(135deg, #4285f4, #a46bff);
-    color: #fff; font-size: 15px; font-weight: 600;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 12px rgba(79,172,254,.4);
-    user-select: none; flex-shrink: 0;
-}
-/* ============ settings dropdown ============ */
-.settings-panel {
-    position: fixed; top: 62px; right: 16px; z-index: 60;
-    width: 240px;
-    background: #12161f;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 14px;
-    box-shadow: 0 8px 30px rgba(0,0,0,.55);
-    display: none;
-}
-.settings-panel.open { display: block; }
-.settings-panel h3 { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .8px; }
-.set-row { margin-bottom: 12px; }
-.set-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-.seg { display: flex; gap: 6px; }
-.seg button {
-    flex: 1; height: 32px; border-radius: 8px;
-    border: 1px solid var(--line); background: transparent;
-    color: var(--muted); font-size: 12px; cursor: pointer;
-}
-.seg button.active {
-    border-color: #a46bff; color: #fff;
-    box-shadow: 0 0 10px rgba(164,107,255,.4);
-}
-.toggle {
-    width: 100%; height: 32px; border-radius: 8px;
-    border: 1px solid var(--line); background: transparent;
-    color: var(--muted); font-size: 12px; cursor: pointer;
-}
-.toggle.on { border-color: #47f0a3; color: #fff; box-shadow: 0 0 10px rgba(71,240,163,.35); }
-body.noglow * { box-shadow: none !important; }
-/* ============ launcher ============ */
+/* launcher */
 .launcher-hero {
     max-width: 1200px; margin: 0 auto; padding: 60px 20px 20px;
     text-align: center;
@@ -155,7 +109,7 @@ body.noglow * { box-shadow: none !important; }
     max-width: 1200px; margin: 0 auto; padding: 4px 20px 34px;
     font-size: 12px; color: var(--muted); text-align: center;
 }
-/* rainbow circle cursor */
+/* the orb - it lags behind the mouse on purpose so it sways */
 * { cursor: none !important; }
 #cursor-orb {
     position: fixed; left: 0; top: 0;
@@ -171,6 +125,9 @@ body.noglow * { box-shadow: none !important; }
     will-change: transform;
 }
 @keyframes orb-hue { to { filter: hue-rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+}
 </style>
 </head>
 <body>
@@ -182,28 +139,35 @@ body.noglow * { box-shadow: none !important; }
     </div>
 </div>
 
+<div class="launcher-hero">
+    <h1 id="hero-logo" class="big-logo">free tutoring</h1>
+    <p class="tagline">the only class you never skip</p>
+</div>
+
 <div class="nav-grid">
 
     <div class="nav-card" onclick="openPage(gamesHTML)">
+        <div class="nav-icon">&#127918;</div>
         <div class="nav-name">games</div>
         <div class="nav-desc">full game list &middot; opens as about:blank</div>
     </div>
 
     <div class="nav-card" onclick="openPage(informationHTML)">
+        <div class="nav-icon">&#127769;</div>
         <div class="nav-name">information</div>
         <div class="nav-desc">night sky &middot; opens as about:blank</div>
     </div>
 
 </div>
 
-<p class="hint">Pop-ups open in new tabs that stay labelled about:blank. Allow pop-ups for this page if nothing opens.</p>
+<p class="hint">games open in new tabs labelled about:blank. if nothing happens when you click, allow popups for this page.</p>
 
 <script>
 
 function openPage(htmlContent) {
     const win = window.open("about:blank", "_blank");
     if (!win) {
-        alert("Popup was blocked. Please allow popups for this site.");
+        alert("popups got blocked - allow them for this page and try again");
         return;
     }
     win.document.open();
@@ -211,9 +175,8 @@ function openPage(htmlContent) {
     win.document.close();
 }
 
-/* rotating title phrases - changes every 10 seconds, random,
-   never the same one twice in a row, and a phrase only comes
-   back after 10 different phrases have been shown */
+// the title cycles through these every 10s. random order, and nothing
+// comes back until 10 others have shown first so it never repeats itself
 var TITLE_PHRASES = [
     "free tutoring",
     "ported by powerenkyle2",
@@ -234,6 +197,7 @@ var TITLE_PHRASES = [
     "loading education... just kidding",
     "attendance: 100% by accident"
 ];
+// TODO: more memes when i think of them
 
 (function () {
     var els = [document.getElementById("site-title"), document.getElementById("hero-logo")].filter(Boolean);
@@ -263,22 +227,21 @@ var TITLE_PHRASES = [
 
 
 
-/* =========================================================
-   GAMES PAGE - UBG style: dark, rainbow glow, horizontal
-   auto-rotating strips of thumbnail cards. Keeps the same
-   DOM contract for the list scripts: #sidebar, #sections-container,
-   #lolbutton, #searchInput, .letter-section, .buttons-container.
-   ========================================================= */
+/* the games menu. the whole thing gets written into an about:blank
+   popup so the tab keeps its name. games.js drops the actual buttons
+   into #sections-container, everything else lives here */
 
 const gamesHTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0d12">
 <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png"><script>(function(){try{if(localStorage.getItem("ug_disguise")==="sls"){var l=document.querySelector('link[rel~="icon"]');if(l)l.href="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png";}}catch(e){}})();<\/script>
 <title>Home</title>
 <style>
 :root {
+    color-scheme: dark;
     --ink: #e8eaed;
     --muted: #9aa3b2;
     --line: #232838;
@@ -305,15 +268,6 @@ body {
 }
 .material:hover { background: #1c2130; }
 svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
-.avatar {
-    margin-left: auto;
-    width: 34px; height: 34px; border-radius: 50%;
-    background: linear-gradient(135deg, #4285f4, #a46bff);
-    color: #fff; font-size: 15px; font-weight: 600;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 12px rgba(79,172,254,.4);
-    user-select: none; flex-shrink: 0;
-}
 .hero {
     max-width: 1240px; margin: 24px auto 4px; padding: 0 20px;
     display: flex; align-items: center; justify-content: center; gap: 14px;
@@ -409,11 +363,52 @@ body.norotate .strip { animation: none !important; }
     font-size: 13px; font-weight: 500; cursor: pointer;
 }
 #lolbutton:hover { border-color: #a46bff; box-shadow: 0 0 12px rgba(164,107,255,.45); color: #fff; }
+#game-count {
+    height: 38px; padding: 0 16px;
+    display: inline-flex; align-items: center;
+    border: 1px solid var(--line); border-radius: 19px;
+    background: #12161f;
+    color: var(--muted); font-size: 12px;
+    white-space: nowrap;
+}
 #sections-container { max-width: 1240px; margin: 0 auto; padding: 10px 20px 40px; }
 .letter-section {
     background: transparent;
     margin-bottom: 26px;
+    scroll-margin-top: 90px;
 }
+/* the A-Z rail on the right, games.js fills this in */
+#sidebar {
+    position: fixed;
+    right: 6px; top: 50%;
+    transform: translateY(-50%);
+    z-index: 40;
+    display: flex; flex-direction: column;
+    gap: 2px;
+    max-height: 78vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding: 6px 4px;
+    background: rgba(13,16,23,.85);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+#sidebar::-webkit-scrollbar { display: none; }
+.sidebar-btn {
+    border: none; background: transparent;
+    color: var(--muted);
+    font-size: 10px; font-weight: 600;
+    width: 20px; height: 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    line-height: 1;
+}
+.sidebar-btn:hover {
+    color: #fff;
+    background: hsl(285 95% 60% / .25);
+    box-shadow: 0 0 8px hsl(285 95% 60% / .45);
+}
+.sidebar-btn.empty { opacity: .25; pointer-events: none; }
 .letter-header {
     display: inline-flex; align-items: center;
     min-height: 34px;
@@ -434,7 +429,7 @@ body.norotate .strip { animation: none !important; }
 #sections-container .letter-section:nth-of-type(7n+7) .letter-header { background: linear-gradient(135deg,#f28b82,#c5221f); }
 .letter-section.empty { opacity: .55; }
 .empty-message { color: var(--muted); font-style: italic; font-size: 13px; padding: 8px 0 4px; }
-/* ---------- CARD VIEW: horizontal auto-rotating strip ---------- */
+/* card view - the strips crawl sideways on their own */
 .strip {
     display: flex; gap: 12px;
     overflow-x: auto;
@@ -507,7 +502,7 @@ body.listmode .buttons-container { display: grid; }
     min-height: 30px;
 }
 @keyframes hue-flow { to { filter: hue-rotate(360deg); } }
-/* ---------- LIST VIEW: dense text grid, no images ---------- */
+/* list view - plain text, loads way faster */
 .buttons-container {
     display: none;
     grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
@@ -544,7 +539,10 @@ body.listmode .buttons-container { display: grid; }
     .gthumb { height: 100px; }
     .buttons-container { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
 }
-/* rainbow circle cursor */
+@media (max-width: 1100px) {
+    #sidebar { display: none; }
+}
+/* the orb - it lags behind the mouse on purpose so it sways */
 * { cursor: none !important; }
 #cursor-orb {
     position: fixed; left: 0; top: 0;
@@ -560,11 +558,15 @@ body.listmode .buttons-container { display: grid; }
     will-change: transform;
 }
 @keyframes orb-hue { to { filter: hue-rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+}
 </style>
 </head>
 <body class="cardmode">
 
 <div class="appbar">
+    <!-- the hamburger is fake btw, its just part of the disguise -->
     <button class="material"><svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
 </div>
 
@@ -608,15 +610,19 @@ body.listmode .buttons-container { display: grid; }
     <div class="search-glow">
         <div class="searchbox">
             <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-            <input type="text" placeholder="find the game to your heart's desire" id="searchInput">
+            <input type="text" placeholder="find the game to your heart's desire" id="searchInput" autocomplete="off" spellcheck="false">
         </div>
     </div>
-    <button id="lolbutton">Click to load if it isn't loading</button>
+    <span id="game-count">counting...</span>
+    <button id="lolbutton">not loading? click here</button>
 </div>
 
 <div id="sections-container"></div>
 
+<div id="sidebar"></div>
+
 <script>
+// search box, the / shortcut and the game counter
 document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("searchInput");
     if (searchInput) {
@@ -639,12 +645,40 @@ document.addEventListener("DOMContentLoaded", function () {
                     card.style.display = matches ? "" : "none";
                     if (matches) { anyVisible = true; }
                 });
-                if (buttons.length > 0 || cards.length > 0) {
-                    section.style.display = anyVisible ? "" : "none";
-                }
+                /* hides empty letter sections too */
+                section.style.display = anyVisible ? "" : "none";
             });
+            updateCount();
         });
     }
+
+    // press / anywhere to jump into the search box
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "/" && document.activeElement !== searchInput) {
+            e.preventDefault();
+            searchInput.focus();
+        }
+    });
+
+    // the little counter next to the search box
+    var countEl = document.getElementById("game-count");
+    function updateCount() {
+        var btns = document.querySelectorAll('.buttons-container input[type="button"]');
+        var cards = document.querySelectorAll(".gcard");
+        var n = 0;
+        btns.forEach(function (b) { if (b.offsetParent !== null) n++; });
+        cards.forEach(function (c) { if (c.offsetParent !== null) n++; });
+        countEl.textContent = n + (n === 1 ? " game" : " games");
+    }
+    var listRoot = document.getElementById("sections-container");
+    if (listRoot && window.MutationObserver) {
+        var countTimer = null;
+        new MutationObserver(function () {
+            clearTimeout(countTimer);
+            countTimer = setTimeout(updateCount, 150);
+        }).observe(listRoot, { childList: true, subtree: true });
+    }
+    updateCount();
 
     const fallbackButton = document.getElementById("lolbutton");
     if (fallbackButton) {
@@ -653,7 +687,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const script = document.createElement("script");
             script.id = "fallback-script";
             script.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/codeorn.js?t=" + Date.now();
-            script.onload = function () { console.log("Fallback script loaded."); };
+            script.onload = function () {};
             script.onerror = function () {
                 script.onerror = null;
                 console.warn("Primary fallback failed, trying bubbls mirror.");
@@ -666,7 +700,7 @@ document.addEventListener("DOMContentLoaded", function () {
 <\/script>
 
 <script>
-/* ============ settings (view mode / rotate / glow) ============ */
+// settings panel stuff
 (function () {
     var gear = document.getElementById("gear");
     var panel = document.getElementById("settings");
@@ -677,6 +711,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     document.addEventListener("click", function (e) {
         if (!panel.contains(e.target) && e.target !== gear) { panel.classList.remove("open"); }
+    });
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") { panel.classList.remove("open"); }
     });
     var vc = document.getElementById("view-cards");
     var vl = document.getElementById("view-list");
@@ -724,7 +761,7 @@ document.addEventListener("DOMContentLoaded", function () {
 <\/script>
 
 <script>
-/* ============ rotating title (10s, random, no repeats for 10) ============ */
+/* rotating title - the games menu has its own copy of the phrase list */
 var TITLE_PHRASES = [
     "free tutoring",
     "ported by powerenkyle2",
@@ -745,6 +782,7 @@ var TITLE_PHRASES = [
     "loading education... just kidding",
     "attendance: 100% by accident"
 ];
+// TODO: more memes when i think of them
 (function () {
     var el = document.getElementById("site-title");
     if (!el) { return; }
@@ -770,10 +808,9 @@ var TITLE_PHRASES = [
 <\/script>
 
 <script>
-/* ============ card builder: turns every game button from the list
-   script into a thumbnail card in a horizontal strip. clicking the
-   card clicks the original button, so the game opens exactly the
-   same way as before. ============ */
+/* builds a thumbnail card for every game button the list script adds.
+   clicking a card just clicks the button behind it, so games still
+   open the normal way */
 var UG = (function () {
     var manifest = null;          /* name -> {t, d} from ug-thumbs repo */
     var manifestWaiters = [];
@@ -843,10 +880,9 @@ var UG = (function () {
             img.src = THUMB_BASE + encodeURIComponent(name) + ".jpg?v=2";
         }
         if (manifest) { applyManifest(); } else { manifestWaiters.push(applyManifest); }
-        /* keep cards in the same order as the buttons: find the button's
-           carded neighbours and insert after the previous card */
+        /* keep the cards in the same order as their buttons */
         var prev = btn.previousElementSibling;
-        while (prev && !prev.getAttribute || !prev.getAttribute("data-carded")) { prev = prev.previousElementSibling; }
+        while (prev && prev.getAttribute && !prev.getAttribute("data-carded")) { prev = prev.previousElementSibling; }
         if (prev) {
             var prevCard = strip.querySelector('[data-name="' + CSS.escape(prev.value || "") + '"]');
             if (prevCard && prevCard.nextElementSibling) { strip.insertBefore(card, prevCard.nextElementSibling); }
@@ -861,8 +897,7 @@ var UG = (function () {
         for (var i = 0; i < btns.length; i++) { buildCard(btns[i]); }
     }
 
-    /* auto-rotate every strip: slow crawl, wraps back to the start,
-       pauses while the mouse is over it */
+    /* crawl every strip, stop while someone hovers over it */
     var paused = new WeakSet();
     document.addEventListener("mouseover", function (e) {
         var s = e.target.closest ? e.target.closest(".strip") : null;
@@ -917,9 +952,8 @@ var UG = (function () {
 <\/script>
 
 <script>
-/* Credits guard: makes sure a "credits" button is always the very first
-   button on this page, even if the list script that loaded is an older or
-   mirrored copy without the credits entry. */
+// if the list that loaded is an old mirror without credits in it,
+// jam a credits button back in at the top
 (function () {
     var tries = 0;
     var timer = setInterval(function () {
@@ -933,9 +967,8 @@ var UG = (function () {
         }
         clearInterval(timer);
         var v = (firstBtn.value || "").trim();
-        if (v.toLowerCase() === "credits") return; /* already first, nothing to do */
+        if (v.toLowerCase() === "credits") return; /* already there */
 
-        /* credits missing from the loaded list: force it in at the very top */
         var zero = d.getElementById("section-0");
         if (!zero) {
             var firstSection = d.querySelector(".letter-section");
@@ -965,7 +998,7 @@ var UG = (function () {
         btn.onclick = function () {
             var w = window.open("about:blank", "_blank");
             if (!w) {
-                alert("Allow pop-ups for this page to open the credits page.");
+                alert("allow popups for this page to open the credits");
                 return;
             }
             w.document.write("<p>Loading credits.html...</p>");
@@ -999,10 +1032,15 @@ var UG = (function () {
     var cx = tx, cy = ty;
     window.addEventListener("pointermove", function (e) { tx = e.clientX; ty = e.clientY; }, { passive: true });
     window.addEventListener("touchmove", function (e) { if (e.touches && e.touches[0]) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; } }, { passive: true });
+    var hot = 1, hotTo = 1;
+    window.addEventListener("pointerover", function (e) {
+        hotTo = (e.target.closest && e.target.closest("button, a, .nav-card, .gcard, input[type=button]")) ? 1.5 : 1;
+    });
     (function tick() {
         cx += (tx - cx) * 0.4;
         cy += (ty - cy) * 0.4;
-        orb.style.transform = "translate3d(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px,0)";
+        hot += (hotTo - hot) * 0.25;
+        orb.style.transform = "translate3d(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px,0) scale(" + hot.toFixed(2) + ")";
         requestAnimationFrame(tick);
     })();
 })();
@@ -1010,9 +1048,7 @@ var UG = (function () {
 </body>
 </html>`;
 
-/* =========================================================
-   GAME HUB PAGE - same UBG interface, loads gamehub.js
-   ========================================================= */
+/* gamehub - the same page but it loads gamehub.js instead */
 
 const gamehubHTML = gamesHTML
     .replace("<title>Home</title>", "<title>Game Hub</title>")
@@ -1029,6 +1065,7 @@ const informationHTML = `<!DOCTYPE html>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0d12">
 
 <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png"><script>(function(){try{if(localStorage.getItem("ug_disguise")==="sls"){var l=document.querySelector('link[rel~="icon"]');if(l)l.href="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png";}}catch(e){}})();<\/script>
 
@@ -1469,7 +1506,7 @@ body {
     }
 }
 
-/* rainbow circle cursor */
+/* the orb - it lags behind the mouse on purpose so it sways */
 * { cursor: none !important; }
 #cursor-orb {
     position: fixed; left: 0; top: 0;
@@ -1485,6 +1522,9 @@ body {
     will-change: transform;
 }
 @keyframes orb-hue { to { filter: hue-rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+}
 </style>
 
 </head>
@@ -1857,10 +1897,15 @@ body {
     var cx = tx, cy = ty;
     window.addEventListener("pointermove", function (e) { tx = e.clientX; ty = e.clientY; }, { passive: true });
     window.addEventListener("touchmove", function (e) { if (e.touches && e.touches[0]) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; } }, { passive: true });
+    var hot = 1, hotTo = 1;
+    window.addEventListener("pointerover", function (e) {
+        hotTo = (e.target.closest && e.target.closest("button, a, .nav-card, .gcard, input[type=button]")) ? 1.5 : 1;
+    });
     (function tick() {
         cx += (tx - cx) * 0.4;
         cy += (ty - cy) * 0.4;
-        orb.style.transform = "translate3d(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px,0)";
+        hot += (hotTo - hot) * 0.25;
+        orb.style.transform = "translate3d(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px,0) scale(" + hot.toFixed(2) + ")";
         requestAnimationFrame(tick);
     })();
 })();
@@ -1878,10 +1923,15 @@ body {
     var cx = tx, cy = ty;
     window.addEventListener("pointermove", function (e) { tx = e.clientX; ty = e.clientY; }, { passive: true });
     window.addEventListener("touchmove", function (e) { if (e.touches && e.touches[0]) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; } }, { passive: true });
+    var hot = 1, hotTo = 1;
+    window.addEventListener("pointerover", function (e) {
+        hotTo = (e.target.closest && e.target.closest("button, a, .nav-card, .gcard, input[type=button]")) ? 1.5 : 1;
+    });
     (function tick() {
         cx += (tx - cx) * 0.4;
         cy += (ty - cy) * 0.4;
-        orb.style.transform = "translate3d(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px,0)";
+        hot += (hotTo - hot) * 0.25;
+        orb.style.transform = "translate3d(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px,0) scale(" + hot.toFixed(2) + ")";
         requestAnimationFrame(tick);
     })();
 })();
