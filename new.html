@@ -649,6 +649,20 @@ body.listmode .buttons-container { display: grid; }
     transition: opacity .4s ease;
 }
 #terms-gate.gone { opacity: 0; pointer-events: none; }
+#play-gate {
+    position: fixed; inset: 0; z-index: 1000000;
+    background: rgba(6, 8, 13, .94);
+    display: flex; align-items: center; justify-content: center;
+    padding: 18px; overflow: auto;
+    transition: opacity .4s ease;
+}
+#play-gate.gone { opacity: 0; pointer-events: none; }
+.gate-close {
+    display: block; margin: 10px auto 0; background: none; border: none;
+    color: rgba(232, 234, 237, .45); font: 500 13px 'Segoe UI', Roboto, sans-serif;
+    cursor: pointer; text-decoration: underline;
+}
+.gate-close:hover { color: rgba(232, 234, 237, .8); }
 .gate-card {
     width: min(720px, 100%); max-height: 90vh; overflow: auto;
     background: #10131c; border: 1px solid rgba(255, 255, 255, .12);
@@ -753,6 +767,81 @@ body.listmode .buttons-container { display: grid; }
         gate.classList.add("gone");
         setTimeout(function () { if (gate.parentNode) { gate.parentNode.removeChild(gate); } }, 450);
     });
+})();
+<\/script>
+
+<div id="play-gate" class="gone">
+    <div class="gate-card">
+        <div class="gate-hero" id="play-gate-title">before you play</div>
+        <div class="gate-sub">read this, tick the box, then you can start</div>
+        <div class="gate-cols">
+            <section class="gate-sec">
+                <h3>terms &amp; conditions</h3>
+                <ul>
+                    <li>this site is for entertainment only. use it responsibly.</li>
+                    <li>if you snitch this site to a teacher, you agree to pay a penalty fee of <b>$500</b>. no warnings, no refunds.</li>
+                    <li>what happens in the hub stays in the hub.</li>
+                </ul>
+            </section>
+            <section class="gate-sec">
+                <h3>privacy policy</h3>
+                <ul>
+                    <li>the site code is private. you may not copy, reuse or republish it without permission.</li>
+                    <li>want the code? ask through the contact page and we will give it to you.</li>
+                    <li>we do not collect or share any personal data.</li>
+                </ul>
+            </section>
+        </div>
+        <label class="gate-check">
+            <input type="checkbox" id="play-agree">
+            <span>I have read and agree to the Terms &amp; Conditions and Privacy Policy</span>
+        </label>
+        <button id="play-start" class="gate-btn" disabled>START</button>
+        <button class="gate-close" id="play-cancel">back to the hub</button>
+        <div class="gate-cc">&copy; powerenkyle2 2026 &middot; all rights reserved</div>
+    </div>
+</div>
+<script>
+(function () {
+    var gate = document.getElementById("play-gate");
+    var cb = document.getElementById("play-agree");
+    var btn = document.getElementById("play-start");
+    var cancel = document.getElementById("play-cancel");
+    var title = document.getElementById("play-gate-title");
+    var pending = null;
+    function hide() {
+        gate.classList.add("gone");
+        pending = null;
+    }
+    document.addEventListener("click", function (ev) {
+        var b = ev.target;
+        if (!(b && b.matches && b.matches('.buttons-container input[type="button"]'))) { return; }
+        if (window.__ugPlayOK) { window.__ugPlayOK = false; return; }
+        ev.preventDefault();
+        ev.stopPropagation();
+        pending = b;
+        cb.checked = false;
+        btn.classList.remove("ready");
+        btn.disabled = true;
+        var name = (b.value || "").replace(/\\s*\\(maintenance\\)\\s*$/i, "");
+        title.textContent = "before you play" + (name ? ": " + name : "");
+        gate.classList.remove("gone");
+    }, true);
+    cb.addEventListener("change", function () {
+        if (cb.checked) { btn.classList.add("ready"); btn.disabled = false; }
+        else { btn.classList.remove("ready"); btn.disabled = true; }
+    });
+    btn.addEventListener("click", function () {
+        if (btn.disabled || !pending) { return; }
+        var b = pending;
+        hide();
+        window.__ugPlayOK = true;
+        b.click();
+    });
+    cancel.addEventListener("click", hide);
+    document.addEventListener("keydown", function (ev) {
+        if (ev.key === "Escape" && !gate.classList.contains("gone")) { ev.stopPropagation(); hide(); }
+    }, true);
 })();
 <\/script>
 
@@ -2454,10 +2543,34 @@ input:focus, textarea:focus { outline: none; border-color: #a46bff; box-shadow: 
 (function () {
     var f = document.getElementById("cform");
     var sent = document.getElementById("sent");
+    var sendBtn = f.querySelector(".send");
     f.addEventListener("submit", function (e) {
         e.preventDefault();
-        sent.style.display = "block";
-        setTimeout(function () { f.reset(); }, 400);
+        var msg = document.getElementById("cmsg").value.trim();
+        var name = document.getElementById("cname").value.trim();
+        if (!msg) { return; }
+        sendBtn.disabled = true;
+        var old = sendBtn.textContent;
+        sendBtn.textContent = "sending...";
+        fetch("https://superagent-9b1c1681.base44.app/functions/ugsContactSubmit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: msg, nickname: name })
+        }).then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+          .then(function (j) {
+            if (!j.ok) { return Promise.reject(); }
+            sent.textContent = "message received. if you asked for the code, we'll get back to you.";
+            sent.style.display = "block";
+            f.reset();
+          })
+          .catch(function () {
+            sent.textContent = "couldn't send right now. try again later.";
+            sent.style.display = "block";
+          })
+          .then(function () {
+            sendBtn.disabled = false;
+            sendBtn.textContent = old;
+          });
     });
 })();
 <\/script>
