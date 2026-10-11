@@ -1,0 +1,23 @@
+===============================
+ UGS - TERMS & CONDITIONS
+===============================
+
+TERMS & CONDITIONS
+
+- this site is for entertainment only. use it responsibly.
+- if you snitch this site to a teacher, you agree to pay a penalty fee of $500. no warnings, no refunds.
+- what happens in the hub stays in the hub.
+- the games load from public mirrors. if a game is broken, use the contact page to report it.
+
+PRIVACY POLICY
+
+- the site code is private. you may not copy, reuse or republish it without permission.
+- want the code? ask through the contact page and we will give it to you.
+- we do not collect or share any personal data.
+- contact messages are stored privately and read by the owner only.
+
+CREDITS
+
+- hub, launcher, games list and patches (c) powerenkyle2 2026. all rights reserved.
+- game files are served via cdn.jsdelivr.net mirrors of the ugs-singlefile repo.
+- special thanks to everyone who tested the hub at school and did not snitch.
