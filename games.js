@@ -3270,9 +3270,7 @@ const SAVE_BAR_SCRIPT = `(function () {
         var b = document.createElement("button");
         b.type = "button";
         b.textContent = label;
-        b.addEventListener("click",
-  "clislander",
-  "clsurvevio", cb);
+        b.addEventListener("click", cb);
         return b;
     }
 
@@ -3311,6 +3309,12 @@ const SAVE_BAR_SCRIPT = `(function () {
         document.documentElement.appendChild(handle);
         document.documentElement.appendChild(panel);
 
+        var wm = document.createElement("div");
+        wm.id = "ugs-wm";
+        wm.textContent = "\u00a9 powerenkyle2 2026";
+        wm.style.cssText = "position:fixed;bottom:8px;left:12px;z-index:2147483646;pointer-events:none;color:rgba(255,255,255,.16);font:600 11px sans-serif;letter-spacing:1px;";
+        document.documentElement.appendChild(wm);
+
         handle.classList.add("ugs-on");
         setTimeout(function () { handle.classList.remove("ugs-on"); }, 5000);
 
@@ -3324,6 +3328,8 @@ const SAVE_BAR_SCRIPT = `(function () {
             var host = document.fullscreenElement || document.documentElement;
             host.appendChild(handle);
             host.appendChild(panel);
+            var wmEl = document.getElementById("ugs-wm");
+            if (wmEl) { host.appendChild(wmEl); }
         });
     }
 
@@ -3435,7 +3441,12 @@ const lower = file.toLowerCase();
             alert("Allow pop-ups for this page to open games.");
             return;
           }
-          newWin.document.write('<title>Home</title><link rel="icon" href="' + getDisguiseIcon() + '"><p>Loading ' + normalized.replace(/[&<>"\']/g, "") + "...</p>");
+          // while the game window is open, the hub's keybinds are locked
+          window.__ugKeysLocked = true;
+          const keyLockTimer = setInterval(function () {
+            if (newWin.closed) { window.__ugKeysLocked = false; clearInterval(keyLockTimer); }
+          }, 400);
+          newWin.document.write('<title>Home</title><link rel="icon" href="' + getDisguiseIcon() + '"><style>body{margin:0;padding:40px;font-family:sans-serif;color:#c7ccd8;background:#0b0d12}#ugwm{position:fixed;bottom:10px;right:14px;color:rgba(255,255,255,.35);font:600 12px sans-serif;letter-spacing:1px;pointer-events:none}</style><p>Loading ' + normalized.replace(/[&<>"\']/g, "") + '...</p><div id="ugwm">\u00a9 powerenkyle2 2026</div>');
           newWin.document.close();
 
           function trySource(i) {
