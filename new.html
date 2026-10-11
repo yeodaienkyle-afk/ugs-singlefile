@@ -143,7 +143,7 @@ svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
     max-width: 1200px; margin: 0 auto; padding: 4px 20px 34px;
     font-size: 12px; color: var(--muted); text-align: center;
 }
-/* the orb - it lags behind the mouse on purpose so it sways */
+/* the orb - traces the mouse instantly */
 * { cursor: none !important; }
 #cursor-orb {
     position: fixed; left: 0; top: 0;
@@ -620,7 +620,7 @@ body.listmode .buttons-container { display: grid; }
 @media (max-width: 1100px) {
     #sidebar { display: none; }
 }
-/* the orb - it lags behind the mouse on purpose so it sways */
+/* the orb - traces the mouse instantly */
 * { cursor: none !important; }
 #cursor-orb {
     position: fixed; left: 0; top: 0;
@@ -639,9 +639,122 @@ body.listmode .buttons-container { display: grid; }
 @media (prefers-reduced-motion: reduce) {
     * { animation: none !important; transition: none !important; }
 }
+
+/* ---- terms gate - covers the hub on every start until you agree ---- */
+#terms-gate {
+    position: fixed; inset: 0; z-index: 999999;
+    background: rgba(6, 8, 13, .94);
+    display: flex; align-items: center; justify-content: center;
+    padding: 18px; overflow: auto;
+    transition: opacity .4s ease;
+}
+#terms-gate.gone { opacity: 0; pointer-events: none; }
+.gate-card {
+    width: min(720px, 100%); max-height: 90vh; overflow: auto;
+    background: #10131c; border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 16px; padding: 26px 28px 20px; text-align: center;
+    box-shadow: 0 0 42px rgba(79, 172, 254, .16), 0 0 90px rgba(164, 107, 255, .10);
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif; color: #e8eaed;
+    margin: auto;
+}
+.gate-hero {
+    font-size: 26px; font-weight: 800; letter-spacing: .5px;
+    background: linear-gradient(90deg, #ff5f6d, #ffc371, #f7ff47, #47f0a3, #4facfe, #a46bff, #ff5f6d);
+    background-size: 300% 100%;
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+    animation: gate-flow 6s linear infinite;
+}
+@keyframes gate-flow { to { background-position: 300% 0; } }
+.gate-sub { margin-top: 6px; font-size: 13px; color: #9aa3b2; }
+.gate-cols { display: flex; gap: 14px; margin-top: 18px; text-align: left; }
+.gate-sec {
+    flex: 1; background: #0b0d12; border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 12px; padding: 14px 16px;
+}
+.gate-sec h3 {
+    margin: 0 0 8px; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #4facfe;
+}
+.gate-sec ul { margin: 0; padding-left: 18px; }
+.gate-sec li { font-size: 12.5px; line-height: 1.55; margin-bottom: 6px; color: #c7ccd8; }
+.gate-sec b { color: #ffc371; }
+.gate-check {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    margin: 20px auto 0; font-size: 13px; color: #c7ccd8; cursor: pointer; user-select: none;
+}
+.gate-check input { width: 17px; height: 17px; accent-color: #4facfe; cursor: pointer; }
+.gate-btn {
+    display: block; margin: 16px auto 0; padding: 12px 46px;
+    font: 800 15px 'Segoe UI', Roboto, Arial, sans-serif; letter-spacing: 2px;
+    color: #0b0d12; background: #2a3040; border: none; border-radius: 10px;
+    cursor: not-allowed; opacity: .45;
+    transition: opacity .2s ease, box-shadow .2s ease;
+}
+.gate-btn.ready {
+    cursor: pointer; opacity: 1; color: #fff;
+    background: linear-gradient(90deg, #ff5f6d, #ffc371, #47f0a3, #4facfe, #a46bff, #ff5f6d);
+    background-size: 300% 100%;
+    animation: gate-flow 4s linear infinite;
+    box-shadow: 0 0 22px rgba(79, 172, 254, .45), 0 0 44px rgba(255, 95, 109, .25);
+}
+.gate-cc { margin-top: 16px; font-size: 11px; color: #6b7280; letter-spacing: 1px; }
+#ug-wm {
+    position: fixed; bottom: 8px; right: 12px; z-index: 500;
+    font: 600 11px 'Segoe UI', Roboto, Arial, sans-serif; letter-spacing: 1px;
+    color: rgba(232, 234, 237, .30); pointer-events: none; user-select: none;
+}
+@media (max-width: 640px) { .gate-cols { flex-direction: column; } }
 </style>
 </head>
 <body class="cardmode">
+
+<div id="terms-gate">
+    <div class="gate-card">
+        <div class="gate-hero">welcome to the hub</div>
+        <div class="gate-sub">read this, tick the box, then you can start</div>
+        <div class="gate-cols">
+            <section class="gate-sec">
+                <h3>terms &amp; conditions</h3>
+                <ul>
+                    <li>this site is for entertainment only. use it responsibly.</li>
+                    <li>if you snitch this site to a teacher, you agree to pay a penalty fee of <b>$500</b>. no warnings, no refunds.</li>
+                    <li>what happens in the hub stays in the hub.</li>
+                </ul>
+            </section>
+            <section class="gate-sec">
+                <h3>privacy policy</h3>
+                <ul>
+                    <li>the site code is private. you may not copy, reuse or republish it without permission.</li>
+                    <li>want the code? ask through the contact page and we will give it to you.</li>
+                    <li>we do not collect or share any personal data.</li>
+                </ul>
+            </section>
+        </div>
+        <label class="gate-check">
+            <input type="checkbox" id="agree-check">
+            <span>I have read and agree to the Terms &amp; Conditions and Privacy Policy</span>
+        </label>
+        <button id="gate-start" class="gate-btn" disabled>START</button>
+        <div class="gate-cc">&copy; powerenkyle2 2026 &middot; all rights reserved</div>
+    </div>
+</div>
+<div id="ug-wm">&copy; powerenkyle2 2026</div>
+<script>
+(function () {
+    var gate = document.getElementById("terms-gate");
+    var cb = document.getElementById("agree-check");
+    var btn = document.getElementById("gate-start");
+    cb.addEventListener("change", function () {
+        if (cb.checked) { btn.classList.add("ready"); btn.disabled = false; }
+        else { btn.classList.remove("ready"); btn.disabled = true; }
+    });
+    btn.addEventListener("click", function () {
+        if (btn.disabled) { return; }
+        gate.classList.add("gone");
+        setTimeout(function () { if (gate.parentNode) { gate.parentNode.removeChild(gate); } }, 450);
+    });
+})();
+<\/script>
 
 <div class="appbar">
     <!-- the hamburger is fake btw, its just part of the disguise -->
@@ -743,6 +856,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // press / anywhere to jump into the search box
     document.addEventListener("keydown", function (e) {
+        if (window.__ugKeysLocked) { return; }
         if (e.key === "/" && document.activeElement !== searchInput) {
             e.preventDefault();
             searchInput.focus();
@@ -802,6 +916,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!panel.contains(e.target) && e.target !== gear) { panel.classList.remove("open"); }
     });
     document.addEventListener("keydown", function (e) {
+        if (window.__ugKeysLocked) { return; }
         if (e.key === "Escape") { panel.classList.remove("open"); }
     });
     var vc = document.getElementById("view-cards");
@@ -1312,8 +1427,8 @@ var UG = (function () {
         hotTo = (e.target.closest && e.target.closest("button, a, .nav-card, .gcard, input[type=button]")) ? 1.5 : 1;
     });
     (function tick() {
-        cx += (tx - cx) * 0.4;
-        cy += (ty - cy) * 0.4;
+        cx = tx;
+        cy = ty;
         hot += (hotTo - hot) * 0.25;
         orb.style.transform = "translate3d(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px,0) scale(" + hot.toFixed(2) + ")";
         requestAnimationFrame(tick);
@@ -1739,6 +1854,15 @@ body {
     animation: fadeIn 1.2s ease-out;
 }
 
+.page-logo { display: flex; justify-content: center; margin-bottom: 16px; }
+.page-logo svg {
+    width: 74px; height: 74px;
+    fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+    color: #a46bff;
+    filter: drop-shadow(0 0 6px currentColor) drop-shadow(0 0 18px currentColor);
+    animation: page-logo-hue 5s linear infinite;
+}
+@keyframes page-logo-hue { to { filter: drop-shadow(0 0 6px currentColor) drop-shadow(0 0 18px currentColor) hue-rotate(360deg); } }
 .container h1 {
     font-size: 3.5rem;
     letter-spacing: 2px;
@@ -1781,7 +1905,7 @@ body {
     }
 }
 
-/* the orb - it lags behind the mouse on purpose so it sways */
+/* the orb - traces the mouse instantly */
 * { cursor: none !important; }
 #cursor-orb {
     position: fixed; left: 0; top: 0;
@@ -2056,6 +2180,8 @@ body {
 
 <div class="container">
 
+    <div class="page-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.4"/><circle cx="12" cy="7.9" r=".6" fill="currentColor"/></svg></div>
+
     <h1>free tutoring</h1>
 
     <p>
@@ -2177,8 +2303,8 @@ body {
         hotTo = (e.target.closest && e.target.closest("button, a, .nav-card, .gcard, input[type=button]")) ? 1.5 : 1;
     });
     (function tick() {
-        cx += (tx - cx) * 0.4;
-        cy += (ty - cy) * 0.4;
+        cx = tx;
+        cy = ty;
         hot += (hotTo - hot) * 0.25;
         orb.style.transform = "translate3d(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px,0) scale(" + hot.toFixed(2) + ")";
         requestAnimationFrame(tick);
@@ -2209,6 +2335,15 @@ body {
     padding: 28px 16px;
 }
 .wrap { width: 100%; max-width: 540px; text-align: center; }
+.page-logo { display: flex; justify-content: center; margin-bottom: 14px; }
+.page-logo svg {
+    width: 70px; height: 70px;
+    fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+    color: #47f0a3;
+    filter: drop-shadow(0 0 6px currentColor) drop-shadow(0 0 18px currentColor);
+    animation: page-logo-hue 5s linear infinite;
+}
+@keyframes page-logo-hue { to { filter: drop-shadow(0 0 6px currentColor) drop-shadow(0 0 18px currentColor) hue-rotate(360deg); } }
 h1 {
     font-size: clamp(30px, 6vw, 44px);
     font-weight: 800;
@@ -2279,7 +2414,7 @@ input:focus, textarea:focus { outline: none; border-color: #a46bff; box-shadow: 
     border: 1px solid rgba(71,240,163,.5); border-radius: 9px;
     color: #47f0a3; font-size: 13px;
 }
-/* the orb - it lags behind the mouse on purpose so it sways */
+/* the orb - traces the mouse instantly */
 * { cursor: none !important; }
 #cursor-orb {
     position: fixed; left: 0; top: 0;
@@ -2301,25 +2436,26 @@ input:focus, textarea:focus { outline: none; border-color: #a46bff; box-shadow: 
 </head>
 <body>
 <div class="wrap">
+    <div class="page-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="2.8" y="5" width="18.4" height="14" rx="2.4"/><path d="M3.4 6.6l8.6 6.4 8.6-6.4"/></svg></div>
     <h1>contact</h1>
     <p class="arcade">&gt; INSERT MESSAGE TO SEND &lt;</p>
-    <form class="form-card" id="cform" method="POST" action="https://script.google.com/a/macros/students.edu.sg/s/AKfycbwnC76NIeF57SnXAgL2me-l92MRvsbRbajf76wj5lOCliEdVNo0stU1_6txJaH3L_6l.exec" target="sendframe">
+    <form class="form-card" id="cform">
         <label for="cname">name</label>
         <input type="text" id="cname" name="name" placeholder="your name (or don't)">
         <label for="cmsg">message</label>
-        <textarea id="cmsg" name="message" placeholder="broken game? game request? project idea? type it here" required></textarea>
+        <textarea id="cmsg" name="message" placeholder="broken game? game request? code permission? type it here" required></textarea>
         <button class="send" type="submit">SEND IT</button>
-        <div id="sent">fired off. if you're not signed into your school account it probably bounced tho</div>
+        <div id="sent">message received. if you asked for the code, we'll get back to you.</div>
     </form>
-    <p class="note">goes through the school's form script. if it acts up, <a href="https://script.google.com/a/macros/students.edu.sg/s/AKfycbwnC76NIeF57SnXAgL2me-l92MRvsbRbajf76wj5lOCliEdVNo0stU1_6txJaH3L_6l.exec" target="_blank" rel="noopener">open the form in a new tab</a> instead.</p>
+    <p class="note">want the site code? ask for permission here and we will give it to you.</p>
 </div>
-<iframe name="sendframe" id="sendframe" style="display:none"></iframe>
 <div id="cursor-orb"></div>
 <script>
 (function () {
     var f = document.getElementById("cform");
     var sent = document.getElementById("sent");
-    f.addEventListener("submit", function () {
+    f.addEventListener("submit", function (e) {
+        e.preventDefault();
         sent.style.display = "block";
         setTimeout(function () { f.reset(); }, 400);
     });
@@ -2337,8 +2473,8 @@ input:focus, textarea:focus { outline: none; border-color: #a46bff; box-shadow: 
         hotTo = (e.target.closest && e.target.closest("button, a, .nav-card, .gcard, input[type=button]")) ? 1.5 : 1;
     });
     (function tick() {
-        cx += (tx - cx) * 0.4;
-        cy += (ty - cy) * 0.4;
+        cx = tx;
+        cy = ty;
         hot += (hotTo - hot) * 0.25;
         orb.style.transform = "translate3d(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px,0) scale(" + hot.toFixed(2) + ")";
         requestAnimationFrame(tick);
@@ -2363,8 +2499,8 @@ input:focus, textarea:focus { outline: none; border-color: #a46bff; box-shadow: 
         hotTo = (e.target.closest && e.target.closest("button, a, .nav-card, .gcard, input[type=button]")) ? 1.5 : 1;
     });
     (function tick() {
-        cx += (tx - cx) * 0.4;
-        cy += (ty - cy) * 0.4;
+        cx = tx;
+        cy = ty;
         hot += (hotTo - hot) * 0.25;
         orb.style.transform = "translate3d(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px,0) scale(" + hot.toFixed(2) + ")";
         requestAnimationFrame(tick);
