@@ -3006,6 +3006,157 @@ function generateAllSections() {
 
  const MAINTENANCE_GAMES = new Set(["cl3dpinballspacecadet","cl500calibercontractz","cladventurecapitalist","clangrybirds2","clantarttycoon","claviamasters","claviamastersbuggy","clbabysniperinvietnam","clbadparenting","clbaldi-3","clbaldisfunnewschoolultimate","clbeachboxingsim","clbearsus","clbendrowned","clbergentruck201x","clBFDIBranches","clbitburner","clblackjackhhhh","clblockcraftshooter","clblockydemolitionderby","clblood","clbouncybasketball","clbrawlsimulator3d","clbreadskate","clcarrampvspolicechase","clcarstuntsdriving","clcheeserolling","clclassof09","clcommandandconquer","clcookieclickercool","clcookieclickermodmenu","clcyberbungracing","clDashmetry","cldecision3","cldemolitionderbycrashracing","cldiredecks","cldodecadragons","cldontyoulecturemehtml","cldoom2dDOS","cldoom2dos","clducklifebattle","clducklingsio","cldukenukem2","cldukenukem3d","cldungeonraid","cldungeonsanddegenerategamblerdebug","cldungeonsanddegenerategamblers","cleagleride","cleggycar","clelasticface","clemujs","clescaperoad3","clfancypantsadventure3","clfearassessment","clfivenightsatepsteins","clfnaw","clfnfdocumictxtv3","clfnfrewrite","clfnfstarlightmayhem","clfreegemas","clfuschiax","clgachaverse","clGeometryDashWave","clgetyoked","clglfighters","clgoingballs","clgolforbit","clgorillatag","clgranny2","clgrowdenio","clhacx","clheretic","clhero3flyingrobot","clhooked","clhyppersandbox","clice age baby","cljetskiracing","cljustaplatformerE2","clkanyezone","clkilltheiceagebabyadventure","clkimjonguntilepuzzle","clkirbysoftandwet","clkourio","cllaststand","cllegionbreaker","cllittlerunmo","cllonewolf","clmakesureitsclosed","clmariominusrabbids","clmightyknight2","clminesweeperplus","clminhero","clminimart","clmotox3mwinter","clmyteardrop","clnimrods","clnullkevin","clNutsandBoltsScrewingPuzzle","clonebitadventure","clpetworld","clpint","clPokémon Emerald Rush Edition (20)","clprestigetree","clprismarine","clprocessortycoon","clpumpkinrun","clquake","clquake3","clracingarena","clraldiscrackhouse","clredvsblue2","clredvsbluewar","clretrobowl","clrisehigher","clroadofthedead","clrocketgoalio","clruffle","clsaulgoodmanrun","clschoolboyrunaway","clsd-thewar","clshiftatmidnight","clsideeffects","clsilk","clslopeplus","clsnipershot","clsniperv2","clspacewarsbattleground","clspiralroll","clstationsaturn","clsteepdescent","clstickmanclash","clstickmerge","clstickminairship","clstickminfleecomplex","clstrikerdummies","clsuperchibiknight","clsuperhot","clsuperliquidsoccer","clsuperonionboy2","clsupitdept","clSupremeDuelist2019","cltagcm","cltaisei","clthedude","cltheyarecoming","cltimewarriors","cltopspeedracing3d","cltrace","cltreeshateyou","cltungtungtungsahurobby","clultima","clundertalelb","clundertaler","cluntime","cluntitledgoosegame","clUvuvwevwevweOnyetenvewveUgwemubwemOssas","clvex3","clvincentmansionofthedead","clvortex","clwaterpoolio","clwheeliebike","clyouvs100skibidi","clzdoom","clzombopaclypse2","supremeduelistfix"]);
 
+/* ============================================================
+   PLAY GATE - full-screen popup before a game loads.
+   terms are fetched from the github repo (terms.txt), with a
+   built-in fallback if the fetch fails. audio stays muted
+   while the gate is up, and the game only loads after you
+   tick the box and press START.
+   ============================================================ */
+var __UG_TERMS_FALLBACK = [
+  "===============================",
+  " UGS - TERMS & CONDITIONS",
+  "===============================",
+  "",
+  "TERMS & CONDITIONS",
+  "- this site is for entertainment only. use it responsibly.",
+  "- if you snitch this site to a teacher, you agree to pay a penalty fee of $500. no warnings, no refunds.",
+  "- what happens in the hub stays in the hub.",
+  "",
+  "PRIVACY POLICY",
+  "- the site code is private. you may not copy, reuse or republish it without permission.",
+  "- want the code? ask through the contact page and we will give it to you.",
+  "- we do not collect or share any personal data.",
+  "",
+  "CREDITS",
+  "- hub, launcher, games list and patches (c) powerenkyle2 2026. all rights reserved."
+].join("\n");
+var __ugTermsCache = null;
+function __ugFetchTerms(cb) {
+  if (__ugTermsCache !== null) { cb(__ugTermsCache); return; }
+  var t = Date.now();
+  fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/terms.txt?t=" + t)
+    .then(function (r) { return r.ok ? r.text() : null; })
+    .then(function (txt) {
+      __ugTermsCache = txt && txt.trim() ? txt : __UG_TERMS_FALLBACK;
+      cb(__ugTermsCache);
+    })
+    .catch(function () { __ugTermsCache = __UG_TERMS_FALLBACK; cb(__ugTermsCache); });
+}
+
+/* mute-audio script: everything stays silent while the gate covers the screen */
+var __ugMuteState = { on: false, obs: null, muted: [] };
+function __ugMuteEl(el) {
+  if (el.__ugWasMuted === undefined) { el.__ugWasMuted = el.muted; }
+  el.muted = true;
+  if (__ugMuteState.muted.indexOf(el) === -1) { __ugMuteState.muted.push(el); }
+}
+function __ugMuteStart() {
+  if (__ugMuteState.on) { return; }
+  __ugMuteState.on = true;
+  __ugMuteState.muted = [];
+  var all = document.querySelectorAll("audio, video");
+  for (var i = 0; i < all.length; i++) { __ugMuteEl(all[i]); }
+  if (window.MutationObserver) {
+    __ugMuteState.obs = new MutationObserver(function (muts) {
+      muts.forEach(function (m) {
+        m.addedNodes.forEach(function (n) {
+          if (!n || n.nodeType !== 1) { return; }
+          if (n.tagName === "AUDIO" || n.tagName === "VIDEO") { __ugMuteEl(n); }
+          else if (n.querySelectorAll) {
+            var inner = n.querySelectorAll("audio, video");
+            for (var j = 0; j < inner.length; j++) { __ugMuteEl(inner[j]); }
+          }
+        });
+      });
+    });
+    __ugMuteState.obs.observe(document.documentElement, { childList: true, subtree: true });
+  }
+}
+function __ugMuteEnd() {
+  if (!__ugMuteState.on) { return; }
+  __ugMuteState.on = false;
+  if (__ugMuteState.obs) { __ugMuteState.obs.disconnect(); __ugMuteState.obs = null; }
+  __ugMuteState.muted.forEach(function (el) {
+    try { el.muted = !!el.__ugWasMuted; delete el.__ugWasMuted; } catch (e) {}
+  });
+  __ugMuteState.muted = [];
+}
+
+function __ugShowPlayGate(fileName, gameBtn) {
+  var name = (fileName || "the game").replace(/\s*\(maintenance\)\s*$/i, "");
+  var style = document.getElementById("ug-play-gate-style");
+  if (!style) {
+    style = document.createElement("style");
+    style.id = "ug-play-gate-style";
+    style.textContent = [
+      "#ug-play-gate{position:fixed;inset:0;width:100vw;height:100vh;background:#06070c;z-index:2147483647;display:flex;align-items:center;justify-content:center;font-family:'Segoe UI',Roboto,Arial,sans-serif;}",
+      "#ug-play-gate *{box-sizing:border-box;}",
+      ".ugp-card{width:min(760px,100%);height:min(88vh,760px);display:flex;flex-direction:column;background:#10131c;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:22px 26px 16px;box-shadow:0 0 42px rgba(79,172,254,.16),0 0 90px rgba(164,107,255,.10);color:#e8eaed;position:relative;overflow:hidden;}",
+      ".ugp-card::before{content:'';position:absolute;inset:-2px;border-radius:18px;padding:2px;background:linear-gradient(120deg,#ff5f6d,#ffc371,#f7ff47,#47f0a3,#4facfe,#a46bff,#ff5f6d);background-size:300% 300%;animation:ugp-flow 6s linear infinite;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;}",
+      "@keyframes ugp-flow{to{background-position:300% 0;}}",
+      ".ugp-title{font-size:25px;font-weight:800;text-align:center;background:linear-gradient(90deg,#ff5f6d,#ffc371,#f7ff47,#47f0a3,#4facfe,#a46bff,#ff5f6d);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:ugp-flow 6s linear infinite;}",
+      ".ugp-sub{margin-top:6px;font-size:13px;color:#9aa3b2;text-align:center;}",
+      ".ugp-terms{flex:1;margin-top:16px;overflow:auto;background:#0b0d12;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 16px;white-space:pre-wrap;font:500 13px/1.75 'Segoe UI',Roboto,sans-serif;color:#c7ccd8;text-align:left;}",
+      ".ugp-terms::-webkit-scrollbar{width:8px;}.ugp-terms::-webkit-scrollbar-thumb{background:#232838;border-radius:4px;}",
+      ".ugp-check{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px;font-size:13px;color:#c7ccd8;cursor:pointer;user-select:none;}",
+      ".ugp-check input{width:17px;height:17px;accent-color:#4facfe;cursor:pointer;}",
+      ".ugp-row{display:flex;gap:14px;justify-content:center;align-items:center;margin-top:14px;flex-wrap:wrap;}",
+      ".ugp-start{min-width:210px;padding:11px 30px;border:none;border-radius:10px;font:700 14px 'Segoe UI',Roboto,sans-serif;letter-spacing:2px;cursor:not-allowed;background:#1c2230;color:#5b6472;transition:all .2s ease;}",
+      ".ugp-start.ready{cursor:pointer;background:linear-gradient(90deg,#ff5f6d,#ffc371,#f7ff47,#47f0a3,#4facfe,#a46bff);background-size:300% 100%;color:#0b0d12;box-shadow:0 0 22px rgba(79,172,254,.45),0 0 44px rgba(164,107,255,.25);animation:ugp-flow 3s linear infinite;}",
+      ".ugp-back{background:none;border:none;color:rgba(232,234,237,.45);font:500 13px 'Segoe UI',Roboto,sans-serif;cursor:pointer;text-decoration:underline;}",
+      ".ugp-back:hover{color:rgba(232,234,237,.85);}",
+      ".ugp-cc{margin-top:12px;text-align:center;font-size:11px;color:#6b7280;letter-spacing:1px;}"
+    ].join("\n");
+    (document.head || document.documentElement).appendChild(style);
+  }
+  var gate = document.createElement("div");
+  gate.id = "ug-play-gate";
+  gate.innerHTML = [
+    '<div class="ugp-card">',
+    '  <div class="ugp-title">before you play</div>',
+    '  <div class="ugp-sub">read this, tick the box, then you can start</div>',
+    '  <pre class="ugp-terms">loading terms...</pre>',
+    '  <label class="ugp-check"><input type="checkbox"><span>I have read and agree to the Terms &amp; Conditions and Privacy Policy</span></label>',
+    '  <div class="ugp-row"><button class="ugp-start" disabled>START</button><button class="ugp-back">back to the hub</button></div>',
+    '  <div class="ugp-cc">&copy; powerenkyle2 2026 &middot; all rights reserved</div>',
+    '</div>'
+  ].join("\n");
+  document.documentElement.appendChild(gate);
+  __ugMuteStart();
+  var titleEl = gate.querySelector(".ugp-title");
+  if (titleEl && name) { titleEl.textContent = "before you play: " + name; }
+  var pre = gate.querySelector(".ugp-terms");
+  __ugFetchTerms(function (txt) { if (pre && pre.isConnected) { pre.textContent = txt; } });
+  var startB = gate.querySelector(".ugp-start");
+  var cb = gate.querySelector(".ugp-check input");
+  function close() {
+    if (!gate.isConnected) { return; }
+    __ugMuteEnd();
+    gate.remove();
+  }
+  cb.addEventListener("change", function () {
+    if (cb.checked) { startB.classList.add("ready"); startB.disabled = false; }
+    else { startB.classList.remove("ready"); startB.disabled = true; }
+  });
+  startB.addEventListener("click", function () {
+    if (startB.disabled) { return; }
+    close();
+    window.__ugPlayOK = true;
+    gameBtn.click();
+  });
+  gate.querySelector(".ugp-back").addEventListener("click", close);
+  function onKey(ev) {
+    if (ev.key === "Escape" && document.getElementById("ug-play-gate")) {
+      ev.stopPropagation();
+      close();
+      document.removeEventListener("keydown", onKey, true);
+    }
+  }
+  document.addEventListener("keydown", onKey, true);
+}
+
+
 const SAVE_BAR_SCRIPT = `(function () {
     var SKIP_DBS = { "UnityCache": 1 };
 
@@ -3414,6 +3565,9 @@ const lower = file.toLowerCase();
         btn.type = "button";
         btn.value = MAINTENANCE_GAMES.has(file) ? file + " (maintenance)" : file;
         btn.onclick = () => {
+          /* play gate: agree once per launch before the game loads */
+          if (!window.__ugPlayOK) { __ugShowPlayGate(file, btn); return; }
+          window.__ugPlayOK = false;
           function normalizeFileName(name) {
             if (/\.html?$/i.test(name)) return name;
             return name + ".html";
