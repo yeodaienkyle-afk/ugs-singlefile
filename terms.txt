@@ -18,6 +18,6 @@ PRIVACY POLICY
 
 CREDITS
 
-- hub, launcher, games list and patches (c) powerenkyle2 2026. all rights reserved.
+- hub, launcher, games list and patches (cc) powerenkyle2 2026. all rights reserved.
 - game files are served via cdn.jsdelivr.net mirrors of the ugs-singlefile repo.
 - special thanks to everyone who tested the hub at school and did not snitch.
