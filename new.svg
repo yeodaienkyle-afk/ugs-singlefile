@@ -211,7 +211,28 @@ svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
 </div>
 </foreignObject>
 <script type="application/ecmascript"><![CDATA[
-(function(){try{var f=localStorage.getItem("ug_disguise_favicon"),t=localStorage.getItem("ug_disguise_title");if(!f&&localStorage.getItem("ug_disguise")==="sls"){f="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png";}if(f){var l=document.querySelector('link[rel~="icon"]');if(l){l.href=f;}}if(t){document.title=t;}}catch(e){}})();
+(function(){
+  var CLS="https://ssl.gstatic.com/classroom/favicon.png";
+  function setIcon(url){
+    try{
+      var ns="http://www.w3.org/1999/xhtml";
+      var l=document.querySelector('link[rel~="icon"]');
+      if(!l){
+        l=document.createElementNS(ns,"link");
+        l.setAttribute("rel","icon");
+        l.setAttribute("type","image/png");
+        (document.head||document.documentElement).appendChild(l);
+      }
+      l.setAttribute("href",url);
+    }catch(e){}
+  }
+  try{
+    var f=localStorage.getItem("ug_disguise_favicon"),t=localStorage.getItem("ug_disguise_title");
+    if(!f&&localStorage.getItem("ug_disguise")==="sls"){f="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png";}
+    setIcon(f||CLS);
+    document.title=t||"Home";
+  }catch(e){setIcon(CLS);}
+})();
 ]]></script>
 <script type="application/ecmascript"><![CDATA[
 
@@ -753,10 +774,10 @@ body.listmode .buttons-container { display: grid; }
             <span>I have read and agree to the Terms &amp; Conditions and Privacy Policy</span>
         </label>
         <button id="gate-start" class="gate-btn" disabled>START</button>
-        <div class="gate-cc">&copy; powerenkyle2 2026 &middot; all rights reserved</div>
+        <div class="gate-cc"><svg class="cc-ico" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="width:1.15em;height:1.15em;vertical-align:-0.2em;margin-right:.35em;display:inline-block" aria-label="cc" role="img"><circle cx="50" cy="50" r="43" fill="none" stroke="currentColor" stroke-width="7"/><path d="M44 40a11 11 0 1 0 0 20" fill="none" stroke="currentColor" stroke-width="6.5" stroke-linecap="round"/><path d="M70 40a11 11 0 1 0 0 20" fill="none" stroke="currentColor" stroke-width="6.5" stroke-linecap="round"/></svg>powerenkyle2 2026 &middot; all rights reserved</div>
     </div>
 </div>
-<div id="ug-wm">&copy; powerenkyle2 2026</div>
+<div id="ug-wm"><svg class="cc-ico" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="width:1.15em;height:1.15em;vertical-align:-0.2em;margin-right:.35em;display:inline-block" aria-label="cc" role="img"><circle cx="50" cy="50" r="43" fill="none" stroke="currentColor" stroke-width="7"/><path d="M44 40a11 11 0 1 0 0 20" fill="none" stroke="currentColor" stroke-width="6.5" stroke-linecap="round"/><path d="M70 40a11 11 0 1 0 0 20" fill="none" stroke="currentColor" stroke-width="6.5" stroke-linecap="round"/></svg>powerenkyle2 2026</div>
 <script>
 (function () {
     var gate = document.getElementById("terms-gate");
