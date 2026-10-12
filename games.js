@@ -3029,7 +3029,7 @@ var __UG_TERMS_FALLBACK = [
   "- we do not collect or share any personal data.",
   "",
   "CREDITS",
-  "- hub, launcher, games list and patches (c) powerenkyle2 2026. all rights reserved."
+  "- hub, launcher, games list and patches (cc) powerenkyle2 2026. all rights reserved."
 ].join("\n");
 var __ugTermsCache = null;
 function __ugFetchTerms(cb) {
@@ -3119,7 +3119,7 @@ function __ugShowPlayGate(fileName, gameBtn) {
     '  <pre class="ugp-terms">loading terms...</pre>',
     '  <label class="ugp-check"><input type="checkbox"><span>I have read and agree to the Terms &amp; Conditions and Privacy Policy</span></label>',
     '  <div class="ugp-row"><button class="ugp-start" disabled>START</button><button class="ugp-back">back to the hub</button></div>',
-    '  <div class="ugp-cc">&copy; powerenkyle2 2026 &middot; all rights reserved</div>',
+    '  <div class="ugp-cc"><svg class="cc-ico" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="width:1.15em;height:1.15em;vertical-align:-0.2em;margin-right:.35em;display:inline-block" aria-label="cc" role="img"><circle cx="50" cy="50" r="43" fill="none" stroke="currentColor" stroke-width="7"/><path d="M44 40a11 11 0 1 0 0 20" fill="none" stroke="currentColor" stroke-width="6.5" stroke-linecap="round"/><path d="M70 40a11 11 0 1 0 0 20" fill="none" stroke="currentColor" stroke-width="6.5" stroke-linecap="round"/></svg>powerenkyle2 2026 &middot; all rights reserved</div>',
     '</div>'
   ].join("\n");
   document.documentElement.appendChild(gate);
@@ -3462,7 +3462,7 @@ const SAVE_BAR_SCRIPT = `(function () {
 
         var wm = document.createElement("div");
         wm.id = "ugs-wm";
-        wm.textContent = "\u00a9 powerenkyle2 2026";
+        wm.innerHTML = '<svg class="cc-ico" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="width:1.3em;height:1.3em;vertical-align:-0.2em;margin-right:.35em;display:inline-block" aria-label="cc" role="img"><circle cx="50" cy="50" r="43" fill="none" stroke="currentColor" stroke-width="7"/><path d="M44 40a11 11 0 1 0 0 20" fill="none" stroke="currentColor" stroke-width="6.5" stroke-linecap="round"/><path d="M70 40a11 11 0 1 0 0 20" fill="none" stroke="currentColor" stroke-width="6.5" stroke-linecap="round"/></svg>powerenkyle2 2026';
         wm.style.cssText = "position:fixed;bottom:8px;left:12px;z-index:2147483646;pointer-events:none;color:rgba(255,255,255,.16);font:600 11px sans-serif;letter-spacing:1px;";
         document.documentElement.appendChild(wm);
 
@@ -3600,7 +3600,7 @@ const lower = file.toLowerCase();
           const keyLockTimer = setInterval(function () {
             if (newWin.closed) { window.__ugKeysLocked = false; clearInterval(keyLockTimer); }
           }, 400);
-          newWin.document.write('<title>Home</title><link rel="icon" href="' + getDisguiseIcon() + '"><style>body{margin:0;padding:40px;font-family:sans-serif;color:#c7ccd8;background:#0b0d12}#ugwm{position:fixed;bottom:10px;right:14px;color:rgba(255,255,255,.35);font:600 12px sans-serif;letter-spacing:1px;pointer-events:none}</style><p>Loading ' + normalized.replace(/[&<>"\']/g, "") + '...</p><div id="ugwm">\u00a9 powerenkyle2 2026</div>');
+          newWin.document.write('<title>Home</title><link rel="icon" href="' + getDisguiseIcon() + '"><style>body{margin:0;padding:40px;font-family:sans-serif;color:#c7ccd8;background:#0b0d12}#ugwm{position:fixed;bottom:10px;right:14px;color:rgba(255,255,255,.35);font:600 12px sans-serif;letter-spacing:1px;pointer-events:none}</style><p>Loading ' + normalized.replace(/[&<>"\']/g, "") + '...</p><div id="ugwm"><svg class="cc-ico" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="width:1.15em;height:1.15em;vertical-align:-0.2em;margin-right:.35em;display:inline-block" aria-label="cc" role="img"><circle cx="50" cy="50" r="43" fill="none" stroke="currentColor" stroke-width="7"/><path d="M44 40a11 11 0 1 0 0 20" fill="none" stroke="currentColor" stroke-width="6.5" stroke-linecap="round"/><path d="M70 40a11 11 0 1 0 0 20" fill="none" stroke="currentColor" stroke-width="6.5" stroke-linecap="round"/></svg>powerenkyle2 2026</div>');
           newWin.document.close();
 
           function trySource(i) {
