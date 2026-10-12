@@ -3090,7 +3090,7 @@ function __ugShowPlayGate(fileName, gameBtn) {
     style = document.createElement("style");
     style.id = "ug-play-gate-style";
     style.textContent = [
-      "#ug-play-gate{position:fixed;inset:0;width:100vw;height:100vh;background:#06070c;z-index:2147483647;display:flex;align-items:center;justify-content:center;font-family:'Segoe UI',Roboto,Arial,sans-serif;}",
+      "#ug-play-gate{position:fixed;inset:0;width:100vw;height:100vh;background:#06070c;z-index:2147483646;display:flex;align-items:center;justify-content:center;font-family:'Segoe UI',Roboto,Arial,sans-serif;}",
       "#ug-play-gate *{box-sizing:border-box;}",
       ".ugp-card{width:min(760px,100%);height:min(88vh,760px);display:flex;flex-direction:column;background:#10131c;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:22px 26px 16px;box-shadow:0 0 42px rgba(79,172,254,.16),0 0 90px rgba(164,107,255,.10);color:#e8eaed;position:relative;overflow:hidden;}",
       ".ugp-card::before{content:'';position:absolute;inset:-2px;border-radius:18px;padding:2px;background:linear-gradient(120deg,#ff5f6d,#ffc371,#f7ff47,#47f0a3,#4facfe,#a46bff,#ff5f6d);background-size:300% 300%;animation:ugp-flow 6s linear infinite;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;}",
