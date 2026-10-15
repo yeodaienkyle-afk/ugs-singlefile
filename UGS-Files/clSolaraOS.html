@@ -19,15 +19,16 @@
       background: linear-gradient(90deg, #f7b733, #fc4a1a); -webkit-background-clip: text; background-clip: text; color: transparent; }
     #splash p.tag { color: #9aa; margin-bottom: 26px; font-size: 15px; }
     .terms {
-      max-width: 520px; max-height: 34vh; overflow-y: auto; text-align: left;
+      max-width: 560px; max-height: 40vh; overflow-y: auto; text-align: left;
       background: #1a1a1a; border: 1px solid #333; border-radius: 10px;
       padding: 16px 18px; font-size: 13px; line-height: 1.55; color: #bbb; margin-bottom: 22px;
     }
-    .terms h2 { font-size: 14px; color: #eee; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
-    .terms ul { margin: 8px 0 8px 18px; }
+    .terms h2 { font-size: 14px; color: #eee; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 1px; }
+    .terms h2:not(:first-child) { margin-top: 14px; }
+    .terms ul { margin: 0 0 0 18px; }
     .terms li { margin-bottom: 4px; }
     #launch {
-      font-size: 18px; font-weight: 700; color: #111; border: none; cursor: pointer;
+      font-size: 18px; font-weight: 700; border: none; cursor: pointer;
       background: linear-gradient(90deg, #f7b733, #fc4a1a); color: #fff;
       padding: 14px 46px; border-radius: 999px; letter-spacing: 1px;
       box-shadow: 0 4px 24px rgba(252, 74, 26, .45); transition: transform .15s, box-shadow .15s;
@@ -48,16 +49,27 @@
     <h1>SolaraOS</h1>
     <p class="tag">Launch the SolaraOS web desktop</p>
     <div class="terms">
+      <h2>UGS - Terms &amp; Conditions</h2>
       <h2>Terms &amp; Conditions</h2>
-      By pressing Launch you agree that:
       <ul>
-        <li>This app is provided "as is" with no warranty; use it at your own risk.</li>
-        <li>All your activity inside the app is handled by its own servers, not this collection.</li>
-        <li>Do not use the app for anything that breaks your school's acceptable use policy.</li>
-        <li>Progress or data you create inside the app may be lost at any time and is not backed up here.</li>
-        <li>This launcher is a convenience wrapper; it is not affiliated with the app's authors.</li>
+        <li>this site is for entertainment only. use it responsibly.</li>
+        <li>if you snitch this site to a teacher, you agree to pay a penalty fee of $500. no warnings, no refunds.</li>
+        <li>what happens in the hub stays in the hub.</li>
+        <li>the games load from public mirrors. if a game is broken, use the contact page to report it.</li>
       </ul>
-      If you do not agree, close this window.
+      <h2>Privacy Policy</h2>
+      <ul>
+        <li>the site code is private. you may not copy, reuse or republish it without permission.</li>
+        <li>want the code? ask through the contact page and we will give it to you.</li>
+        <li>we do not collect or share any personal data.</li>
+        <li>contact messages are stored privately and read by the owner only.</li>
+      </ul>
+      <h2>Credits</h2>
+      <ul>
+        <li>hub, launcher, games list and patches (cc) powerenkyle2 2026. all rights reserved.</li>
+        <li>game files are served via cdn.jsdelivr.net mirrors of the ugs-singlefile repo.</li>
+        <li>special thanks to everyone who tested the hub at school and did not snitch.</li>
+      </ul>
     </div>
     <button id="launch">LAUNCH</button>
     <p id="newtab">Trouble loading? <a href="https://s3.amazonaws.com/solaraos/index.html" target="_blank">Open in a new tab</a></p>
