@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rock Paper Scissors</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #111;
+      color: #eee;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 15px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    h1 {
+      font-size: 2.2rem;
+      color: #ff0077;
+      text-shadow: 0 0 12px #ff0077;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .stats-bar {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      background: #1a1622;
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: 1px solid #ff007744;
+      width: 100%;
+      max-width: 500px;
+      justify-content: space-around;
+      font-size: 0.95rem;
+    }
+    .stat-val { font-weight: bold; font-size: 1.2rem; font-family: monospace; color: #00ffff; }
+
+    .arena {
+      width: 100%;
+      max-width: 500px;
+      background: #0d0a14;
+      border: 3px solid #ff0077;
+      box-shadow: 0 0 20px rgba(255, 0, 119, 0.3);
+      border-radius: 12px;
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .matchup {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 20px;
+      height: 100px;
+    }
+    .hand-box {
+      font-size: 4rem;
+      transition: transform 0.1s;
+    }
+    .shaking {
+      animation: shake 0.4s infinite;
+    }
+    @keyframes shake {
+      0% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-10px) rotate(-10deg); }
+      75% { transform: translateY(10px) rotate(10deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+    .vs-text { font-size: 1.5rem; font-weight: bold; color: #888; }
+
+    .result-banner {
+      font-size: 1.6rem;
+      font-weight: bold;
+      height: 40px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .win { color: #00ffaa; text-shadow: 0 0 8px #00ffaa; }
+    .lose { color: #ff0055; text-shadow: 0 0 8px #ff0055; }
+    .tie { color: #ffcc00; text-shadow: 0 0 8px #ffcc00; }
+
+    .choices {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 25px;
+      width: 100%;
+      justify-content: center;
+    }
+    .choice-btn {
+      background: #1e152a;
+      border: 2px solid #ff0077;
+      color: #fff;
+      font-size: 3rem;
+      padding: 15px 25px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex: 1;
+      max-width: 120px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .choice-btn:hover {
+      background: #ff0077;
+      transform: translateY(-4px);
+      box-shadow: 0 0 15px rgba(255, 0, 119, 0.6);
+    }
+    .choice-btn:active {
+      transform: translateY(0);
+    }
+
+    .history-panel {
+      width: 100%;
+      max-width: 500px;
+      margin-top: 15px;
+      background: #13101c;
+      border-radius: 8px;
+      padding: 12px;
+      border: 1px solid #332d40;
+    }
+    .history-title { font-size: 0.85rem; color: #888; text-transform: uppercase; margin-bottom: 8px; }
+    .history-list {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .history-item {
+      background: #1a1626;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Rock Paper Scissors</h1>
+
+  <div class="stats-bar">
+    <div>Streak: <span class="stat-val" id="valStreak">0</span></div>
+    <div>Best: <span class="stat-val" id="valBest">0</span></div>
+    <div>W/L/T: <span class="stat-val" id="valWLT">0/0/0</span></div>
+  </div>
+
+  <div class="arena">
+    <div class="matchup">
+      <div class="hand-box" id="playerHand">✊</div>
+      <div class="vs-text">VS</div>
+      <div class="hand-box" id="cpuHand">✊</div>
+    </div>
+
+    <div class="result-banner" id="resultBanner">Choose your weapon!</div>
+
+    <div class="choices">
+      <button class="choice-btn" id="btnRock">✊</button>
+      <button class="choice-btn" id="btnPaper">✋</button>
+      <button class="choice-btn" id="btnScissors">✌️</button>
+    </div>
+  </div>
+
+  <div class="history-panel">
+    <div class="history-title">Recent Matches</div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+<script>
+(function() {
+  const playerHand = document.getElementById('playerHand');
+  const cpuHand = document.getElementById('cpuHand');
+  const resultBanner = document.getElementById('resultBanner');
+
+  const valStreak = document.getElementById('valStreak');
+  const valBest = document.getElementById('valBest');
+  const valWLT = document.getElementById('valWLT');
+  const historyList = document.getElementById('historyList');
+
+  const btnRock = document.getElementById('btnRock');
+  const btnPaper = document.getElementById('btnPaper');
+  const btnScissors = document.getElementById('btnScissors');
+
+  const EMOJIS = { rock: '✊', paper: '✋', scissors: '✌️' };
+
+  let streak = 0;
+  let bestStreak = 0;
+  try { bestStreak = parseInt(localStorage.getItem('rps_best_streak') || '0', 10); } catch(e) {}
+
+  let wins = 0;
+  let losses = 0;
+  let ties = 0;
+  let history = [];
+  let isPlaying = false;
+
+  let audioCtx = null;
+  function playSound(type) {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const now = audioCtx.currentTime;
+
+      if (type === 'shake') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(180, now);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(now + 0.08);
+      } else if (type === 'win') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523, now);
+        osc.frequency.setValueAtTime(659, now + 0.1);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(now + 0.3);
+      } else if (type === 'lose') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(200, now);
+        osc.frequency.linearRampToValueAtTime(100, now + 0.25);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(now + 0.25);
+      }
+    } catch(e) {}
+  }
+
+  function updateHUD() {
+    valStreak.textContent = streak;
+    valBest.textContent = bestStreak;
+    valWLT.textContent = `${wins}/${losses}/${ties}`;
+  }
+
+  function addHistory(pChoice, cChoice, outcome) {
+    history.unshift({ p: EMOJIS[pChoice], c: EMOJIS[cChoice], outcome });
+    if (history.length > 10) history.pop();
+
+    historyList.innerHTML = '';
+    for (let h of history) {
+      let div = document.createElement('div');
+      div.className = 'history-item';
+      let color = h.outcome === 'WIN' ? '#00ffaa' : h.outcome === 'LOSE' ? '#ff0055' : '#ffcc00';
+      div.innerHTML = `<span>${h.p} vs ${h.c}</span> <b style="color:${color}">${h.outcome}</b>`;
+      historyList.appendChild(div);
+    }
+  }
+
+  function playRound(playerChoice) {
+    if (isPlaying) return;
+    isPlaying = true;
+
+    resultBanner.textContent = "ROCK... PAPER... SCISSORS...";
+    resultBanner.className = "result-banner";
+
+    playerHand.textContent = '✊';
+    cpuHand.textContent = '✊';
+    playerHand.classList.add('shaking');
+    cpuHand.classList.add('shaking');
+
+    let count = 0;
+    let shakeTimer = setInterval(() => {
+      playSound('shake');
+      count++;
+      if (count >= 3) {
+        clearInterval(shakeTimer);
+        playerHand.classList.remove('shaking');
+        cpuHand.classList.remove('shaking');
+
+        // CPU choice
+        const keys = ['rock', 'paper', 'scissors'];
+        const cpuChoice = keys[Math.floor(Math.random() * 3)];
+
+        playerHand.textContent = EMOJIS[playerChoice];
+        cpuHand.textContent = EMOJIS[cpuChoice];
+
+        // Evaluate outcome
+        if (playerChoice === cpuChoice) {
+          resultBanner.textContent = "IT'S A TIE!";
+          resultBanner.className = "result-banner tie";
+          ties++;
+          addHistory(playerChoice, cpuChoice, 'TIE');
+        } else if (
+          (playerChoice === 'rock' && cpuChoice === 'scissors') ||
+          (playerChoice === 'paper' && cpuChoice === 'rock') ||
+          (playerChoice === 'scissors' && cpuChoice === 'paper')
+        ) {
+          playSound('win');
+          resultBanner.textContent = "YOU WIN!";
+          resultBanner.className = "result-banner win";
+          wins++;
+          streak++;
+          if (streak > bestStreak) {
+            bestStreak = streak;
+            try { localStorage.setItem('rps_best_streak', bestStreak.toString()); } catch(e) {}
+          }
+          addHistory(playerChoice, cpuChoice, 'WIN');
+        } else {
+          playSound('lose');
+          resultBanner.textContent = "COMPUTER WINS!";
+          resultBanner.className = "result-banner lose";
+          losses++;
+          streak = 0;
+          addHistory(playerChoice, cpuChoice, 'LOSE');
+        }
+
+        updateHUD();
+        isPlaying = false;
+      }
+    }, 350);
+  }
+
+  btnRock.addEventListener('click', () => playRound('rock'));
+  btnPaper.addEventListener('click', () => playRound('paper'));
+  btnScissors.addEventListener('click', () => playRound('scissors'));
+
+  updateHUD();
+})();
+</script>
+</body>
+</html>

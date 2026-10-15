@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lights Out</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      background-color: #111827;
+      color: #f3f4f6;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .game-card {
+      background-color: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 20px;
+      padding: 28px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fbbf24;
+      margin-bottom: 16px;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+    .controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 20px;
+      gap: 12px;
+    }
+    .select-diff {
+      background: #374151;
+      color: #f9fafb;
+      border: 1px solid #4b5563;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+    }
+    .move-badge {
+      background: #374151;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #9ca3af;
+    }
+    .move-badge span {
+      color: #f3f4f6;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      width: 100%;
+      max-width: 380px;
+      aspect-ratio: 1;
+      margin: 12px 0;
+    }
+    .cell {
+      background-color: #374151;
+      border-radius: 12px;
+      border: 2px solid #4b5563;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .cell.on {
+      background-color: #f59e0b;
+      border-color: #fbbf24;
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.7), inset 0 2px 4px rgba(255,255,255,0.4);
+    }
+    .cell:hover {
+      transform: scale(1.03);
+    }
+    .cell:active {
+      transform: scale(0.95);
+    }
+    .status {
+      min-height: 28px;
+      margin-top: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #34d399;
+      text-align: center;
+    }
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      width: 100%;
+    }
+    .btn {
+      flex: 1;
+      background-color: #3b82f6;
+      color: #ffffff;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+      text-align: center;
+    }
+    .btn:hover { background-color: #2563eb; }
+    .btn-secondary { background-color: #4b5563; }
+    .btn-secondary:hover { background-color: #6b7280; }
+    .instructions {
+      margin-top: 16px;
+      font-size: 0.85rem;
+      color: #9ca3af;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-card">
+    <h1>Lights Out</h1>
+
+    <div class="controls-bar">
+      <select id="diffSelect" class="select-diff">
+        <option value="3">Easy (3 moves)</option>
+        <option value="5" selected>Medium (5 moves)</option>
+        <option value="7">Hard (7 moves)</option>
+        <option value="12">Expert (12 moves)</option>
+      </select>
+
+      <div class="move-badge">Moves: <span id="moveCount">0</span></div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="status" id="statusMsg"></div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" id="restartBtn">Reset Board</button>
+      <button class="btn" id="newGameBtn">New Game</button>
+    </div>
+
+    <p class="instructions">Click a light to toggle it and its 4 neighbors. Turn all lights off to win!</p>
+  </div>
+
+  <script>
+    const GRID_SIZE = 5;
+    let board = [];
+    let initialMoves = [];
+    let moveCount = 0;
+    let isWon = false;
+
+    const gridEl = document.getElementById('grid');
+    const moveCountEl = document.getElementById('moveCount');
+    const statusMsgEl = document.getElementById('statusMsg');
+    const diffSelect = document.getElementById('diffSelect');
+
+    function createEmptyBoard() {
+      return Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(false));
+    }
+
+    function toggleLight(r, c) {
+      if (r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE) {
+        board[r][c] = !board[r][c];
+      }
+    }
+
+    function applyTogglePattern(r, c) {
+      toggleLight(r, c);
+      toggleLight(r - 1, c);
+      toggleLight(r + 1, c);
+      toggleLight(r, c - 1);
+      toggleLight(r, c + 1);
+    }
+
+    function generateSolvablePuzzle(numClicks) {
+      board = createEmptyBoard();
+      initialMoves = [];
+
+      // Generate distinct random clicks to guarantee solvability from all-off
+      const clicked = new Set();
+      while (clicked.size < Math.min(numClicks, 25)) {
+        const r = Math.floor(Math.random() * GRID_SIZE);
+        const c = Math.floor(Math.random() * GRID_SIZE);
+        const key = `${r},${c}`;
+        if (!clicked.has(key)) {
+          clicked.add(key);
+          initialMoves.push({ r, c });
+          applyTogglePattern(r, c);
+        }
+      }
+
+      // If board randomly ended up all off, try again
+      if (checkAllOff()) {
+        generateSolvablePuzzle(numClicks);
+        return;
+      }
+
+      moveCount = 0;
+      isWon = false;
+      statusMsgEl.textContent = '';
+      updateStats();
+      renderGrid();
+    }
+
+    function resetToInitial() {
+      board = createEmptyBoard();
+      initialMoves.forEach(({ r, c }) => applyTogglePattern(r, c));
+      moveCount = 0;
+      isWon = false;
+      statusMsgEl.textContent = '';
+      updateStats();
+      renderGrid();
+    }
+
+    function checkAllOff() {
+      return board.every(row => row.every(val => !val));
+    }
+
+    function handleCellClick(r, c) {
+      if (isWon) return;
+
+      applyTogglePattern(r, c);
+      moveCount++;
+      updateStats();
+      renderGrid();
+
+      if (checkAllOff()) {
+        isWon = true;
+        statusMsgEl.textContent = `🎉 Solved in ${moveCount} move${moveCount === 1 ? '' : 's'}!`;
+      }
+    }
+
+    function updateStats() {
+      moveCountEl.textContent = moveCount;
+    }
+
+    function renderGrid() {
+      gridEl.innerHTML = '';
+      for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = 0; c < GRID_SIZE; c++) {
+          const btn = document.createElement('button');
+          btn.className = `cell ${board[r][c] ? 'on' : ''}`;
+          btn.setAttribute('aria-label', `Light at row ${r+1}, col ${c+1}, ${board[r][c] ? 'ON' : 'OFF'}`);
+          btn.addEventListener('click', () => handleCellClick(r, c));
+          gridEl.appendChild(btn);
+        }
+      }
+    }
+
+    document.getElementById('newGameBtn').addEventListener('click', () => {
+      generateSolvablePuzzle(parseInt(diffSelect.value, 10));
+    });
+
+    document.getElementById('restartBtn').addEventListener('click', () => {
+      resetToInitial();
+    });
+
+    diffSelect.addEventListener('change', () => {
+      generateSolvablePuzzle(parseInt(diffSelect.value, 10));
+    });
+
+    // Start game
+    generateSolvablePuzzle(5);
+  </script>
+</body>
+</html>

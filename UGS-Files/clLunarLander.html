@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lunar Lander</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #111;
+      color: #eee;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 10px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #33ffaa;
+      text-shadow: 0 0 10px #33ffaa;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 700px;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      background: #1a1a24;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid #33ffaa33;
+    }
+    .hud-item { display: flex; flex-direction: column; align-items: center; }
+    .hud-label { font-size: 0.75rem; color: #888; text-transform: uppercase; }
+    .hud-val { color: #fff; font-family: monospace; font-size: 1.1rem; }
+    .hud-val.good { color: #33ffaa; }
+    .hud-val.warn { color: #ffcc00; }
+    .hud-val.bad { color: #ff0055; }
+
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      max-width: 700px;
+      aspect-ratio: 4 / 3;
+      background: #05050d;
+      border: 2px solid #33ffaa;
+      box-shadow: 0 0 15px rgba(51, 255, 170, 0.2);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(10, 10, 18, 0.88);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+    .overlay h2 {
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+      color: #33ffaa;
+      text-shadow: 0 0 8px #33ffaa;
+    }
+    .overlay p {
+      margin-bottom: 20px;
+      color: #ccc;
+      max-width: 480px;
+      line-height: 1.4;
+    }
+    button {
+      background: #33ffaa;
+      color: #000;
+      border: none;
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 10px rgba(51, 255, 170, 0.5);
+    }
+    button:hover {
+      background: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    }
+    .controls-panel {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .ctrl-btn {
+      background: #1a1a24;
+      border: 1px solid #33ffaa;
+      color: #33ffaa;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .ctrl-btn:active {
+      background: #33ffaa;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Lunar Lander</h1>
+
+  <div class="hud">
+    <div class="hud-item">
+      <span class="hud-label">Score</span>
+      <span class="hud-val" id="hudScore">0</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">Level</span>
+      <span class="hud-val" id="hudLevel">1</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">Fuel</span>
+      <span class="hud-val" id="hudFuel">100%</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">H.Speed</span>
+      <span class="hud-val" id="hudHSpeed">0.0</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">V.Speed</span>
+      <span class="hud-val" id="hudVSpeed">0.0</span>
+    </div>
+  </div>
+
+  <div class="canvas-container">
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div class="overlay" id="overlay">
+      <h2 id="overlayTitle">LUNAR LANDER</h2>
+      <p id="overlayDesc">Use Left/Right to rotate, Up / Space to thrust. Land gently (V.Speed &lt; 1.8, H.Speed &lt; 1.2, upright) on the flat green landing pad!</p>
+      <button id="startBtn">Start Mission</button>
+    </div>
+  </div>
+
+  <div class="controls-panel">
+    <button class="ctrl-btn" id="btnRotLeft">◀ Turn</button>
+    <button class="ctrl-btn" id="btnThrust">▲ Thrust</button>
+    <button class="ctrl-btn" id="btnRotRight">Turn ▶</button>
+  </div>
+
+<script>
+(function() {
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlayTitle');
+  const overlayDesc = document.getElementById('overlayDesc');
+  const startBtn = document.getElementById('startBtn');
+
+  const hudScore = document.getElementById('hudScore');
+  const hudLevel = document.getElementById('hudLevel');
+  const hudFuel = document.getElementById('hudFuel');
+  const hudHSpeed = document.getElementById('hudHSpeed');
+  const hudVSpeed = document.getElementById('hudVSpeed');
+
+  let audioCtx = null;
+  function playSound(type) {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const now = audioCtx.currentTime;
+
+      if (type === 'thrust') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(60, now);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(now + 0.1);
+      } else if (type === 'land') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.3);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(now + 0.4);
+      } else if (type === 'crash') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.exponentialRampToValueAtTime(30, now + 0.5);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(now + 0.5);
+      }
+    } catch(e) {}
+  }
+
+  // Game state variables
+  let state = 'MENU'; // MENU, PLAYING, LANDED, CRASHED
+  let level = 1;
+  let score = 0;
+  let highscore = 0;
+  try { highscore = parseInt(localStorage.getItem('lunar_highscore') || '0', 10); } catch(e) {}
+
+  let gravity = 0.035;
+  let thrustPower = 0.09;
+  let lander = {
+    x: 100,
+    y: 80,
+    vx: 1.5,
+    vy: 0,
+    angle: 0, // radians, 0 is straight up
+    fuel: 100,
+    maxFuel: 100,
+    radius: 12
+  };
+
+  let terrainPoints = [];
+  let padStart = 0;
+  let padWidth = 80;
+  let padY = 0;
+
+  let particles = [];
+  let keys = { left: false, right: false, thrust: false };
+
+  function generateTerrain() {
+    terrainPoints = [];
+    const numPoints = 40;
+    const step = canvas.width / (numPoints - 1);
+
+    // Pad width decreases with higher level
+    padWidth = Math.max(40, 90 - (level - 1) * 8);
+    const padIndex = Math.floor(10 + Math.random() * (numPoints - 20));
+
+    padStart = padIndex * step;
+    padY = 420 + Math.random() * 100;
+
+    for (let i = 0; i < numPoints; i++) {
+      let x = i * step;
+      let y;
+      if (i >= padIndex && i <= padIndex + Math.ceil(padWidth / step)) {
+        y = padY;
+      } else {
+        y = 350 + Math.sin(i * 0.5) * 80 + Math.random() * 90;
+        y = Math.min(canvas.height - 20, Math.max(250, y));
+      }
+      terrainPoints.push({ x, y });
+    }
+  }
+
+  function resetMission(nextLevel = false) {
+    if (!nextLevel) {
+      level = 1;
+      score = 0;
+    } else {
+      level++;
+    }
+
+    generateTerrain();
+
+    lander.x = 80 + Math.random() * 150;
+    lander.y = 70 + Math.random() * 50;
+    lander.vx = 1.0 + Math.random() * 1.2;
+    lander.vy = (Math.random() - 0.5) * 0.5;
+    lander.angle = 0;
+    lander.maxFuel = Math.max(40, 100 - (level - 1) * 10);
+    lander.fuel = lander.maxFuel;
+
+    particles = [];
+    state = 'PLAYING';
+    overlay.style.display = 'none';
+  }
+
+  // Keyboard controls
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = true;
+    if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = true;
+    if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.key === ' ') {
+      keys.thrust = true;
+      e.preventDefault();
+    }
+  });
+
+  window.addEventListener('keyup', (e) => {
+    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
+    if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
+    if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.key === ' ') keys.thrust = false;
+  });
+
+  // Touch controls
+  const btnRotLeft = document.getElementById('btnRotLeft');
+  const btnRotRight = document.getElementById('btnRotRight');
+  const btnThrust = document.getElementById('btnThrust');
+
+  const bindBtn = (btn, prop) => {
+    btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[prop] = true; });
+    btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[prop] = false; });
+    btn.addEventListener('mousedown', () => { keys[prop] = true; });
+    btn.addEventListener('mouseup', () => { keys[prop] = false; });
+    btn.addEventListener('mouseleave', () => { keys[prop] = false; });
+  };
+  bindBtn(btnRotLeft, 'left');
+  bindBtn(btnRotRight, 'right');
+  bindBtn(btnThrust, 'thrust');
+
+  startBtn.addEventListener('click', () => {
+    resetMission(state === 'LANDED');
+  });
+
+  function getTerrainHeightAt(x) {
+    if (x <= 0) return terrainPoints[0].y;
+    if (x >= canvas.width) return terrainPoints[terrainPoints.length - 1].y;
+
+    for (let i = 0; i < terrainPoints.length - 1; i++) {
+      let p1 = terrainPoints[i];
+      let p2 = terrainPoints[i + 1];
+      if (x >= p1.x && x <= p2.x) {
+        let t = (x - p1.x) / (p2.x - p1.x);
+        return p1.y + t * (p2.y - p1.y);
+      }
+    }
+    return canvas.height;
+  }
+
+  function createExplosion(x, y) {
+    for (let i = 0; i < 40; i++) {
+      let ang = Math.random() * Math.PI * 2;
+      let spd = 1 + Math.random() * 5;
+      particles.push({
+        x, y,
+        vx: Math.cos(ang) * spd,
+        vy: Math.sin(ang) * spd,
+        life: 1,
+        color: ['#ff0055', '#ffcc00', '#ffffff', '#ff6600'][Math.floor(Math.random() * 4)]
+      });
+    }
+  }
+
+  function createThrustParticle() {
+    let flameAngle = lander.angle + Math.PI;
+    let spread = (Math.random() - 0.5) * 0.3;
+    let spd = 2 + Math.random() * 3;
+    particles.push({
+      x: lander.x - Math.sin(lander.angle) * 12,
+      y: lander.y + Math.cos(lander.angle) * 12,
+      vx: Math.sin(flameAngle + spread) * spd + lander.vx * 0.5,
+      vy: -Math.cos(flameAngle + spread) * spd + lander.vy * 0.5,
+      life: 0.8,
+      color: Math.random() < 0.5 ? '#ffcc00' : '#ff0055'
+    });
+  }
+
+  function update() {
+    if (state === 'PLAYING') {
+      // Rotation
+      if (keys.left) lander.angle -= 0.045;
+      if (keys.right) lander.angle += 0.045;
+
+      // Thrust
+      if (keys.thrust && lander.fuel > 0) {
+        lander.vx += Math.sin(lander.angle) * thrustPower;
+        lander.vy -= Math.cos(lander.angle) * thrustPower;
+        lander.fuel = Math.max(0, lander.fuel - 0.18);
+        createThrustParticle();
+        if (Math.random() < 0.4) playSound('thrust');
+      }
+
+      // Gravity
+      lander.vy += gravity;
+
+      // Movement
+      lander.x += lander.vx;
+      lander.y += lander.vy;
+
+      // Screen boundaries
+      if (lander.x < 10) { lander.x = 10; lander.vx = 0; }
+      if (lander.x > canvas.width - 10) { lander.x = canvas.width - 10; lander.vx = 0; }
+
+      // Terrain Collision Check
+      let terrainY = getTerrainHeightAt(lander.x);
+      if (lander.y + lander.radius >= terrainY) {
+        // Touchdown point
+        lander.y = terrainY - lander.radius;
+
+        let vSpeed = Math.abs(lander.vy);
+        let hSpeed = Math.abs(lander.vx);
+        let absAngle = Math.abs(lander.angle % (Math.PI * 2));
+        if (absAngle > Math.PI) absAngle = Math.PI * 2 - absAngle;
+
+        let isOnPad = (lander.x >= padStart && lander.x <= padStart + padWidth);
+        let softVSpeed = vSpeed <= 1.8;
+        let softHSpeed = hSpeed <= 1.2;
+        let isUpright = absAngle <= 0.28; // ~16 degrees
+
+        if (isOnPad && softVSpeed && softHSpeed && isUpright) {
+          // Successful landing!
+          state = 'LANDED';
+          playSound('land');
+          let landingBonus = Math.round(lander.fuel * 15 + (2.0 - vSpeed) * 200 + level * 300);
+          score += landingBonus;
+          if (score > highscore) {
+            highscore = score;
+            try { localStorage.setItem('lunar_highscore', highscore.toString()); } catch(e) {}
+          }
+
+          overlayTitle.textContent = "SUCCESSFUL TOUCHDOWN!";
+          overlayTitle.style.color = "#33ffaa";
+          overlayDesc.textContent = `Soft landing! Bonus +${landingBonus} pts. Remaining Fuel: ${Math.round(lander.fuel)}%`;
+          startBtn.textContent = "Next Level ▶";
+          overlay.style.display = 'flex';
+        } else {
+          // Crash!
+          state = 'CRASHED';
+          playSound('crash');
+          createExplosion(lander.x, lander.y);
+
+          let reason = !isOnPad ? "Missed the landing pad!" :
+                       !isUpright ? "Lander was not upright!" :
+                       "Impact speed was too hard!";
+
+          overlayTitle.textContent = "CRASH LANDING!";
+          overlayTitle.style.color = "#ff0055";
+          overlayDesc.textContent = `${reason} Final Score: ${score} (Best: ${highscore})`;
+          startBtn.textContent = "Try Again ↻";
+          overlay.style.display = 'flex';
+        }
+      }
+    }
+
+    // Update Particles
+    for (let i = particles.length - 1; i >= 0; i--) {
+      let p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life -= 0.03;
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+
+    // Update HUD
+    hudScore.textContent = score;
+    hudLevel.textContent = level;
+
+    let fuelPct = Math.round((lander.fuel / lander.maxFuel) * 100);
+    hudFuel.textContent = `${fuelPct}%`;
+    hudFuel.className = `hud-val ${fuelPct < 25 ? 'bad' : fuelPct < 50 ? 'warn' : 'good'}`;
+
+    let hSpd = Math.abs(lander.vx).toFixed(1);
+    hudHSpeed.textContent = hSpd;
+    hudHSpeed.className = `hud-val ${hSpd > 1.2 ? 'bad' : 'good'}`;
+
+    let vSpd = Math.abs(lander.vy).toFixed(1);
+    hudVSpeed.textContent = vSpd;
+    hudVSpeed.className = `hud-val ${vSpd > 1.8 ? 'bad' : 'good'}`;
+  }
+
+  function draw() {
+    ctx.fillStyle = '#05050d';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Stars background
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    for (let i = 0; i < 30; i++) {
+      let sx = (i * 137.5) % canvas.width;
+      let sy = (i * 83.1) % (canvas.height * 0.6);
+      ctx.fillRect(sx, sy, 1.5, 1.5);
+    }
+
+    // Terrain
+    ctx.beginPath();
+    ctx.moveTo(terrainPoints[0].x, terrainPoints[0].y);
+    for (let i = 1; i < terrainPoints.length; i++) {
+      ctx.lineTo(terrainPoints[i].x, terrainPoints[i].y);
+    }
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.lineTo(0, canvas.height);
+    ctx.closePath();
+    ctx.fillStyle = '#1c1c28';
+    ctx.fill();
+    ctx.strokeStyle = '#555577';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Landing Pad highlight
+    ctx.strokeStyle = '#33ffaa';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(padStart, padY);
+    ctx.lineTo(padStart + padWidth, padY);
+    ctx.stroke();
+
+    // Landing pad beacons
+    let pulse = Math.sin(Date.now() * 0.008) * 3;
+    ctx.fillStyle = '#33ffaa';
+    ctx.beginPath(); ctx.arc(padStart, padY - 3, 3 + pulse, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(padStart + padWidth, padY - 3, 3 + pulse, 0, Math.PI * 2); ctx.fill();
+
+    // Render Particles
+    for (let p of particles) {
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1.0;
+
+    // Render Lander
+    if (state === 'PLAYING' || state === 'LANDED') {
+      ctx.save();
+      ctx.translate(lander.x, lander.y);
+      ctx.rotate(lander.angle);
+
+      // Lander Legs
+      ctx.strokeStyle = '#aaa';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-6, 4); ctx.lineTo(-12, 12);
+      ctx.moveTo(6, 4); ctx.lineTo(12, 12);
+      ctx.stroke();
+
+      // Lander Body
+      ctx.fillStyle = '#00f3ff';
+      ctx.beginPath();
+      ctx.arc(0, 0, 9, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Top Dome
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(0, -3, 5, Math.PI, 0);
+      ctx.fill();
+
+      // Thruster Nozzle
+      ctx.fillStyle = '#888';
+      ctx.fillRect(-3, 8, 6, 4);
+
+      ctx.restore();
+    }
+  }
+
+  function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  generateTerrain();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

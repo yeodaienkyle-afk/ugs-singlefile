@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tower of Hanoi</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      background-color: #111827;
+      color: #f3f4f6;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .game-card {
+      background-color: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 20px;
+      padding: 24px;
+      max-width: 520px;
+      width: 100%;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #a855f7;
+      margin-bottom: 16px;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 20px;
+      gap: 12px;
+    }
+    .disc-select {
+      background: #374151;
+      color: #f9fafb;
+      border: 1px solid #4b5563;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+    }
+    .badge {
+      background: #374151;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #9ca3af;
+    }
+    .badge span {
+      color: #f9fafb;
+    }
+    .board {
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-end;
+      width: 100%;
+      height: 220px;
+      background: #111827;
+      border-radius: 14px;
+      border: 2px solid #374151;
+      position: relative;
+      padding-bottom: 16px;
+      margin: 8px 0;
+    }
+    .peg-container {
+      width: 30%;
+      height: 100%;
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      border-radius: 8px;
+      transition: background 0.2s ease;
+    }
+    .peg-container:hover {
+      background: rgba(255,255,255,0.03);
+    }
+    .peg-container.selected {
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px dashed #a855f7;
+    }
+    .peg-stem {
+      width: 10px;
+      height: 160px;
+      background: #4b5563;
+      border-radius: 5px 5px 0 0;
+      position: absolute;
+      bottom: 16px;
+      z-index: 1;
+    }
+    .peg-base {
+      width: 80%;
+      height: 12px;
+      background: #374151;
+      border-radius: 6px;
+      position: absolute;
+      bottom: 4px;
+      z-index: 1;
+    }
+    .disc {
+      height: 22px;
+      border-radius: 11px;
+      z-index: 2;
+      margin-bottom: 2px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: rgba(255,255,255,0.9);
+    }
+    .disc.selected-disc {
+      transform: translateY(-16px);
+      box-shadow: 0 0 12px rgba(168, 85, 247, 0.8);
+    }
+    .status {
+      min-height: 28px;
+      margin-top: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #34d399;
+      text-align: center;
+    }
+    .status.error {
+      color: #f87171;
+    }
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      width: 100%;
+    }
+    .btn {
+      flex: 1;
+      background-color: #8b5cf6;
+      color: #ffffff;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+      text-align: center;
+    }
+    .btn:hover { background-color: #7c3aed; }
+    .btn-secondary { background-color: #4b5563; }
+    .btn-secondary:hover { background-color: #6b7280; }
+    .instructions {
+      margin-top: 16px;
+      font-size: 0.85rem;
+      color: #9ca3af;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-card">
+    <h1>Tower of Hanoi</h1>
+
+    <div class="top-bar">
+      <select id="discSelect" class="disc-select">
+        <option value="3">3 Discs (Min 7 moves)</option>
+        <option value="4">4 Discs (Min 15 moves)</option>
+        <option value="5" selected>5 Discs (Min 31 moves)</option>
+        <option value="6">6 Discs (Min 63 moves)</option>
+        <option value="7">7 Discs (Min 127 moves)</option>
+      </select>
+
+      <div class="badge">Moves: <span id="moveCount">0</span></div>
+      <div class="badge">Min: <span id="minMoves">31</span></div>
+    </div>
+
+    <div class="board">
+      <div class="peg-container" id="peg0" data-peg="0">
+        <div class="peg-stem"></div>
+        <div class="peg-base"></div>
+      </div>
+      <div class="peg-container" id="peg1" data-peg="1">
+        <div class="peg-stem"></div>
+        <div class="peg-base"></div>
+      </div>
+      <div class="peg-container" id="peg2" data-peg="2">
+        <div class="peg-stem"></div>
+        <div class="peg-base"></div>
+      </div>
+    </div>
+
+    <div class="status" id="statusMsg"></div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" id="resetBtn">Restart Level</button>
+      <button class="btn" id="newGameBtn">New Game</button>
+    </div>
+
+    <p class="instructions">Move all discs to another peg, one disc at a time. Never place a larger disc on a smaller one!</p>
+  </div>
+
+  <script>
+    const COLORS = [
+      '#ef4444', // Red
+      '#f97316', // Orange
+      '#eab308', // Yellow
+      '#22c55e', // Green
+      '#06b6d4', // Cyan
+      '#3b82f6', // Blue
+      '#a855f7'  // Purple
+    ];
+
+    let numDiscs = 5;
+    let pegs = [[], [], []];
+    let selectedPeg = null;
+    let moveCount = 0;
+    let isWon = false;
+
+    const discSelect = document.getElementById('discSelect');
+    const moveCountEl = document.getElementById('moveCount');
+    const minMovesEl = document.getElementById('minMoves');
+    const statusMsgEl = document.getElementById('statusMsg');
+
+    function initGame() {
+      numDiscs = parseInt(discSelect.value, 10);
+      pegs = [[], [], []];
+      for (let i = numDiscs; i >= 1; i--) {
+        pegs[0].push(i);
+      }
+      selectedPeg = null;
+      moveCount = 0;
+      isWon = false;
+
+      statusMsgEl.textContent = '';
+      statusMsgEl.className = 'status';
+
+      minMovesEl.textContent = Math.pow(2, numDiscs) - 1;
+      updateStats();
+      render();
+    }
+
+    function updateStats() {
+      moveCountEl.textContent = moveCount;
+    }
+
+    function handlePegClick(pegIndex) {
+      if (isWon) return;
+
+      statusMsgEl.textContent = '';
+      statusMsgEl.className = 'status';
+
+      if (selectedPeg === null) {
+        // Selecting a peg to pick up
+        if (pegs[pegIndex].length === 0) {
+          showError("Peg is empty!");
+          return;
+        }
+        selectedPeg = pegIndex;
+      } else if (selectedPeg === pegIndex) {
+        // Deselect
+        selectedPeg = null;
+      } else {
+        // Trying to move top disc from selectedPeg to pegIndex
+        const sourceDisc = pegs[selectedPeg][pegs[selectedPeg].length - 1];
+        const targetDisc = pegs[pegIndex].length > 0 ? pegs[pegIndex][pegs[pegIndex].length - 1] : Infinity;
+
+        if (sourceDisc > targetDisc) {
+          showError("Cannot place a larger disc on a smaller disc!");
+          selectedPeg = null;
+          render();
+          return;
+        }
+
+        // Move disc
+        pegs[pegIndex].push(pegs[selectedPeg].pop());
+        selectedPeg = null;
+        moveCount++;
+        updateStats();
+
+        // Check win
+        if (pegs[1].length === numDiscs || pegs[2].length === numDiscs) {
+          isWon = true;
+          const min = Math.pow(2, numDiscs) - 1;
+          if (moveCount === min) {
+            statusMsgEl.textContent = `🎉 Perfect! Solved in minimum ${moveCount} moves!`;
+          } else {
+            statusMsgEl.textContent = `🎉 Solved in ${moveCount} moves! (Min possible: ${min})`;
+          }
+        }
+      }
+
+      render();
+    }
+
+    function showError(msg) {
+      statusMsgEl.textContent = msg;
+      statusMsgEl.className = 'status error';
+    }
+
+    function render() {
+      for (let p = 0; p < 3; p++) {
+        const pegEl = document.getElementById(`peg${p}`);
+        pegEl.className = `peg-container ${selectedPeg === p ? 'selected' : ''}`;
+
+        // Clear existing discs
+        const existingDiscs = pegEl.querySelectorAll('.disc');
+        existingDiscs.forEach(d => d.remove());
+
+        // Render discs bottom to top
+        pegs[p].forEach((discSize, idx) => {
+          const discEl = document.createElement('div');
+          discEl.className = 'disc';
+          if (selectedPeg === p && idx === pegs[p].length - 1) {
+            discEl.classList.add('selected-disc');
+          }
+
+          // Width scale from 35% to 90%
+          const widthPercent = 30 + (discSize / numDiscs) * 60;
+          discEl.style.width = `${widthPercent}%`;
+          discEl.style.backgroundColor = COLORS[(discSize - 1) % COLORS.length];
+          discEl.textContent = discSize;
+
+          pegEl.appendChild(discEl);
+        });
+      }
+    }
+
+    // Event listeners
+    for (let p = 0; p < 3; p++) {
+      document.getElementById(`peg${p}`).addEventListener('click', () => handlePegClick(p));
+    }
+
+    discSelect.addEventListener('change', initGame);
+    document.getElementById('resetBtn').addEventListener('click', initGame);
+    document.getElementById('newGameBtn').addEventListener('click', initGame);
+
+    // Start
+    initGame();
+  </script>
+</body>
+</html>

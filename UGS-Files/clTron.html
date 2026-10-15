@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tron Light Cycles</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #111;
+      color: #eee;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 10px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #00f3ff;
+      text-shadow: 0 0 10px #00f3ff;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 700px;
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+    .p1-score { color: #00f3ff; text-shadow: 0 0 5px #00f3ff; }
+    .p2-score { color: #ff0055; text-shadow: 0 0 5px #ff0055; }
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      max-width: 700px;
+      aspect-ratio: 4 / 3;
+      background: #050508;
+      border: 3px solid #00f3ff;
+      box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(10, 10, 15, 0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+    .overlay h2 {
+      font-size: 2.2rem;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+    .overlay p {
+      margin-bottom: 20px;
+      color: #ccc;
+      max-width: 480px;
+      line-height: 1.4;
+    }
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    button {
+      background: #00f3ff;
+      color: #000;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+    }
+    button:hover {
+      background: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    }
+    button.sec {
+      background: #ff0055;
+      color: #fff;
+      box-shadow: 0 0 10px rgba(ff, 0, 85, 0.5);
+    }
+    button.sec:hover {
+      background: #ff3377;
+    }
+    .touch-controls {
+      display: none;
+      margin-top: 10px;
+      grid-template-columns: repeat(3, 50px);
+      grid-gap: 5px;
+    }
+    .touch-btn {
+      width: 50px;
+      height: 50px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid #00f3ff;
+      color: #00f3ff;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    @media (max-width: 768px) {
+      .touch-controls { display: grid; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Tron Light Cycles</h1>
+  <div class="hud">
+    <div class="p1-score" id="p1Display">P1 (Cyan): 0</div>
+    <div id="roundDisplay">Round 1</div>
+    <div class="p2-score" id="p2Display">P2 (Pink): 0</div>
+  </div>
+
+  <div class="canvas-container">
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div class="overlay" id="menuOverlay">
+      <h2 id="menuTitle">TRON LIGHT CYCLES</h2>
+      <p id="menuDesc">Avoid wall and light trail collisions! First to crash loses the round.</p>
+      <div class="btn-group">
+        <button id="btn1P">1 Player (vs AI)</button>
+        <button id="btn2P" class="sec">2 Players (Local)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="touch-controls">
+    <div></div><div class="touch-btn" id="tUp">▲</div><div></div>
+    <div class="touch-btn" id="tLeft">◀</div><div></div><div class="touch-btn" id="tRight">▶</div>
+    <div></div><div class="touch-btn" id="tDown">▼</div><div></div>
+  </div>
+
+<script>
+(function() {
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const menuOverlay = document.getElementById('menuOverlay');
+  const menuTitle = document.getElementById('menuTitle');
+  const menuDesc = document.getElementById('menuDesc');
+  const btn1P = document.getElementById('btn1P');
+  const btn2P = document.getElementById('btn2P');
+  const p1Display = document.getElementById('p1Display');
+  const p2Display = document.getElementById('p2Display');
+  const roundDisplay = document.getElementById('roundDisplay');
+
+  const COLS = 100;
+  const ROWS = 75;
+  const CELL = 8; // 100*8 = 800, 75*8 = 600
+
+  let audioCtx = null;
+  function playBeep(freq, type='square', duration=0.08) {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    } catch(e) {}
+  }
+
+  let gameMode = '1P'; // '1P' or '2P'
+  let state = 'MENU'; // MENU, COUNTDOWN, PLAYING, GAMEOVER
+  let grid = [];
+  let p1Score = 0;
+  let p2Score = 0;
+  let roundNum = 1;
+  let countdownVal = 3;
+  let lastTime = 0;
+  let stepTimer = 0;
+  let speedInterval = 65; // ms per grid move, decreases over time
+  let minSpeedInterval = 30;
+
+  // Directions: 0: Up, 1: Right, 2: Down, 3: Left
+  const DX = [0, 1, 0, -1];
+  const DY = [-1, 0, 1, 0];
+
+  let p1 = { x: 20, y: 37, dir: 1, nextDir: 1, color: '#00f3ff', alive: true };
+  let p2 = { x: 79, y: 37, dir: 3, nextDir: 3, color: '#ff0055', alive: true };
+
+  function initGrid() {
+    grid = new Array(COLS);
+    for (let x = 0; x < COLS; x++) {
+      grid[x] = new Uint8Array(ROWS);
+    }
+  }
+
+  function resetPositions() {
+    initGrid();
+    p1 = { x: 15, y: Math.floor(ROWS/2), dir: 1, nextDir: 1, color: '#00f3ff', alive: true };
+    p2 = { x: COLS - 16, y: Math.floor(ROWS/2), dir: 3, nextDir: 3, color: '#ff0055', alive: true };
+    grid[p1.x][p1.y] = 1;
+    grid[p2.x][p2.y] = 2;
+    speedInterval = 65;
+  }
+
+  function startNewGame(mode) {
+    gameMode = mode;
+    p1Score = 0;
+    p2Score = 0;
+    roundNum = 1;
+    updateHUD();
+    startRound();
+  }
+
+  function startRound() {
+    resetPositions();
+    state = 'COUNTDOWN';
+    countdownVal = 3;
+    menuOverlay.style.display = 'flex';
+    menuTitle.textContent = `ROUND ${roundNum}`;
+    menuDesc.textContent = `Ready... ${countdownVal}`;
+    btn1P.style.display = 'none';
+    btn2P.style.display = 'none';
+
+    let countTimer = setInterval(() => {
+      countdownVal--;
+      if (countdownVal > 0) {
+        menuDesc.textContent = `Ready... ${countdownVal}`;
+        playBeep(440, 'sine', 0.1);
+      } else if (countdownVal === 0) {
+        menuDesc.textContent = "GO!";
+        playBeep(880, 'sine', 0.2);
+      } else {
+        clearInterval(countTimer);
+        menuOverlay.style.display = 'none';
+        state = 'PLAYING';
+      }
+    }, 800);
+  }
+
+  function updateHUD() {
+    p1Display.textContent = `P1 (${gameMode==='1P'?'You':'Cyan'}): ${p1Score}`;
+    p2Display.textContent = `${gameMode==='1P'?'AI':'P2'} (Pink): ${p2Score}`;
+    roundDisplay.textContent = `Round ${roundNum}`;
+  }
+
+  // Keyboard
+  window.addEventListener('keydown', (e) => {
+    if (state !== 'PLAYING') return;
+
+    // P1: WASD
+    if ((e.key === 'w' || e.key === 'W') && p1.dir !== 2) p1.nextDir = 0;
+    if ((e.key === 'd' || e.key === 'D') && p1.dir !== 3) p1.nextDir = 1;
+    if ((e.key === 's' || e.key === 'S') && p1.dir !== 0) p1.nextDir = 2;
+    if ((e.key === 'a' || e.key === 'A') && p1.dir !== 1) p1.nextDir = 3;
+
+    // P2: Arrows (or P1 fallback if arrow key used in 1P)
+    if (e.key === 'ArrowUp') {
+      if (gameMode === '2P') { if (p2.dir !== 2) p2.nextDir = 0; }
+      else { if (p1.dir !== 2) p1.nextDir = 0; }
+    }
+    if (e.key === 'ArrowRight') {
+      if (gameMode === '2P') { if (p2.dir !== 3) p2.nextDir = 1; }
+      else { if (p1.dir !== 3) p1.nextDir = 1; }
+    }
+    if (e.key === 'ArrowDown') {
+      if (gameMode === '2P') { if (p2.dir !== 0) p2.nextDir = 2; }
+      else { if (p1.dir !== 0) p1.nextDir = 2; }
+    }
+    if (e.key === 'ArrowLeft') {
+      if (gameMode === '2P') { if (p2.dir !== 1) p2.nextDir = 3; }
+      else { if (p1.dir !== 1) p1.nextDir = 3; }
+    }
+  });
+
+  // Touch handlers
+  document.getElementById('tUp').addEventListener('click', () => { if (p1.dir !== 2) p1.nextDir = 0; });
+  document.getElementById('tRight').addEventListener('click', () => { if (p1.dir !== 3) p1.nextDir = 1; });
+  document.getElementById('tDown').addEventListener('click', () => { if (p1.dir !== 0) p1.nextDir = 2; });
+  document.getElementById('tLeft').addEventListener('click', () => { if (p1.dir !== 1) p1.nextDir = 3; });
+
+  btn1P.addEventListener('click', () => startNewGame('1P'));
+  btn2P.addEventListener('click', () => startNewGame('2P'));
+
+  // Simple AI logic for P2
+  function updateAI() {
+    let bestDir = p2.dir;
+    let forwardX = p2.x + DX[p2.dir];
+    let forwardY = p2.y + DY[p2.dir];
+
+    // Check collision ahead
+    let willCollide = (forwardX < 0 || forwardX >= COLS || forwardY < 0 || forwardY >= ROWS || grid[forwardX][forwardY] !== 0);
+
+    if (willCollide || Math.random() < 0.05) {
+      let possibleDirs = [];
+      for (let d = 0; d < 4; d++) {
+        if (d === (p2.dir + 2) % 4) continue; // No 180 turn
+        let nx = p2.x + DX[d];
+        let ny = p2.y + DY[d];
+        if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && grid[nx][ny] === 0) {
+          // Calculate open space (lookahead 3 steps)
+          let lookaheadClear = true;
+          for (let step = 1; step <= 3; step++) {
+            let lx = p2.x + DX[d] * step;
+            let ly = p2.y + DY[d] * step;
+            if (lx < 0 || lx >= COLS || ly < 0 || ly >= ROWS || grid[lx][ly] !== 0) {
+              lookaheadClear = false;
+              break;
+            }
+          }
+          possibleDirs.push({ dir: d, score: lookaheadClear ? 2 : 1 });
+        }
+      }
+      if (possibleDirs.length > 0) {
+        possibleDirs.sort((a,b) => b.score - a.score);
+        bestDir = possibleDirs[0].dir;
+      }
+    }
+    p2.nextDir = bestDir;
+  }
+
+  function stepGame() {
+    p1.dir = p1.nextDir;
+    if (gameMode === '1P') updateAI();
+    p2.dir = p2.nextDir;
+
+    let p1nx = p1.x + DX[p1.dir];
+    let p1ny = p1.y + DY[p1.dir];
+    let p2nx = p2.x + DX[p2.dir];
+    let p2ny = p2.y + DY[p2.dir];
+
+    let p1Crash = (p1nx < 0 || p1nx >= COLS || p1ny < 0 || p1ny >= ROWS || grid[p1nx][p1ny] !== 0);
+    let p2Crash = (p2nx < 0 || p2nx >= COLS || p2ny < 0 || p2ny >= ROWS || grid[p2nx][p2ny] !== 0);
+
+    // Head-on collision at same target cell
+    if (p1nx === p2nx && p1ny === p2ny) {
+      p1Crash = true;
+      p2Crash = true;
+    }
+
+    if (p1Crash) p1.alive = false;
+    if (p2Crash) p2.alive = false;
+
+    if (!p1Crash) {
+      p1.x = p1nx; p1.y = p1ny;
+      grid[p1.x][p1.y] = 1;
+    }
+    if (!p2Crash) {
+      p2.x = p2nx; p2.y = p2ny;
+      grid[p2.x][p2.y] = 2;
+    }
+
+    if (p1Crash || p2Crash) {
+      playBeep(120, 'sawtooth', 0.4);
+      handleRoundEnd(p1.alive, p2.alive);
+    } else {
+      if (speedInterval > minSpeedInterval) speedInterval -= 0.05;
+    }
+  }
+
+  function handleRoundEnd(p1Alive, p2Alive) {
+    state = 'GAMEOVER';
+    let msg = "";
+    if (!p1Alive && !p2Alive) {
+      msg = "DOUBLE CRASH! TIE ROUND!";
+    } else if (p1Alive) {
+      p1Score++;
+      msg = `${gameMode === '1P' ? 'YOU WIN' : 'PLAYER 1 WINS'} ROUND ${roundNum}!`;
+    } else {
+      p2Score++;
+      msg = `${gameMode === '1P' ? 'AI WINS' : 'PLAYER 2 WINS'} ROUND ${roundNum}!`;
+    }
+    updateHUD();
+
+    roundNum++;
+    setTimeout(() => {
+      menuOverlay.style.display = 'flex';
+      menuTitle.textContent = msg;
+      menuDesc.textContent = `Score - P1: ${p1Score} | P2: ${p2Score}`;
+      btn1P.style.display = 'inline-block';
+      btn2P.style.display = 'inline-block';
+      btn1P.textContent = "Next Round (1P)";
+      btn2P.textContent = "Next Round (2P)";
+    }, 1000);
+  }
+
+  function draw() {
+    ctx.fillStyle = '#050508';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw Grid Lines background
+    ctx.strokeStyle = '#121525';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < canvas.width; x += CELL * 4) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+    }
+    for (let y = 0; y < canvas.height; y += CELL * 4) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+    }
+
+    // Draw Trails
+    for (let x = 0; x < COLS; x++) {
+      for (let y = 0; y < ROWS; y++) {
+        let val = grid[x][y];
+        if (val === 1) {
+          ctx.fillStyle = p1.color;
+          ctx.fillRect(x * CELL, y * CELL, CELL - 1, CELL - 1);
+        } else if (val === 2) {
+          ctx.fillStyle = p2.color;
+          ctx.fillRect(x * CELL, y * CELL, CELL - 1, CELL - 1);
+        }
+      }
+    }
+
+    // Draw Cycle Heads glowing
+    if (state === 'PLAYING' || state === 'COUNTDOWN') {
+      ctx.fillStyle = '#fff';
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = p1.color;
+      ctx.fillRect(p1.x * CELL - 1, p1.y * CELL - 1, CELL + 2, CELL + 2);
+
+      ctx.shadowColor = p2.color;
+      ctx.fillRect(p2.x * CELL - 1, p2.y * CELL - 1, CELL + 2, CELL + 2);
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  function loop(timestamp) {
+    if (!lastTime) lastTime = timestamp;
+    let dt = timestamp - lastTime;
+    lastTime = timestamp;
+
+    if (state === 'PLAYING') {
+      stepTimer += dt;
+      if (stepTimer >= speedInterval) {
+        stepGame();
+        stepTimer = 0;
+      }
+    }
+
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  window.addEventListener('blur', () => {
+    // Optional pause state if needed
+  });
+
+  initGrid();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

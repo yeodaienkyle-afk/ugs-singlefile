@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snakes and Ladders</title>
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: #0d1117;
+    color: #f0f6fc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 15px;
+  }
+  h1 {
+    font-size: 2rem;
+    color: #10b981;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  }
+  .game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 650px;
+    width: 100%;
+  }
+  .status-bar {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    padding: 8px 16px;
+    background: #161b22;
+    border-radius: 8px;
+    border: 1px solid #30363d;
+    text-align: center;
+    width: 100%;
+    color: #f0f6fc;
+  }
+  canvas {
+    background: #010409;
+    border: 3px solid #30363d;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    cursor: pointer;
+    touch-action: none;
+    max-width: 100%;
+    height: auto;
+  }
+  .controls {
+    margin-top: 14px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  button {
+    background: #059669;
+    color: #ffffff;
+    border: none;
+    padding: 10px 22px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    min-height: 44px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  }
+  button:hover:not(:disabled) {
+    background: #047857;
+    transform: translateY(-1px);
+  }
+  button:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  button:disabled {
+    background: #484f58;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  button.secondary {
+    background: #30363d;
+  }
+  button.secondary:hover:not(:disabled) {
+    background: #21262d;
+  }
+  .instructions {
+    margin-top: 12px;
+    font-size: 0.9rem;
+    color: #8b949e;
+    text-align: center;
+    max-width: 600px;
+  }
+</style>
+</head>
+<body>
+<div class="game-container">
+  <h1>Snakes and Ladders</h1>
+  <div class="status-bar" id="status">Click "Roll Die" to start!</div>
+  <canvas id="board" width="600" height="600"></canvas>
+  <div class="controls">
+    <button id="rollBtn" onclick="handleRoll()">Roll Die</button>
+    <button id="restartBtn" onclick="initGame()" class="secondary">New Game</button>
+  </div>
+  <div class="instructions">
+    Roll the die to move across the 100 squares. Ladders climb up, snakes slide down. First to land exactly on 100 wins!
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('board');
+  const ctx = canvas.getContext('2d');
+  const statusEl = document.getElementById('status');
+  const rollBtn = document.getElementById('rollBtn');
+
+  // Hardcoded Ladders (start -> end)
+  const LADDERS = {
+    4: 14,
+    9: 31,
+    20: 38,
+    28: 84,
+    40: 59,
+    63: 81,
+    71: 91
+  };
+
+  // Hardcoded Snakes (start -> end)
+  const SNAKES = {
+    17: 7,
+    54: 34,
+    62: 19,
+    87: 24,
+    93: 73,
+    98: 79
+  };
+
+  const PLAYERS = [
+    { name: 'You (Red)', color: '#ef4444' },
+    { name: 'AI 1 (Green)', color: '#10b981' },
+    { name: 'AI 2 (Yellow)', color: '#f59e0b' },
+    { name: 'AI 3 (Blue)', color: '#3b82f6' }
+  ];
+
+  // Game state
+  let playerPos = [1, 1, 1, 1]; // All start at square 1
+  let currentTurn = 0; // 0: Human, 1..3: AI
+  let currentDie = null;
+  let gameOver = false;
+
+  function initGame() {
+    playerPos = [1, 1, 1, 1];
+    currentTurn = 0;
+    currentDie = null;
+    gameOver = false;
+
+    rollBtn.disabled = false;
+    updateStatus("Your turn! Click 'Roll Die'.");
+    render();
+  }
+
+  function updateStatus(msg) {
+    statusEl.textContent = msg;
+  }
+
+  function handleRoll() {
+    if (currentTurn !== 0 || gameOver) return;
+
+    currentDie = Math.floor(Math.random() * 6) + 1;
+    rollBtn.disabled = true;
+
+    executeMove(0, currentDie);
+  }
+
+  function executeMove(playerIdx, die) {
+    let startPos = playerPos[playerIdx];
+    let rawPos = startPos + die;
+    let targetPos = rawPos;
+
+    // Bounce back if overshoot 100
+    if (rawPos > 100) {
+      targetPos = 100 - (rawPos - 100);
+    }
+
+    playerPos[playerIdx] = targetPos;
+    render();
+
+    let msg = `${PLAYERS[playerIdx].name} rolled a ${die} and moved to ${targetPos}.`;
+
+    // Check Snake or Ladder
+    if (LADDERS[targetPos]) {
+      let land = LADDERS[targetPos];
+      playerPos[playerIdx] = land;
+      msg += ` 🪜 Climbed a ladder to ${land}!`;
+    } else if (SNAKES[targetPos]) {
+      let land = SNAKES[targetPos];
+      playerPos[playerIdx] = land;
+      msg += ` 🐍 Slid down a snake to ${land}!`;
+    }
+
+    updateStatus(msg);
+    render();
+
+    // Check Win
+    if (playerPos[playerIdx] === 100) {
+      gameOver = true;
+      let winText = (playerIdx === 0) ? "🎉 YOU WIN! You reached square 100!" : `🤖 ${PLAYERS[playerIdx].name} WINS!`;
+      updateStatus(winText);
+      rollBtn.disabled = true;
+      return;
+    }
+
+    // Next Turn
+    setTimeout(nextTurn, 1000);
+  }
+
+  function nextTurn() {
+    if (gameOver) return;
+
+    currentTurn = (currentTurn + 1) % 4;
+    currentDie = null;
+
+    if (currentTurn === 0) {
+      rollBtn.disabled = false;
+      updateStatus("Your turn! Click 'Roll Die'.");
+      render();
+    } else {
+      rollBtn.disabled = true;
+      updateStatus(`${PLAYERS[currentTurn].name}'s turn...`);
+      render();
+
+      setTimeout(() => {
+        if (gameOver) return;
+        currentDie = Math.floor(Math.random() * 6) + 1;
+        executeMove(currentTurn, currentDie);
+      }, 1000);
+    }
+  }
+
+  function getSquareCoords(sq) {
+    let row = Math.floor((sq - 1) / 10);
+    let colInRow = (sq - 1) % 10;
+    let col = (row % 2 === 0) ? colInRow : (9 - colInRow);
+
+    const cellSize = canvas.width / 10;
+    let x = col * cellSize + cellSize / 2;
+    let y = canvas.height - (row * cellSize + cellSize / 2);
+
+    return { x, y, row, col };
+  }
+
+  // RENDER BOARD
+  function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const cellSize = canvas.width / 10;
+
+    // Draw 10x10 Grid
+    for (let sq = 1; sq <= 100; sq++) {
+      let coords = getSquareCoords(sq);
+      let r = coords.row;
+      let c = coords.col;
+
+      ctx.fillStyle = ((r + c) % 2 === 0) ? '#1e293b' : '#0f172a';
+      ctx.fillRect(c * cellSize, canvas.height - (r + 1) * cellSize, cellSize, cellSize);
+
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(c * cellSize, canvas.height - (r + 1) * cellSize, cellSize, cellSize);
+
+      // Square Number
+      ctx.fillStyle = '#64748b';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(sq, c * cellSize + 4, canvas.height - (r + 1) * cellSize + 14);
+    }
+
+    // Draw Ladders
+    for (let start in LADDERS) {
+      let end = LADDERS[start];
+      let p1 = getSquareCoords(Number(start));
+      let p2 = getSquareCoords(Number(end));
+
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.stroke();
+
+      // Rungs
+      ctx.strokeStyle = '#6ee7b7';
+      ctx.lineWidth = 3;
+      let steps = 5;
+      for (let i = 1; i < steps; i++) {
+        let rx = p1.x + (p2.x - p1.x) * (i / steps);
+        let ry = p1.y + (p2.y - p1.y) * (i / steps);
+        ctx.beginPath();
+        ctx.arc(rx, ry, 4, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+
+    // Draw Snakes
+    for (let start in SNAKES) {
+      let end = SNAKES[start];
+      let p1 = getSquareCoords(Number(start)); // Head
+      let p2 = getSquareCoords(Number(end));   // Tail
+
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+
+      // Curved snake body
+      let midX = (p1.x + p2.x) / 2 + 25;
+      let midY = (p1.y + p2.y) / 2 - 25;
+      ctx.quadraticCurveTo(midX, midY, p2.x, p2.y);
+      ctx.stroke();
+
+      // Snake Head
+      ctx.fillStyle = '#dc2626';
+      ctx.beginPath();
+      ctx.arc(p1.x, p1.y, 8, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Draw Current Die Roll
+    if (currentDie !== null) {
+      drawDie(canvas.width / 2 - 20, canvas.height / 2 - 20, currentDie);
+    }
+
+    // Draw Player Tokens
+    for (let p = 0; p < 4; p++) {
+      let sq = playerPos[p];
+      let coords = getSquareCoords(sq);
+
+      // Offset tokens on same square
+      let offsetX = (p % 2 === 0 ? -1 : 1) * 8;
+      let offsetY = (p < 2 ? -1 : 1) * 8;
+
+      ctx.beginPath();
+      ctx.arc(coords.x + offsetX, coords.y + offsetY, 11, 0, Math.PI * 2);
+      ctx.fillStyle = PLAYERS[p].color;
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#ffffff';
+      ctx.stroke();
+    }
+  }
+
+  function drawDie(x, y, val) {
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(x, y, 40, 40, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#000000';
+    const dots = {
+      1: [[20, 20]],
+      2: [[10, 10], [30, 30]],
+      3: [[10, 10], [20, 20], [30, 30]],
+      4: [[10, 10], [30, 10], [10, 30], [30, 30]],
+      5: [[10, 10], [30, 10], [20, 20], [10, 30], [30, 30]],
+      6: [[10, 10], [30, 10], [10, 20], [30, 20], [10, 30], [30, 30]]
+    };
+
+    if (dots[val]) {
+      for (let p of dots[val]) {
+        ctx.beginPath();
+        ctx.arc(x + p[0], y + p[1], 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+
+  // Initial setup
+  initGame();
+</script>
+</body>
+</html>

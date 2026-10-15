@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boggle</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background-color: #121216;
+      color: #f3f4f6;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 1rem;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    header {
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b, #ef4444);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 2px;
+      margin-bottom: 0.2rem;
+    }
+
+    .how-to-play {
+      font-size: 0.9rem;
+      color: #9ca3af;
+      margin-bottom: 0.5rem;
+    }
+
+    .top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #1e1e24;
+      padding: 0.75rem 1.25rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+      border: 1px solid #2d2d38;
+    }
+
+    .stat-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    .timer-warning {
+      color: #f59e0b !important;
+    }
+
+    .timer-danger {
+      color: #ef4444 !important;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .btn {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-height: 44px;
+      min-width: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn:hover {
+      background: #2563eb;
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-secondary {
+      background: #374151;
+      color: #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+      background: #4b5563;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      width: 100%;
+      aspect-ratio: 1;
+      background: #1e1e24;
+      padding: 12px;
+      border-radius: 16px;
+      border: 2px solid #2d2d38;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+    }
+
+    .die {
+      background: linear-gradient(145deg, #2d2d38, #22222a);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.1);
+      border: 2px solid #374151;
+      transition: all 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    .die-letter {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #f3f4f6;
+      transition: transform 0.2s ease;
+    }
+
+    .die.selected {
+      background: linear-gradient(145deg, #f59e0b, #d97706);
+      border-color: #fbbf24;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+    }
+
+    .die.selected .die-letter {
+      color: #ffffff;
+    }
+
+    .die.highlighted {
+      background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+      border-color: #60a5fa;
+    }
+
+    .die.last-selected {
+      border-color: #ffffff;
+    }
+
+    .input-section {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .current-word-display {
+      min-height: 48px;
+      background: #1e1e24;
+      border: 2px solid #374151;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1rem;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: #fbbf24;
+    }
+
+    .type-input {
+      background: transparent;
+      border: none;
+      color: #fbbf24;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      width: 100%;
+      outline: none;
+      text-transform: uppercase;
+    }
+
+    .controls-row {
+      display: flex;
+      gap: 0.5rem;
+      width: 100%;
+    }
+
+    .controls-row .btn {
+      flex: 1;
+    }
+
+    .status-msg {
+      min-height: 24px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-align: center;
+      transition: opacity 0.2s ease;
+    }
+
+    .status-success { color: #10b981; }
+    .status-error { color: #ef4444; }
+    .status-info { color: #38bdf8; }
+
+    .found-section {
+      width: 100%;
+      background: #1e1e24;
+      border-radius: 12px;
+      border: 1px solid #2d2d38;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-height: 180px;
+    }
+
+    .found-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #9ca3af;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .found-words-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      overflow-y: auto;
+      max-height: 120px;
+      padding-right: 4px;
+    }
+
+    .word-badge {
+      background: #2b2b36;
+      border: 1px solid #3d3d4e;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .word-badge .pts {
+      color: #10b981;
+      font-size: 0.75rem;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal {
+      background: #1e1e24;
+      border: 2px solid #374151;
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 380px;
+      width: 90%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+    }
+
+    .modal h2 {
+      font-size: 1.8rem;
+      color: #fbbf24;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>BOGGLE</h1>
+      <p class="how-to-play">Click adjacent letters or type words to find as many words as you can in 2 minutes!</p>
+    </header>
+
+    <div class="top-bar">
+      <div class="stat-box">
+        <span class="stat-label">Time</span>
+        <span class="stat-value" id="timer-display">02:00</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Score</span>
+        <span class="stat-value" id="score-display">0</span>
+      </div>
+      <button class="btn btn-secondary" id="restart-btn">New Round</button>
+    </div>
+
+    <div class="grid" id="dice-grid"></div>
+
+    <div class="input-section">
+      <div class="current-word-display">
+        <input type="text" id="type-input" class="type-input" placeholder="TYPE OR CLICK..." autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="controls-row">
+        <button class="btn btn-secondary" id="clear-btn">Clear</button>
+        <button class="btn" id="submit-btn">Submit Word</button>
+      </div>
+      <div class="status-msg" id="status-msg"></div>
+    </div>
+
+    <div class="found-section">
+      <div class="found-header">
+        <span>Found Words (<span id="found-count">0</span>)</span>
+        <span>Points</span>
+      </div>
+      <div class="found-words-list" id="found-words-list"></div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="game-over-modal">
+    <div class="modal">
+      <h2>TIME'S UP!</h2>
+      <p>Final Score: <strong id="final-score" style="color: #38bdf8; font-size: 1.4rem;">0</strong></p>
+      <p>Words Found: <strong id="final-count" style="color: #10b981; font-size: 1.2rem;">0</strong></p>
+      <button class="btn" id="modal-restart-btn" style="width: 100%;">Play Again</button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // Boggle 16 standard dice faces
+      const BOGGLE_DICE = [
+        "AAEEGN", "ABBJOO", "ACHOOP", "AFFKPS",
+        "AOOTTW", "CIMOTU", "DEILRX", "DELRVY",
+        "DISTTY", "EEGHNW", "EEINSU", "EHRTVW",
+        "EIOSST", "ELRTTY", "HIMNQU", "HLNNRZ"
+      ];
+
+      // Embedded dictionary (~1800 common words)
+      const WORD_LIST = [
+        "ACT","ADD","AGE","AGO","AIR","ALL","AND","ANY","APE","APT","ARC","ARE","ARK","ARM","ART","ASH","ASK","BAD","BAG","BAR","BAT","BAY","BED","BEE","BEG","BET","BID","BIG","BIT","BOW","BOX","BOY","BUS","BUT","BUY","CAB","CAN","CAP","CAR","CAT","COW","CRY","CUP","CUT","DAY","DIE","DIG","DOG","DRY","DUE","EAR","EAT","EGG","EGO","END","ERA","EVE","EYE","FAN","FAR","FAT","FED","FIT","FLY","FOG","FOR","FOX","FUN","GAP","GAS","GAY","GEM","GET","GOD","GOL","GUM","GUN","GUY","HAT","HAY","HEN","HER","HIM","HIS","HIT","HOP","HOT","HOW","ICE","ILL","INK","INN","ION","ITS","JAM","JAR","JAW","JOB","JOG","JOY","KEY","KID","LAB","LAP","LAW","LAY","LEG","LET","LID","LIE","LIP","LOG","LOT","LOW","MAD","MAN","MAP","MAT","MAY","MEN","MET","MIX","MUD","MUG","NET","NEW","NOD","NOT","NOW","NUT","OAK","ODD","OFF","OIL","OLD","ONE","OPT","OUR","OUT","OWL","OWN","PAD","PAN","PAR","PAT","PAY","PEG","PEN","PET","PIG","PIN","PIT","POD","POP","POT","PRO","PUB","RAG","RAN","RAT","RAW","RED","RIB","RID","RIG","RIM","RIP","ROD","ROW","RUB","RUG","RUN","SAD","SAP","SAT","SAY","SEA","SEE","SET","SEW","SHY","SIN","SIP","SIR","SIT","SKI","SKY","SLY","SON","SPY","SUN","TAB","TAG","TAN","TAP","TAR","TAX","TEA","TEN","THE","TIE","TIN","TIP","TOE","TON","TOO","TOP","TOW","TOY","TRY","TUB","TWO","URN","USE","VAN","VET","VIA","WAR","WAS","WAY","WEB","WED","WET","WHO","WHY","WIN","WIT","YAW","YES","YET","YOU","ZOO",
+        "ABLE","ACRE","ACTS","AGED","AGES","AIMS","AIRS","ALSO","ARCH","AREA","ARMS","ARMY","ARTS","AUTO","BABY","BACK","BAKE","BALL","BAND","BANK","BARE","BARK","BARN","BASE","BATH","BEAM","BEAN","BEAR","BEAT","BEEF","BEER","BELL","BELT","BEND","BEST","BIRD","BITE","BLOW","BLUE","BOAT","BODY","BOIL","BOLD","BONE","BOOK","BOOT","BORE","BORN","BOTH","BOWL","BUSH","BUSY","CAGE","CAKE","CALL","CALM","CAMP","CARD","CARE","CARS","CART","CASE","CASH","CAST","CAVE","CELL","CHAT","CHEF","CITY","CLAN","CLAY","CLIP","CLUB","COAL","COAT","CODE","COIN","COLD","COME","COOK","COOL","COPE","COPY","CORN","COST","CRAB","CREW","CROP","CURE","CURL","CUTE","DALE","DARE","DARK","DATA","DATE","DAWN","DAYS","DEAD","DEAF","DEAL","DEAR","DECK","DEEP","DEER","DIET","DIRT","DISC","DISH","DISK","DOCK","DOES","DOGS","DONE","DOOR","DOSE","DOWN","DRAW","DROP","DRUM","DUCK","DUST","DUTY","EACH","EARN","EARS","EASE","EAST","EASY","EATS","EDGE","EGGS","ELSE","ENDS","EVEN","EVER","EVIL","EXAM","EXIT","FACE","FACT","FAIR","FALL","FARM","FAST","FATE","FEAR","FEED","FEEL","FEET","FELL","FELT","FILE","FILL","FILM","FIND","FINE","FIRE","FIRM","FISH","FIST","FIVE","FLAG","FLAT","FLEA","FLEET","FLEW","FLIP","FLOW","FLUE","FOAM","FOOD","FOOT","FORD","FORM","FORT","FOUR","FREE","FROG","FROM","FUEL","FULL","FUND","GAME","GANG","GATE","GAVE","GEAR","GIFT","GIRL","GIVE","GLAD","GOAL","GOAT","GOLD","GOLF","GONE","GOOD","GRAB","GRAY","GRID","GROW","GULF","HAIR","HALF","HALL","HAND","HANG","HARD","HARM","HATE","HAVE","HEAD","HEAL","HEAR","HEAT","HELP","HERO","HIDE","HIGH","HILL","HIRE","HOLD","HOLE","HOME","HOOK","HOPE","HORN","HOSE","HOST","HOUR","HUGE","HUNT","HURT","IDEA","INCH","IRON","ITEM","JACK","JARS","JAZZ","JOIN","JOKE","JUMP","JUNE","JUST","KEPT","KEYS","KICK","KIDS","KILL","KIND","KING","KISS","KITE","KNEE","KNOW","LACK","LADY","LAKE","LAMP","LAND","LANE","LAST","LATE","LAZY","LEAD","LEAF","LEAN","LEAP","LEFT","LEND","LESS","LIFT","LIKE","LIME","LINE","LION","LIPS","LIST","LIVE","LOAD","LOAN","LOCK","LOGS","LONG","LOOK","LORD","LOSE","LOSS","LOUD","LOVE","LUCK","LUMP","LUNG","MAIN","MAKE","MALE","MANY","MAPS","MARK","MASK","MASS","MATH","MEAL","MEAN","MEAT","MEET","MELT","MEND","MESS","MILD","MILE","MILK","MILL","MIND","MINE","MINT","MISS","MODE","MOON","MORE","MOST","MOVE","MUCH","MUST","NAME","NAVY","NEAR","NEAT","NECK","NEED","NEST","NEWS","NEXT","NICE","NIGHT","NINE","NODE","NOSE","NOTE","OAK","OATH","OCEAN","OILS","OKAY","ONCE","ONLY","OPEN","ORAL","OVER","PACK","PAGE","PAIN","PAIR","PALM","PARK","PART","PASS","PATH","PEAK","PEAR","PEEL","PEER","PENS","PETS","PICK","PIER","PILE","PINK","PIPE","PLAN","PLAY","PLOT","PLUG","POEM","POET","POLE","POND","POOL","POOR","PORT","POST","POUR","PRAY","PULL","PUMP","PURE","PUSH","QUIT","QUIZ","RACE","RAIN","RANK","RARE","RATE","READ","REAL","REAR","RELY","RENT","REST","RICE","RICH","RIDE","RING","RISE","RISK","ROAD","ROCK","ROOF","ROOM","ROOT","ROSE","ROPE","RUBY","RULE","RUSH","RUST","SAFE","SAID","SAIL","SALE","SALT","SAME","SAND","SAVE","SEAL","SEAT","SEED","SEEK","SEEM","SEEN","SELL","SEND","SHIP","SHOE","SHOP","SHOT","SHOW","SICK","SIDE","SIGN","SILK","SING","SINK","SITE","SIZE","SKIN","SKIP","SLIP","SLOW","SNOW","SOAP","SOCK","SOFT","SOIL","SOLD","SOLE","SOME","SONG","SOON","SOUL","SOUP","SOUR","SPAN","SPIN","SPOT","STAR","STAY","STEP","STOP","SUCH","SUIT","SWIM","TAIL","TAKE","TALK","TALL","TANK","TAPE","TASK","TASTE","TAXI","TEAM","TEAR","TELL","TENT","TERM","TEST","TEXT","THAT","THEM","THEN","THEY","THIN","THIS","TIDE","TIDY","TIED","TIES","TILE","TIME","TINY","TIPS","TIRE","TOED","TOES","TOLL","TONE","TONS","TOOL","TOPS","TORN","TOWN","TOYS","TREE","TRIP","TUBE","TUNE","TURN","TWIN","TYPE","UGLY","UNIT","UPON","URGE","USED","USER","USES","VAST","VERY","VIEW","VOTE","WAGE","WAIT","WAKE","WALK","WALL","WANT","WARM","WASH","WAVE","WAYS","WEAK","WEAR","WEEK","WELL","WEST","WHAT","WHEN","WIDE","WIFE","WILD","WILL","WIND","WINE","WING","WINS","WIPE","WIRE","WISE","WISH","WITH","WOOD","WOOL","WORD","WORK","WORM","YARD","YARN","YEAR","ZERO","ZONE",
+        "ABOUT","ABOVE","ACTOR","ACUTE","ADAPT","ADMIT","ADOPT","ADULT","AFTER","AGAIN","AGREE","AHEAD","ALARM","ALBUM","ALERT","ALIEN","ALIKE","ALIVE","ALLOW","ALONE","ALONG","ALTER","AMONG","ANGER","ANGLE","ANGRY","APART","APPLE","APPLY","ARENA","ARGUE","ARISE","ARMED","ARRAY","ARROW","ASIDE","ASSET","AUDIO","AUDIT","AVOID","AWAKE","AWARD","AWARE","BADLY","BAKER","BASIC","BASIS","BEACH","BEGIN","BEING","BELOW","BENCH","BLACK","BLAME","BLANK","BLAST","BLEED","BLEND","BLESS","BLIND","BLOCK","BLOOD","BLOOM","BOARD","BOAST","BONUS","BOOST","BOUND","BRAIN","BRAND","BREAD","BREAK","BRICK","BRIDE","BRIEF","BRING","BROAD","BROWN","BRUSH","BUILD","BUNCH","BUYER","CABIN","CABLE","CANDY","CANOE","CARGO","CARRY","CATCH","CAUSE","CHAIN","CHAIR","CHALK","CHARM","CHART","CHASE","CHEAP","CHECK","CHEEK","CHEER","CHESS","CHEST","CHIEF","CHILD","CHILL","CHINA","CHIPS","CHOIR","CLAIM","CLASS","CLEAN","CLEAR","CLIMB","CLOCK","CLOSE","CLOTH","CLOUD","CLOWN","COACH","COAST","COUNT","COURT","COVER","CRACK","CRAFT","CRANE","CRASH","CRAWL","CRAZY","CREAM","CRIME","CRISP","CROSS","CROWD","CROWN","CRUEL","CRUSH","CURVE","CYCLE","DAILY","DANCE","DELAY","DELTA","DENSE","DEPTH","DEVIL","DIARY","DIRTY","DISCO","DOUBT","DRAFT","DRAIN","DRAMA","DREAM","DRESS","DRINK","DRIVE","EAGER","EARLY","EARTH","EIGHT","ELBOW","ELDER","ELECT","ELITE","EMPTY","ENEMY","ENJOY","ENTER","ENTRY","EQUAL","ERROR","EVENT","EVERY","EXACT","EXIST","EXTRA","FAITH","FALSE","FANCY","FATAL","FAULT","FAVOR","FIBER","FIELD","FIFTH","FIFTY","FINAL","FIRST","FLAME","FLASH","FLEET","FLESH","FLOAT","FLOCK","FLOOD","FLOOR","FLOUR","FLUID","FLUTE","FOCUS","FORCE","FORTH","FORTY","FORUM","FOUND","FRAME","FRAUD","FRESH","FRONT","FROST","FRUIT","FUNNY","GIANT","GIVEN","GLASS","GLOBE","GLOVE","GRACE","GRADE","GRAIN","GRAND","GRANT","GRAPE","GRASS","GRAVE","GREAT","GREEN","GREET","GRIEF","GROUP","GUARD","GUESS","GUEST","GUIDE","GUILT","HAPPY","HEAVY","HELLO","HONEY","HORSE","HOTEL","HOUSE","HUMAN","HUMOR","IDEAL","IMAGE","INDEX","INNER","INPUT","ISSUE","JAPAN","JEANS","JOINT","JUDGE","JUICE","KNIFE","KNOCK","LABEL","LABOR","LARGE","LATER","LAUGH","LAYER","LEARN","LEASE","LEAST","LEMON","LEVEL","LIGHT","LIMIT","LIVER","LOCAL","LOGIC","LOOSE","LUCKY","LUNCH","MAGIC","MAJOR","MAKER","MARCH","MATCH","MAYBE","MAYOR","MEDAL","MEDIA","MERCY","METAL","METER","METRO","MIGHT","MINOR","MODEL","MONEY","MONTH","MORAL","MOTOR","MOUNT","MOUSE","MOUTH","MOVIE","MUSIC","NAKED","NAVAL","NEEDS","NERVE","NEVER","NIGHT","NOBLE","NOISE","NORTH","NOVEL","NURSE","OCEAN","OFFER","OFTEN","OLIVE","ONION","OPERA","ORDER","ORGAN","OTHER","OUTER","OWNER","PAINT","PANEL","PAPER","PARTY","PEACE","PEACH","PENNY","PHASE","PHONE","PHOTO","PIANO","PIECE","PILOT","PITCH","PIZZA","PLACE","PLAIN","PLANE","PLANT","PLATE","POINT","POLAR","POUND","POWER","PRESS","PRICE","PRIDE","PRIME","PRINT","PRIZE","PROOF","PROUD","PROVE","PULSE","PUPIL","QUEEN","QUICK","QUIET","QUITE","QUOTA","RADAR","RADIO","RAISE","RALLY","RANCH","RANGE","RAPID","RATIO","REACH","REACT","READY","REALM","REBEL","REFER","RELAX","REPLY","RIDER","RIDGE","RIFLE","RIGHT","RIVAL","RIVER","ROBOT","ROCKET","ROUGH","ROUND","ROUTE","ROYAL","RULER","RURAL","SADLY","SAINT","SALAD","SALES","SALON","SAUCE","SCALE","SCENE","SCENT","SCOPE","SCORE","SHAKE","SHALL","SHAME","SHAPE","SHARE","SHARK","SHARP","SHEEP","SHEER","SHEET","SHELL","SHIFT","SHINE","SHIRT","SHOCK","SHOOT","SHORE","SHORT","SHOUT","SHOWN","SIGHT","SILENT","SILVER","SIMPLY","SINCE","SKILL","SKIRT","SLEEP","SLICE","SLIDE","SLIGHT","SMART","SMELL","SMILE","SMOKE","SNAKE","SOLAR","SOLID","SOLVE","SORRY","SOUND","SOUTH","SPACE","SPARE","SPEAK","SPEED","SPELL","SPEND","SPITE","SPLIT","SPOON","SPORT","STAFF","STAGE","STAKE","STAND","STARE","START","STATE","STEAM","STEEL","STEEP","STEER","STICK","STIFF","STILL","STOCK","STONE","STORM","STORY","STRAW","STRIP","STUDY","STUFF","STYLE","SUGAR","SUITE","SUPER","SWEET","SWIFT","SWORD","TABLE","TASTE","TEACH","TEETH","THANK","THEIR","THEME","THERE","THESE","THICK","THING","THINK","THIRD","THOSE","THREE","THROW","TIGER","TIGHT","TITLE","TODAY","TOKEN","TOOTH","TOPIC","TOTAL","TOUCH","TOUGH","TOWER","TRACK","TRADE","TRAIN","TREAT","TREND","TRIAL","TRIBE","TRICK","TRUCK","TRULY","TRUTH","TWICE","TWIN","UNCLE","UNDER","UNION","UNITE","UNITY","UNTIL","UPPER","UPSET","URBAN","USAGE","USUAL","VALID","VALUE","VIDEO","VIRUS","VISIT","VITAL","VOICE","WAGON","WASTE","WATCH","WATER","WAVE","WHEEL","WHERE","WHICH","WHILE","WHITE","WHOLE","WHOSE","WOMAN","WOMEN","WORLD","WORRY","WORTH","WOULD","WOUND","WRITE","WRONG","YOUTH",
+        "ACTION","ACTIVE","ACTOR","ACTRESS","ACTUAL","ADVICE","ADVISE","AFFORD","AFRAID","AGENCY","AGENDA","ALMOST","ALWAYS","AMOUNT","ANIMAL","ANNUAL","ANSWER","ANYONE","ANYWAY","APPEAR","AROUND","ARRIVE","ARTIST","ASPECT","ASSIST","ASSUME","ASSURE","ATTACK","ATTEND","AUGUST","AUTHOR","AUTUMN","AVENUE","BACKED","BAKERY","BALLOT","BANANA","BANKER","BARREL","BASKET","BATTLE","BEAUTY","BEFORE","BEHALF","BEHIND","BELIEF","BELONG","BESIDE","BETTER","BEYOND","BISHOP","BITTER","BLANKET","BOTTLE","BOTTOM","BOUNCE","BRANCH","BRIDGE","BRIGHT","BROKEN","BUDGET","BURIED","BURDEN","BUTTON","CAMERA","CAMPUS","CANCER","CANVAS","CAPABLE","CAPITAL","CAPTAIN","CARBON","CAREER","CASTLE","CASUAL","CATTLE","CAUGHT","CENTER","CENTURY","CHANCE","CHANGE","CHARGE","CHARLIE","CHEESE","CHICKEN","CHURCH","CIRCLE","CIRCUS","CLIENT","CLIMATE","CLOTHES","CLOTHING","COFFEE","COLLEGE","COLUMN","COMBAT","COMMON","COUNTY","COUPLE","COURT","COUSIN","COVER","CREDIT","CRIME","CRISIS","CUSTOM","DAMAGE","DANGER","DECENT","DECIDE","DEFEAT","DEFEND","DEFINE","DEGREE","DEMAND","DEPEND","DEPUTY","DESERT","DESIGN","DESIRE","DETAIL","DETECT","DEVICE","DIRECT","DOCTOR","DOLLAR","DOMAIN","DONKEY","DOUBLE","DRAGON","DRIVER","DURING","EASILY","EATING","EDITOR","EFFECT","EFFORT","EIGHTH","EITHER","ENERGY","ENGINE","ENOUGH","ENSURE","ENTIRE","ESCAPE","ESTATE","ETHICS","EXCEPT","EXCUSE","EXPENSE","EXPERT","EXPORT","EXTENT","FABRIC","FACTOR","FAILED","FAIRLY","FAMILY","FAMOUS","FARMER","FATHER","FELLOW","FEMALE","FIGURE","FILING","FINGER","FINISH","FISCAL","FLIGHT","FLYING","FLOWER","FORGET","FORMER","FRIEND","FROZEN","FUTURE","GARDEN","GENDER","GENTLE","GLOBAL","GOLDEN","GOVERN","GROUND","GROWTH","GUITAR","HANDLE","HAPPEN","HARDLY","HEALTH","HEIGHT","HIDDEN","HOLDER","HONEST","HORSE","HOSPITAL","HOUSE","HUMAN","HUNGRY","HUNTER","IGNORE","IMPACT","INCOME","INCREASE","INJURY","INSIDE","INTENT","INVEST","ISLAND","ITSELF","JACKET","JUNGLE","JUNIOR","KERNEL","KITCHEN","LABOR","LADDER","LANDING","LATEST","LATTER","LAUNCH","LAWYER","LEADER","LEAGUE","LEAVES","LEGEND","LENGTH","LESSON","LETTER","LIGHTS","LIKELY","LINKED","LIQUID","LITTLE","LIVING","LONDON","LONELY","LOSING","LUMBER","LUXURY","MAGNET","MAKING","MANAGE","MANNER","MANUAL","MARBLE","MARGIN","MARKET","MASTER","MATTER","MAXIMUM","MEDIUM","MEMBER","MEMORY","MENTAL","METHOD","MIDDLE","MILLION","MINING","MINUTE","MIRROR","MISSED","MISSILE","MIXED","MOBILE","MODERN","MODEST","MODULE","MOMENT","MONKEY","MOTHER","MOTION","MOTIVE","MUSEUM","MUTUAL","MYSELF","NATION","NATIVE","NATURE","NEARLY","NEITHER","NEPHEW","NERVE","NORMAL","NOTICE","NUMBER","OBJECT","OBTAIN","OFFICE","OFFSET","ONLINE","OPENING","ORANGE","ORIGIN","OUTPUT","PALACE","PANEL","PARENT","PARTLY","PATENT","PATIENT","PATTERN","PEOPLE","PEPPER","PERIOD","PERMIT","PERSON","PHASE","PHONE","PHOTO","PHRASE","PHYSIC","PICTURE","PIGEON","PLANET","PLASTIC","POCKET","POLICE","POLICY","PORTAL","POTATO","POWDER","POWER","PRETTY","PRIEST","PRINCE","PROBABLE","PRODUCE","PROFIT","PROMPT","PROPER","PUBLIC","PURPLE","PURSUE","PUZZLE","RABBIT","RADIAL","RADIUS","RANDOM","RARELY","RATING","RATHER","REACTOR","REASON","RECIPE","RECORD","REDUCE","REFORM","REFUSE","REGARD","REGIME","REGION","REGRET","REJECT","RELIEF","REMAIN","REMOTE","REMOVE","REPAIR","REPEAT","REPORT","RESCUE","RESORT","RESULT","RETAIL","RETAIN","RETURN","REVEAL","REVIEW","REWARD","RIDING","RISING","ROBUST","ROCKET","ROLLER","RUBBER","RULING","SAFETY","SALARY","SAMPLE","SAVING","SCENE","SCHEME","SCHOOL","SCREEN","SEARCH","SEASON","SECOND","SECRET","SECTOR","SECURE","SEEING","SEEKER","SELECT","SELLER","SENIOR","SENSE","SERIES","SERVER","SETTLE","SEVERE","SHADOW","SIGNAL","SILENT","SILVER","SIMPLE","SINGLE","SISTER","SKILL","SLIGHT","SMOOTH","SOCIAL","SOURCE","SOVIET","SPEECH","SPIRIT","SPREAD","SPRING","SQUARE","STABLE","STANDARD","STANDING","STATUE","STATUS","STEADY","STOLEN","STRAIN","STREAM","STREET","STRESS","STRIKE","STRING","STRONG","STUDIO","SUBMIT","SUMMER","SUNDAY","SUPPLY","SURFACE","TARGET","TAXATION","TEMPLE","TENNIS","THANKS","THEORY","THIRTY","THREAT","TICKET","TIMBER","TISSUE","TITLE","TODAY","TOILET","TOMATO","TONIGHT","TOPIC","TOWARD","TRAVEL","TREATY","TREND","TWELVE","TWENTY","TYPICAL","UNIQUE","UNITED","UNLESS","UNLIKE","UPDATE","USEFUL","VALLEY","VALUABLE","VARIOUS","VECTOR","VENDOR","VERIFY","VESSEL","VICTIM","VICTORY","VIEWER","VILLAGE","VIRTUE","VISION","VISIT","VISUAL","VOICE","VOLUME","WALKING","WALNUT","WANDER","WARNING","WEAPON","WEATHER","WEEKLY","WEIGHT","WINDOW","WINNER","WINTER","WISDOM","WITHIN","WONDER","WORKER","WRITER","YELLOW"
+      ];
+
+      const WORD_SET = new Set(WORD_LIST);
+
+      let gridLetters = [];
+      let gridRotations = [];
+      let selectedIndices = [];
+      let foundWords = [];
+      let score = 0;
+      let timeLeft = 120;
+      let timerInterval = null;
+      let isGameOver = false;
+
+      // DOM elements
+      const diceGridEl = document.getElementById('dice-grid');
+      const timerDisplayEl = document.getElementById('timer-display');
+      const scoreDisplayEl = document.getElementById('score-display');
+      const typeInputEl = document.getElementById('type-input');
+      const clearBtn = document.getElementById('clear-btn');
+      const submitBtn = document.getElementById('submit-btn');
+      const restartBtn = document.getElementById('restart-btn');
+      const statusMsgEl = document.getElementById('status-msg');
+      const foundWordsListEl = document.getElementById('found-words-list');
+      const foundCountEl = document.getElementById('found-count');
+      const gameOverModal = document.getElementById('game-over-modal');
+      const finalScoreEl = document.getElementById('final-score');
+      const finalCountEl = document.getElementById('final-count');
+      const modalRestartBtn = document.getElementById('modal-restart-btn');
+
+      // Helper: check adjacency on 4x4 grid
+      function isAdjacent(idx1, idx2) {
+        const r1 = Math.floor(idx1 / 4), c1 = idx1 % 4;
+        const r2 = Math.floor(idx2 / 4), c2 = idx2 % 4;
+        return Math.abs(r1 - r2) <= 1 && Math.abs(c1 - c2) <= 1 && !(r1 === r2 && c1 === c2);
+      }
+
+      // Find path on grid using DFS
+      function findPath(word, letters) {
+        const w = word.toUpperCase();
+        const len = w.length;
+
+        function dfs(currIdx, charPos, visited) {
+          if (charPos === len) return visited;
+          const r = Math.floor(currIdx / 4), c = currIdx % 4;
+          for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+              if (dr === 0 && dc === 0) continue;
+              const nr = r + dr, nc = c + dc;
+              if (nr >= 0 && nr < 4 && nc >= 0 && nc < 4) {
+                const nextIdx = nr * 4 + nc;
+                if (!visited.includes(nextIdx) && letters[nextIdx] === w[charPos]) {
+                  const res = dfs(nextIdx, charPos + 1, [...visited, nextIdx]);
+                  if (res) return res;
+                }
+              }
+            }
+          }
+          return null;
+        }
+
+        for (let i = 0; i < 16; i++) {
+          if (letters[i] === w[0]) {
+            const path = dfs(i, 1, [i]);
+            if (path) return path;
+          }
+        }
+        return null;
+      }
+
+      // Scoring logic (3/4: 1, 5: 2, 6: 3, 7+: 5)
+      function getPoints(length) {
+        if (length < 3) return 0;
+        if (length === 3 || length === 4) return 1;
+        if (length === 5) return 2;
+        if (length === 6) return 3;
+        return 5;
+      }
+
+      function startNewRound() {
+        if (timerInterval) clearInterval(timerInterval);
+
+        // Shuffle dice
+        const shuffledDice = [...BOGGLE_DICE].sort(() => Math.random() - 0.5);
+        gridLetters = [];
+        gridRotations = [];
+
+        const angles = [0, 90, 180, 270];
+        shuffledDice.forEach(die => {
+          const randLetter = die[Math.floor(Math.random() * die.length)];
+          gridLetters.push(randLetter);
+          gridRotations.push(angles[Math.floor(Math.random() * angles.length)]);
+        });
+
+        selectedIndices = [];
+        foundWords = [];
+        score = 0;
+        timeLeft = 120;
+        isGameOver = false;
+
+        scoreDisplayEl.textContent = '0';
+        foundCountEl.textContent = '0';
+        foundWordsListEl.innerHTML = '';
+        typeInputEl.value = '';
+        statusMsgEl.textContent = '';
+        gameOverModal.classList.add('hidden');
+
+        renderGrid();
+        updateTimerDisplay();
+
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          updateTimerDisplay();
+          if (timeLeft <= 0) {
+            endGame();
+          }
+        }, 1000);
+      }
+
+      function updateTimerDisplay() {
+        const mins = Math.floor(timeLeft / 60);
+        const secs = timeLeft % 60;
+        const str = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        timerDisplayEl.textContent = str;
+
+        if (timeLeft <= 10) {
+          timerDisplayEl.className = 'stat-value timer-danger';
+        } else if (timeLeft <= 30) {
+          timerDisplayEl.className = 'stat-value timer-warning';
+        } else {
+          timerDisplayEl.className = 'stat-value';
+        }
+      }
+
+      function renderGrid() {
+        diceGridEl.innerHTML = '';
+        for (let i = 0; i < 16; i++) {
+          const die = document.createElement('div');
+          die.className = 'die';
+          die.dataset.index = i;
+
+          const letterSpan = document.createElement('span');
+          letterSpan.className = 'die-letter';
+          letterSpan.textContent = gridLetters[i];
+          letterSpan.style.transform = `rotate(${gridRotations[i]}deg)`;
+
+          die.appendChild(letterSpan);
+
+          if (selectedIndices.includes(i)) {
+            die.classList.add('selected');
+            if (selectedIndices[selectedIndices.length - 1] === i) {
+              die.classList.add('last-selected');
+            }
+          }
+
+          die.addEventListener('click', () => handleDieClick(i));
+          diceGridEl.appendChild(die);
+        }
+      }
+
+      function handleDieClick(index) {
+        if (isGameOver) return;
+
+        const lastIdx = selectedIndices[selectedIndices.length - 1];
+
+        if (selectedIndices.includes(index)) {
+          // If clicking the last selected, unselect it
+          if (lastIdx === index) {
+            selectedIndices.pop();
+          }
+        } else {
+          // If empty selection or adjacent to last selected
+          if (selectedIndices.length === 0 || isAdjacent(lastIdx, index)) {
+            selectedIndices.push(index);
+          } else {
+            // Restart selection from clicked die
+            selectedIndices = [index];
+          }
+        }
+
+        const currentWord = selectedIndices.map(i => gridLetters[i]).join('');
+        typeInputEl.value = currentWord;
+        renderGrid();
+      }
+
+      function updateHighlightFromInput() {
+        if (isGameOver) return;
+        const typed = typeInputEl.value.trim().toUpperCase();
+        if (!typed) {
+          selectedIndices = [];
+          renderGrid();
+          return;
+        }
+
+        const path = findPath(typed, gridLetters);
+        if (path) {
+          selectedIndices = path;
+          renderGrid();
+        } else {
+          // Visual highlight clear if invalid path
+          selectedIndices = [];
+          renderGrid();
+        }
+      }
+
+      function submitCurrentWord() {
+        if (isGameOver) return;
+        const word = typeInputEl.value.trim().toUpperCase();
+
+        if (word.length < 3) {
+          showStatus('Word must be 3+ letters', 'error');
+          return;
+        }
+
+        if (foundWords.includes(word)) {
+          showStatus(`"${word}" already found!`, 'error');
+          return;
+        }
+
+        if (!WORD_SET.has(word)) {
+          showStatus(`"${word}" not in word list`, 'error');
+          return;
+        }
+
+        const path = findPath(word, gridLetters);
+        if (!path) {
+          showStatus(`"${word}" cannot be formed on grid`, 'error');
+          return;
+        }
+
+        // Valid word!
+        const pts = getPoints(word.length);
+        score += pts;
+        foundWords.push(word);
+
+        scoreDisplayEl.textContent = score;
+        foundCountEl.textContent = foundWords.length;
+
+        const badge = document.createElement('div');
+        badge.className = 'word-badge';
+        badge.innerHTML = `${word} <span class="pts">+${pts}</span>`;
+        foundWordsListEl.prepend(badge);
+
+        showStatus(`+${pts} pts for "${word}"!`, 'success');
+
+        selectedIndices = [];
+        typeInputEl.value = '';
+        renderGrid();
+      }
+
+      function showStatus(text, type) {
+        statusMsgEl.textContent = text;
+        statusMsgEl.className = `status-msg status-${type}`;
+      }
+
+      function endGame() {
+        isGameOver = true;
+        if (timerInterval) clearInterval(timerInterval);
+        finalScoreEl.textContent = score;
+        finalCountEl.textContent = foundWords.length;
+        gameOverModal.classList.remove('hidden');
+      }
+
+      // Event listeners
+      typeInputEl.addEventListener('input', () => {
+        typeInputEl.value = typeInputEl.value.toUpperCase();
+        updateHighlightFromInput();
+      });
+
+      typeInputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          submitCurrentWord();
+        }
+      });
+
+      submitBtn.addEventListener('click', submitCurrentWord);
+
+      clearBtn.addEventListener('click', () => {
+        selectedIndices = [];
+        typeInputEl.value = '';
+        renderGrid();
+        statusMsgEl.textContent = '';
+      });
+
+      restartBtn.addEventListener('click', startNewRound);
+      modalRestartBtn.addEventListener('click', startNewRound);
+
+      // Start on load
+      startNewRound();
+    })();
+  </script>
+</body>
+</html>

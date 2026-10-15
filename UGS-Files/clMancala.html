@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mancala</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .container {
+      background-color: #1e293b;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 720px;
+      width: 100%;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: #38bdf8;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+    select, button {
+      background-color: #334155;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    select:hover, button:hover {
+      background-color: #475569;
+      border-color: #64748b;
+    }
+    button.primary {
+      background-color: #2563eb;
+      border-color: #3b82f6;
+    }
+    button.primary:hover {
+      background-color: #1d4ed8;
+    }
+    .status {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      min-height: 1.6em;
+      text-align: center;
+      color: #facc15;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: 80px repeat(6, 1fr) 80px;
+      grid-template-rows: repeat(2, 90px);
+      gap: 10px;
+      background-color: #0f172a;
+      padding: 16px;
+      border-radius: 16px;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+      width: 100%;
+    }
+    .store {
+      background-color: #334155;
+      border-radius: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: #38bdf8;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+      padding: 8px;
+      position: relative;
+    }
+    .store-top { grid-column: 1; grid-row: 1 / span 2; }
+    .store-bottom { grid-column: 8; grid-row: 1 / span 2; }
+
+    .pit {
+      background-color: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .pit.clickable:hover {
+      border-color: #38bdf8;
+      background-color: #334155;
+      transform: scale(1.05);
+    }
+    .pit-seeds-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      justify-content: center;
+      align-items: center;
+      max-width: 40px;
+      margin-top: 4px;
+    }
+    .seed-dot {
+      width: 6px;
+      height: 6px;
+      background-color: #facc15;
+      border-radius: 50%;
+    }
+    .label {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .how-to-play {
+      margin-top: 20px;
+      font-size: 0.88rem;
+      color: #94a3b8;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Mancala</h1>
+    <div class="controls">
+      <select id="mode-select">
+        <option value="ai-p1">VS AI (You First)</option>
+        <option value="ai-p2">VS AI (AI First)</option>
+        <option value="pvp">2 Player (Local)</option>
+      </select>
+      <button class="primary" id="restart-btn">New Game</button>
+    </div>
+    <div class="status" id="status">Player 1's Turn</div>
+    <div class="board" id="board"></div>
+    <p class="how-to-play">Click a pit on your side to sow seeds counterclockwise. Land in your store for an extra turn, or capture opponent seeds!</p>
+  </div>
+
+  <script>
+    (function() {
+      // P1 pits: 0..5, P1 Store: 6
+      // P2 pits: 7..12, P2 Store: 13
+      const P1_PITS = [0, 1, 2, 3, 4, 5];
+      const P1_STORE = 6;
+      const P2_PITS = [12, 11, 10, 9, 8, 7]; // Visual order top left to top right
+      const P2_STORE = 13;
+
+      let board = [];
+      let currentPlayer = 1; // 1 (P1 / Bottom), 2 (P2 / Top / AI)
+      let gameOver = false;
+      let gameMode = 'ai-p1';
+
+      const boardEl = document.getElementById('board');
+      const statusEl = document.getElementById('status');
+      const restartBtn = document.getElementById('restart-btn');
+      const modeSelect = document.getElementById('mode-select');
+
+      function initGame() {
+        // 4 seeds per pit
+        board = Array(14).fill(4);
+        board[P1_STORE] = 0;
+        board[P2_STORE] = 0;
+
+        currentPlayer = 1;
+        gameOver = false;
+        gameMode = modeSelect.value;
+
+        renderBoard();
+        updateStatusText();
+
+        if (gameMode === 'ai-p2' && currentPlayer === 2) {
+          setTimeout(makeAIMove, 500);
+        }
+      }
+
+      function isHumanTurn() {
+        if (gameMode === 'pvp') return true;
+        if (gameMode === 'ai-p1' && currentPlayer === 1) return true;
+        if (gameMode === 'ai-p2' && currentPlayer === 2) return true;
+        return false;
+      }
+
+      function renderBoard() {
+        boardEl.innerHTML = '';
+
+        // P2 Store (Left)
+        const store2 = document.createElement('div');
+        store2.className = 'store store-top';
+        store2.innerHTML = `<span class="label">P2 Store</span><span>${board[P2_STORE]}</span>`;
+        renderSeedDots(store2, board[P2_STORE]);
+        boardEl.appendChild(store2);
+
+        // P2 Pits (Top Row: 12, 11, 10, 9, 8, 7)
+        P2_PITS.forEach(pitIdx => {
+          const pit = createPitElement(pitIdx);
+          boardEl.appendChild(pit);
+        });
+
+        // P1 Pits (Bottom Row: 0, 1, 2, 3, 4, 5)
+        P1_PITS.forEach(pitIdx => {
+          const pit = createPitElement(pitIdx);
+          boardEl.appendChild(pit);
+        });
+
+        // P1 Store (Right)
+        const store1 = document.createElement('div');
+        store1.className = 'store store-bottom';
+        store1.innerHTML = `<span class="label">P1 Store</span><span>${board[P1_STORE]}</span>`;
+        renderSeedDots(store1, board[P1_STORE]);
+        boardEl.appendChild(store1);
+      }
+
+      function renderSeedDots(el, count) {
+        const container = document.createElement('div');
+        container.className = 'pit-seeds-container';
+        const displayCount = Math.min(count, 12);
+        for (let i = 0; i < displayCount; i++) {
+          const dot = document.createElement('div');
+          dot.className = 'seed-dot';
+          container.appendChild(dot);
+        }
+        el.appendChild(container);
+      }
+
+      function createPitElement(pitIdx) {
+        const pit = document.createElement('div');
+        pit.className = 'pit';
+
+        const isP1 = P1_PITS.includes(pitIdx);
+        const canClick = !gameOver && isHumanTurn() && board[pitIdx] > 0 &&
+                         ((currentPlayer === 1 && isP1) || (currentPlayer === 2 && !isP1));
+
+        if (canClick) {
+          pit.classList.add('clickable');
+          pit.addEventListener('click', () => handlePitClick(pitIdx));
+        }
+
+        pit.innerHTML = `<span>${board[pitIdx]}</span>`;
+        renderSeedDots(pit, board[pitIdx]);
+        return pit;
+      }
+
+      function handlePitClick(pitIdx) {
+        if (gameOver || !isHumanTurn()) return;
+        executeSow(pitIdx);
+      }
+
+      function executeSow(startPit) {
+        let seeds = board[startPit];
+        if (seeds === 0) return false;
+
+        board[startPit] = 0;
+        let curr = startPit;
+
+        while (seeds > 0) {
+          curr = (curr + 1) % 14;
+
+          // Skip opponent store
+          if (currentPlayer === 1 && curr === P2_STORE) continue;
+          if (currentPlayer === 2 && curr === P1_STORE) continue;
+
+          board[curr]++;
+          seeds--;
+        }
+
+        let extraTurn = false;
+
+        // Check if landed in own store
+        if ((currentPlayer === 1 && curr === P1_STORE) || (currentPlayer === 2 && curr === P2_STORE)) {
+          extraTurn = true;
+        } else {
+          // Check capture rule
+          const isOwnSide = (currentPlayer === 1 && P1_PITS.includes(curr)) ||
+                            (currentPlayer === 2 && P2_PITS.includes(curr));
+
+          if (isOwnSide && board[curr] === 1) {
+            const oppositePit = 12 - curr;
+            if (board[oppositePit] > 0) {
+              const captured = board[oppositePit] + 1;
+              board[curr] = 0;
+              board[oppositePit] = 0;
+              const storeIdx = currentPlayer === 1 ? P1_STORE : P2_STORE;
+              board[storeIdx] += captured;
+            }
+          }
+        }
+
+        // Check if game end condition met
+        if (checkGameEnd()) {
+          renderBoard();
+          return true;
+        }
+
+        if (extraTurn) {
+          statusEl.textContent = `${currentPlayer === 1 ? 'Player 1' : (gameMode.includes('ai') ? 'AI' : 'Player 2')} gets an Extra Turn!`;
+        } else {
+          currentPlayer = currentPlayer === 1 ? 2 : 1;
+          updateStatusText();
+        }
+
+        renderBoard();
+
+        if (!extraTurn && !isHumanTurn()) {
+          setTimeout(makeAIMove, 500);
+        } else if (extraTurn && !isHumanTurn()) {
+          setTimeout(makeAIMove, 500);
+        }
+
+        return true;
+      }
+
+      function checkGameEnd() {
+        const p1Empty = P1_PITS.every(i => board[i] === 0);
+        const p2Empty = P2_PITS.every(i => board[i] === 0);
+
+        if (p1Empty || p2Empty) {
+          gameOver = true;
+          // Sweep remaining seeds into respective stores
+          P1_PITS.forEach(i => {
+            board[P1_STORE] += board[i];
+            board[i] = 0;
+          });
+          P2_PITS.forEach(i => {
+            board[P2_STORE] += board[i];
+            board[i] = 0;
+          });
+
+          const p1Score = board[P1_STORE];
+          const p2Score = board[P2_STORE];
+
+          if (p1Score > p2Score) {
+            statusEl.textContent = `Player 1 Wins (${p1Score} - ${p2Score})!`;
+          } else if (p2Score > p1Score) {
+            statusEl.textContent = `${gameMode.includes('ai') ? 'AI' : 'Player 2'} Wins (${p2Score} - ${p1Score})!`;
+          } else {
+            statusEl.textContent = `It's a Tie (${p1Score} - ${p2Score})!`;
+          }
+          return true;
+        }
+        return false;
+      }
+
+      function updateStatusText() {
+        if (gameOver) return;
+        if (isHumanTurn()) {
+          statusEl.textContent = `${currentPlayer === 1 ? "Player 1's" : "Player 2's"} Turn`;
+        } else {
+          statusEl.textContent = 'AI is thinking...';
+        }
+      }
+
+      function evaluateBoardState(b, player) {
+        const storeSelf = player === 1 ? P1_STORE : P2_STORE;
+        const storeOpp = player === 1 ? P2_STORE : P1_STORE;
+        return b[storeSelf] - b[storeOpp];
+      }
+
+      function simulateMove(b, startPit, player) {
+        let nb = [...b];
+        let seeds = nb[startPit];
+        nb[startPit] = 0;
+        let curr = startPit;
+
+        while (seeds > 0) {
+          curr = (curr + 1) % 14;
+          if (player === 1 && curr === P2_STORE) continue;
+          if (player === 2 && curr === P1_STORE) continue;
+
+          nb[curr]++;
+          seeds--;
+        }
+
+        let extraTurn = false;
+        if ((player === 1 && curr === P1_STORE) || (player === 2 && curr === P2_STORE)) {
+          extraTurn = true;
+        } else {
+          const isOwnSide = (player === 1 && P1_PITS.includes(curr)) ||
+                            (player === 2 && P2_PITS.includes(curr));
+          if (isOwnSide && nb[curr] === 1) {
+            const oppPit = 12 - curr;
+            if (nb[oppPit] > 0) {
+              const captured = nb[oppPit] + 1;
+              nb[curr] = 0;
+              nb[oppPit] = 0;
+              const storeIdx = player === 1 ? P1_STORE : P2_STORE;
+              nb[storeIdx] += captured;
+            }
+          }
+        }
+
+        return { board: nb, extraTurn };
+      }
+
+      function makeAIMove() {
+        if (gameOver) return;
+
+        const aiPits = currentPlayer === 1 ? P1_PITS : P2_PITS;
+        const validPits = aiPits.filter(p => board[p] > 0);
+
+        if (validPits.length === 0) return;
+
+        let bestPit = validPits[0];
+        let bestScore = -Infinity;
+
+        for (let pit of validPits) {
+          const sim = simulateMove(board, pit, currentPlayer);
+          let score = evaluateBoardState(sim.board, currentPlayer);
+          if (sim.extraTurn) score += 10; // High bonus for extra turns
+
+          if (score > bestScore) {
+            bestScore = score;
+            bestPit = pit;
+          }
+        }
+
+        executeSow(bestPit);
+      }
+
+      restartBtn.addEventListener('click', initGame);
+      modeSelect.addEventListener('change', initGame);
+
+      initGame();
+    })();
+  </script>
+</body>
+</html>

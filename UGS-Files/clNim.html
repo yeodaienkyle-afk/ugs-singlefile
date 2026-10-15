@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nim</title>
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: #0b0f19;
+    color: #f1f5f9;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 15px;
+  }
+  h1 {
+    font-size: 2.2rem;
+    color: #a855f7;
+    margin-bottom: 6px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  }
+  .rule-badge {
+    background: #581c87;
+    color: #f3e8ff;
+    border: 1px solid #7e22ce;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 750px;
+    width: 100%;
+  }
+  .status-bar {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding: 10px 20px;
+    background: #1e1b4b;
+    border-radius: 8px;
+    border: 1px solid #3730a3;
+    text-align: center;
+    width: 100%;
+    color: #e0e7ff;
+  }
+  .board {
+    background: #111827;
+    border: 3px solid #374151;
+    border-radius: 12px;
+    padding: 24px;
+    width: 100%;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .heap-row {
+    display: flex;
+    align-items: center;
+    background: #1f2937;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .heap-row.active {
+    border-color: #a855f7;
+  }
+  .heap-label {
+    width: 80px;
+    font-weight: bold;
+    font-size: 1rem;
+    color: #cbd5e1;
+  }
+  .stones-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    flex: 1;
+    align-items: center;
+  }
+  .stone {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ec4899, #be185d);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.4), inset 0 -2px 4px rgba(0,0,0,0.4);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
+    user-select: none;
+  }
+  .stone:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 12px #f472b6;
+  }
+  .stone.selected {
+    background: radial-gradient(circle at 35% 35%, #f87171, #dc2626);
+    box-shadow: 0 0 14px #ef4444;
+    transform: scale(1.1);
+    border: 2px solid #fef08a;
+  }
+  .controls {
+    margin-top: 18px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  button {
+    background: #7c3aed;
+    color: #ffffff;
+    border: none;
+    padding: 10px 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    min-height: 44px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  }
+  button:hover:not(:disabled) {
+    background: #6d28d9;
+    transform: translateY(-1px);
+  }
+  button:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  button:disabled {
+    background: #4b5563;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  button.secondary {
+    background: #4b5563;
+  }
+  button.secondary:hover:not(:disabled) {
+    background: #374151;
+  }
+  .instructions {
+    margin-top: 14px;
+    font-size: 0.9rem;
+    color: #9ca3af;
+    text-align: center;
+    max-width: 600px;
+  }
+</style>
+</head>
+<body>
+<div class="game-container">
+  <h1>Nim</h1>
+  <div class="rule-badge">⚠️ Misère Rule: The player who takes the LAST stone LOSES!</div>
+  <div class="status-bar" id="status">Your turn! Select stones from any single heap.</div>
+  
+  <div class="board" id="board">
+    <!-- Heap rows injected dynamically -->
+  </div>
+
+  <div class="controls">
+    <button id="takeBtn" onclick="confirmTake()" disabled>Take Selected Stones</button>
+    <button id="restartBtn" onclick="initGame()" class="secondary">New Game</button>
+  </div>
+
+  <div class="instructions">
+    Click stones in one heap to select how many to remove, then click "Take Selected Stones".
+  </div>
+</div>
+
+<script>
+  const boardEl = document.getElementById('board');
+  const statusEl = document.getElementById('status');
+  const takeBtn = document.getElementById('takeBtn');
+
+  // Initial heaps setup (4 heaps: 3, 4, 5, 6 stones)
+  let heaps = [];
+  let turn = 'human'; // 'human' or 'ai'
+  let selectedHeapIndex = null;
+  let selectedCount = 0;
+  let gameOver = false;
+
+  function initGame() {
+    heaps = [3, 4, 5, 6];
+    turn = 'human';
+    selectedHeapIndex = null;
+    selectedCount = 0;
+    gameOver = false;
+
+    updateStatus("Your turn! Click stones from any single heap.");
+    render();
+  }
+
+  function updateStatus(msg) {
+    statusEl.textContent = msg;
+  }
+
+  function render() {
+    boardEl.innerHTML = '';
+    let totalStones = heaps.reduce((a, b) => a + b, 0);
+
+    heaps.forEach((count, heapIdx) => {
+      const row = document.createElement('div');
+      row.className = `heap-row ${selectedHeapIndex === heapIdx ? 'active' : ''}`;
+
+      const label = document.createElement('div');
+      label.className = 'heap-label';
+      label.textContent = `Heap ${heapIdx + 1} (${count})`;
+      row.appendChild(label);
+
+      const stonesContainer = document.createElement('div');
+      stonesContainer.className = 'stones-container';
+
+      for (let s = 0; s < count; s++) {
+        const stone = document.createElement('div');
+        stone.className = 'stone';
+
+        // Check if selected
+        if (selectedHeapIndex === heapIdx && s >= count - selectedCount) {
+          stone.classList.add('selected');
+        }
+
+        if (turn === 'human' && !gameOver) {
+          stone.onclick = () => handleStoneClick(heapIdx, count - s);
+        }
+
+        stonesContainer.appendChild(stone);
+      }
+
+      row.appendChild(stonesContainer);
+      boardEl.appendChild(row);
+    });
+
+    takeBtn.disabled = (selectedHeapIndex === null || selectedCount === 0 || turn !== 'human' || gameOver);
+  }
+
+  function handleStoneClick(heapIdx, numToTake) {
+    if (turn !== 'human' || gameOver) return;
+
+    if (selectedHeapIndex !== heapIdx) {
+      selectedHeapIndex = heapIdx;
+      selectedCount = numToTake;
+    } else {
+      if (selectedCount === numToTake) {
+        // Deselect
+        selectedHeapIndex = null;
+        selectedCount = 0;
+      } else {
+        selectedCount = numToTake;
+      }
+    }
+
+    if (selectedCount > 0) {
+      updateStatus(`Selected ${selectedCount} stone(s) from Heap ${selectedHeapIndex + 1}. Click "Take Selected Stones" to confirm.`);
+    } else {
+      updateStatus("Your turn! Select stones from any single heap.");
+    }
+
+    render();
+  }
+
+  function confirmTake() {
+    if (selectedHeapIndex === null || selectedCount <= 0 || turn !== 'human' || gameOver) return;
+
+    heaps[selectedHeapIndex] -= selectedCount;
+    let tookCount = selectedCount;
+    let heapNum = selectedHeapIndex + 1;
+
+    selectedHeapIndex = null;
+    selectedCount = 0;
+
+    let totalRemaining = heaps.reduce((a, b) => a + b, 0);
+
+    if (totalRemaining === 0) {
+      gameOver = true;
+      updateStatus(`You took the LAST stone from Heap ${heapNum}. 🤖 AI WINS!`);
+      render();
+      return;
+    }
+
+    turn = 'ai';
+    updateStatus(`You took ${tookCount} stone(s) from Heap ${heapNum}. AI is thinking...`);
+    render();
+
+    setTimeout(aiTurn, 1000);
+  }
+
+  function aiTurn() {
+    if (gameOver) return;
+
+    let totalStones = heaps.reduce((a, b) => a + b, 0);
+    if (totalStones === 0) return;
+
+    let heapToMove = -1;
+    let stonesToRemove = 0;
+
+    // Misère Nim AI Logic
+    let heapsGreaterThanOne = heaps.filter(h => h > 1).length;
+
+    if (heapsGreaterThanOne > 1) {
+      // Standard Nim XOR sum strategy
+      let xorSum = heaps.reduce((a, b) => a ^ b, 0);
+
+      if (xorSum !== 0) {
+        for (let i = 0; i < heaps.length; i++) {
+          let target = heaps[i] ^ xorSum;
+          if (target < heaps[i]) {
+            heapToMove = i;
+            stonesToRemove = heaps[i] - target;
+            break;
+          }
+        }
+      } else {
+        // Losing position: take 1 stone from largest heap
+        let maxIdx = 0;
+        for (let i = 1; i < heaps.length; i++) {
+          if (heaps[i] > heaps[maxIdx]) maxIdx = i;
+        }
+        heapToMove = maxIdx;
+        stonesToRemove = 1;
+      }
+    } else if (heapsGreaterThanOne === 1) {
+      // Exactly 1 heap > 1
+      let bigHeapIdx = heaps.findIndex(h => h > 1);
+      let onesCount = heaps.filter(h => h === 1).length;
+
+      heapToMove = bigHeapIdx;
+      // We want remaining ones count to be ODD
+      if (onesCount % 2 === 1) {
+        // Reduce big heap to 0
+        stonesToRemove = heaps[bigHeapIdx];
+      } else {
+        // Reduce big heap to 1
+        stonesToRemove = heaps[bigHeapIdx] - 1;
+      }
+    } else {
+      // All remaining heaps are size 1
+      let oneIdx = heaps.findIndex(h => h === 1);
+      heapToMove = oneIdx;
+      stonesToRemove = 1;
+    }
+
+    // Execute AI move
+    heaps[heapToMove] -= stonesToRemove;
+    let remaining = heaps.reduce((a, b) => a + b, 0);
+
+    if (remaining === 0) {
+      gameOver = true;
+      updateStatus(`AI took the LAST stone from Heap ${heapToMove + 1}. 🎉 YOU WIN!`);
+      render();
+      return;
+    }
+
+    turn = 'human';
+    updateStatus(`AI took ${stonesToRemove} stone(s) from Heap ${heapToMove + 1}. Your turn!`);
+    render();
+  }
+
+  // Initial call
+  initGame();
+</script>
+</body>
+</html>

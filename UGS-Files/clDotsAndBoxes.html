@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dots and Boxes</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .container {
+      background-color: #1e293b;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 580px;
+      width: 100%;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: #38bdf8;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+    select, button {
+      background-color: #334155;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    select:hover, button:hover {
+      background-color: #475569;
+      border-color: #64748b;
+    }
+    button.primary {
+      background-color: #2563eb;
+      border-color: #3b82f6;
+    }
+    button.primary:hover {
+      background-color: #1d4ed8;
+    }
+    .score-board {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      margin-bottom: 12px;
+      background-color: #0f172a;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+    .score-p1 { color: #3b82f6; }
+    .score-p2 { color: #ef4444; }
+    .status {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      min-height: 1.6em;
+      text-align: center;
+      color: #facc15;
+    }
+    .board-wrapper {
+      position: relative;
+      background-color: #0f172a;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+      touch-action: manipulation;
+    }
+    svg {
+      display: block;
+      user-select: none;
+    }
+    .line {
+      stroke: #334155;
+      stroke-width: 6;
+      stroke-linecap: round;
+      cursor: pointer;
+      transition: stroke 0.2s ease, stroke-width 0.2s ease;
+    }
+    .line.unclaimed:hover {
+      stroke: #94a3b8;
+      stroke-width: 8;
+    }
+    .line.p1 {
+      stroke: #3b82f6;
+      stroke-width: 7;
+    }
+    .line.p2 {
+      stroke: #ef4444;
+      stroke-width: 7;
+    }
+    .dot {
+      fill: #f8fafc;
+    }
+    .box-fill {
+      opacity: 0.35;
+      transition: opacity 0.3s ease;
+    }
+    .box-fill.p1 { fill: #3b82f6; }
+    .box-fill.p2 { fill: #ef4444; }
+    .how-to-play {
+      margin-top: 20px;
+      font-size: 0.88rem;
+      color: #94a3b8;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Dots and Boxes</h1>
+    <div class="controls">
+      <select id="mode-select">
+        <option value="ai-p1">VS AI (You First)</option>
+        <option value="ai-p2">VS AI (AI First)</option>
+        <option value="pvp">2 Player (Local)</option>
+      </select>
+      <button class="primary" id="restart-btn">New Game</button>
+    </div>
+    <div class="score-board">
+      <div class="score-p1">P1 Score: <span id="p1-score">0</span></div>
+      <div class="score-p2"><span id="p2-label">AI Score</span>: <span id="p2-score">0</span></div>
+    </div>
+    <div class="status" id="status">P1's Turn</div>
+    <div class="board-wrapper">
+      <svg id="svg-board" width="360" height="360"></svg>
+    </div>
+    <p class="how-to-play">Click between dots to draw lines. Complete 4-sided boxes to score points and earn extra turns!</p>
+  </div>
+
+  <script>
+    (function() {
+      const DOTS = 5; // 5x5 dots = 4x4 boxes
+      const BOXES = 4;
+      const CELL_SIZE = 75;
+      const OFFSET = 30;
+
+      // Horizontal lines: 5 rows x 4 cols
+      let hLines = [];
+      // Vertical lines: 4 rows x 5 cols
+      let vLines = [];
+      // Boxes: 4x4 array storing owner (0=none, 1=P1, 2=P2)
+      let boxes = [];
+
+      let currentPlayer = 1; // 1 or 2
+      let p1Score = 0;
+      let p2Score = 0;
+      let gameOver = false;
+      let gameMode = 'ai-p1';
+
+      const svgEl = document.getElementById('svg-board');
+      const statusEl = document.getElementById('status');
+      const p1ScoreEl = document.getElementById('p1-score');
+      const p2ScoreEl = document.getElementById('p2-score');
+      const p2LabelEl = document.getElementById('p2-label');
+      const restartBtn = document.getElementById('restart-btn');
+      const modeSelect = document.getElementById('mode-select');
+
+      function initGame() {
+        hLines = Array.from({ length: DOTS }, () => Array(BOXES).fill(0));
+        vLines = Array.from({ length: BOXES }, () => Array(DOTS).fill(0));
+        boxes = Array.from({ length: BOXES }, () => Array(BOXES).fill(0));
+
+        currentPlayer = 1;
+        p1Score = 0;
+        p2Score = 0;
+        gameOver = false;
+        gameMode = modeSelect.value;
+
+        p2LabelEl.textContent = gameMode.startsWith('ai') ? 'AI Score' : 'P2 Score';
+        updateScores();
+        updateStatus();
+        renderSVG();
+
+        if (gameMode === 'ai-p2' && currentPlayer === 2) {
+          setTimeout(makeAIMove, 500);
+        }
+      }
+
+      function isHumanTurn() {
+        if (gameMode === 'pvp') return true;
+        if (gameMode === 'ai-p1' && currentPlayer === 1) return true;
+        if (gameMode === 'ai-p2' && currentPlayer === 2) return true;
+        return false;
+      }
+
+      function updateScores() {
+        p1ScoreEl.textContent = p1Score;
+        p2ScoreEl.textContent = p2Score;
+      }
+
+      function updateStatus() {
+        if (gameOver) return;
+        if (isHumanTurn()) {
+          statusEl.textContent = `${currentPlayer === 1 ? 'P1' : 'P2'}'s Turn`;
+        } else {
+          statusEl.textContent = 'AI is thinking...';
+        }
+      }
+
+      function renderSVG() {
+        svgEl.innerHTML = '';
+
+        // Render filled boxes
+        for (let r = 0; r < BOXES; r++) {
+          for (let c = 0; c < BOXES; c++) {
+            if (boxes[r][c] !== 0) {
+              const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+              rect.setAttribute('x', OFFSET + c * CELL_SIZE);
+              rect.setAttribute('y', OFFSET + r * CELL_SIZE);
+              rect.setAttribute('width', CELL_SIZE);
+              rect.setAttribute('height', CELL_SIZE);
+              rect.setAttribute('class', `box-fill ${boxes[r][c] === 1 ? 'p1' : 'p2'}`);
+              svgEl.appendChild(rect);
+            }
+          }
+        }
+
+        // Render Horizontal Lines
+        for (let r = 0; r < DOTS; r++) {
+          for (let c = 0; c < BOXES; c++) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            const x1 = OFFSET + c * CELL_SIZE;
+            const y1 = OFFSET + r * CELL_SIZE;
+            const x2 = x1 + CELL_SIZE;
+            const y2 = y1;
+
+            line.setAttribute('x1', x1);
+            line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y2', y2);
+
+            const val = hLines[r][c];
+            if (val === 0) {
+              line.setAttribute('class', 'line unclaimed');
+              if (!gameOver && isHumanTurn()) {
+                line.addEventListener('click', () => handleLineClick('h', r, c));
+              }
+            } else {
+              line.setAttribute('class', `line ${val === 1 ? 'p1' : 'p2'}`);
+            }
+            svgEl.appendChild(line);
+          }
+        }
+
+        // Render Vertical Lines
+        for (let r = 0; r < BOXES; r++) {
+          for (let c = 0; c < DOTS; c++) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            const x1 = OFFSET + c * CELL_SIZE;
+            const y1 = OFFSET + r * CELL_SIZE;
+            const x2 = x1;
+            const y2 = y1 + CELL_SIZE;
+
+            line.setAttribute('x1', x1);
+            line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y2', y2);
+
+            const val = vLines[r][c];
+            if (val === 0) {
+              line.setAttribute('class', 'line unclaimed');
+              if (!gameOver && isHumanTurn()) {
+                line.addEventListener('click', () => handleLineClick('v', r, c));
+              }
+            } else {
+              line.setAttribute('class', `line ${val === 1 ? 'p1' : 'p2'}`);
+            }
+            svgEl.appendChild(line);
+          }
+        }
+
+        // Render Dots
+        for (let r = 0; r < DOTS; r++) {
+          for (let c = 0; c < DOTS; c++) {
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', OFFSET + c * CELL_SIZE);
+            circle.setAttribute('cy', OFFSET + r * CELL_SIZE);
+            circle.setAttribute('r', 5);
+            circle.setAttribute('class', 'dot');
+            svgEl.appendChild(circle);
+          }
+        }
+      }
+
+      function handleLineClick(type, r, c) {
+        if (gameOver || !isHumanTurn()) return;
+        claimLine(type, r, c);
+      }
+
+      function claimLine(type, r, c) {
+        if (type === 'h') hLines[r][c] = currentPlayer;
+        else vLines[r][c] = currentPlayer;
+
+        const completedCount = checkCompletedBoxes();
+
+        if (completedCount > 0) {
+          if (currentPlayer === 1) p1Score += completedCount;
+          else p2Score += completedCount;
+
+          updateScores();
+
+          if (p1Score + p2Score === BOXES * BOXES) {
+            gameOver = true;
+            renderSVG();
+            if (p1Score > p2Score) statusEl.textContent = `P1 Wins (${p1Score} - ${p2Score})!`;
+            else if (p2Score > p1Score) statusEl.textContent = `${gameMode.startsWith('ai') ? 'AI' : 'P2'} Wins (${p2Score} - ${p1Score})!`;
+            else statusEl.textContent = `It's a Tie (${p1Score} - ${p2Score})!`;
+            return;
+          }
+
+          statusEl.textContent = `${currentPlayer === 1 ? 'P1' : (gameMode.startsWith('ai') ? 'AI' : 'P2')} completed a box! Extra turn!`;
+          renderSVG();
+
+          if (!isHumanTurn()) {
+            setTimeout(makeAIMove, 450);
+          }
+        } else {
+          currentPlayer = currentPlayer === 1 ? 2 : 1;
+          updateStatus();
+          renderSVG();
+
+          if (!isHumanTurn()) {
+            setTimeout(makeAIMove, 450);
+          }
+        }
+      }
+
+      function checkCompletedBoxes() {
+        let count = 0;
+        for (let r = 0; r < BOXES; r++) {
+          for (let c = 0; c < BOXES; c++) {
+            if (boxes[r][c] === 0) {
+              const top = hLines[r][c] !== 0;
+              const bottom = hLines[r+1][c] !== 0;
+              const left = vLines[r][c] !== 0;
+              const right = vLines[r][c+1] !== 0;
+
+              if (top && bottom && left && right) {
+                boxes[r][c] = currentPlayer;
+                count++;
+              }
+            }
+          }
+        }
+        return count;
+      }
+
+      function getBoxEdgeCount(r, c, testHLines, testVLines) {
+        let cnt = 0;
+        if (testHLines[r][c] !== 0) cnt++;
+        if (testHLines[r+1][c] !== 0) cnt++;
+        if (testVLines[r][c] !== 0) cnt++;
+        if (testVLines[r][c+1] !== 0) cnt++;
+        return cnt;
+      }
+
+      function getAllOpenEdges() {
+        const edges = [];
+        for (let r = 0; r < DOTS; r++) {
+          for (let c = 0; c < BOXES; c++) {
+            if (hLines[r][c] === 0) edges.push({ type: 'h', r, c });
+          }
+        }
+        for (let r = 0; r < BOXES; r++) {
+          for (let c = 0; c < DOTS; c++) {
+            if (vLines[r][c] === 0) edges.push({ type: 'v', r, c });
+          }
+        }
+        return edges;
+      }
+
+      function makeAIMove() {
+        if (gameOver) return;
+        const openEdges = getAllOpenEdges();
+        if (openEdges.length === 0) return;
+
+        // 1. Priority 1: Take any edge that completes a box
+        for (let edge of openEdges) {
+          const testH = hLines.map(row => [...row]);
+          const testV = vLines.map(row => [...row]);
+          if (edge.type === 'h') testH[edge.r][edge.c] = currentPlayer;
+          else testV[edge.r][edge.c] = currentPlayer;
+
+          for (let r = 0; r < BOXES; r++) {
+            for (let c = 0; c < BOXES; c++) {
+              if (boxes[r][c] === 0 && getBoxEdgeCount(r, c, testH, testV) === 4) {
+                claimLine(edge.type, edge.r, edge.c);
+                return;
+              }
+            }
+          }
+        }
+
+        // 2. Priority 2: Pick a safe edge that doesn't create a 3rd edge on any box
+        const safeEdges = [];
+        for (let edge of openEdges) {
+          const testH = hLines.map(row => [...row]);
+          const testV = vLines.map(row => [...row]);
+          if (edge.type === 'h') testH[edge.r][edge.c] = currentPlayer;
+          else testV[edge.r][edge.c] = currentPlayer;
+
+          let creates3rdEdge = false;
+          for (let r = 0; r < BOXES; r++) {
+            for (let c = 0; c < BOXES; c++) {
+              if (boxes[r][c] === 0 && getBoxEdgeCount(r, c, testH, testV) === 3) {
+                creates3rdEdge = true;
+                break;
+              }
+            }
+            if (creates3rdEdge) break;
+          }
+
+          if (!creates3rdEdge) {
+            safeEdges.push(edge);
+          }
+        }
+
+        if (safeEdges.length > 0) {
+          const choice = safeEdges[Math.floor(Math.random() * safeEdges.length)];
+          claimLine(choice.type, choice.r, choice.c);
+          return;
+        }
+
+        // 3. Priority 3: Fallback - pick random remaining open edge
+        const choice = openEdges[Math.floor(Math.random() * openEdges.length)];
+        claimLine(choice.type, choice.r, choice.c);
+      }
+
+      restartBtn.addEventListener('click', initGame);
+      modeSelect.addEventListener('change', initGame);
+
+      initGame();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Qix</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #111;
+      color: #eee;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 10px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #ff00ff;
+      text-shadow: 0 0 10px #ff00ff;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 6px;
+      font-size: 1rem;
+      font-weight: bold;
+      background: #181220;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid #ff00ff44;
+    }
+    .hud-val { color: #00ffff; font-family: monospace; }
+
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      aspect-ratio: 1 / 1;
+      background: #08050e;
+      border: 3px solid #ff00ff;
+      box-shadow: 0 0 18px rgba(255, 0, 255, 0.3);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(12, 8, 20, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+    .overlay h2 {
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+      color: #ff00ff;
+      text-shadow: 0 0 8px #ff00ff;
+    }
+    .overlay p {
+      margin-bottom: 20px;
+      color: #ccc;
+      max-width: 440px;
+      line-height: 1.4;
+    }
+    button {
+      background: #ff00ff;
+      color: #fff;
+      border: none;
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+    }
+    button:hover {
+      background: #fff;
+      color: #000;
+      transform: translateY(-2px);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    }
+    .dpad {
+      display: grid;
+      grid-template-columns: repeat(3, 50px);
+      grid-gap: 5px;
+      margin-top: 10px;
+    }
+    .dbtn {
+      width: 50px;
+      height: 50px;
+      background: #201530;
+      border: 1px solid #ff00ff;
+      color: #ff00ff;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .dbtn:active {
+      background: #ff00ff;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>QIX Arcade</h1>
+
+  <div class="hud">
+    <div>Lives: <span class="hud-val" id="hudLives">3</span></div>
+    <div>Claimed: <span class="hud-val" id="hudClaimed">0.0%</span> / 75%</div>
+    <div>Score: <span class="hud-val" id="hudScore">0</span></div>
+  </div>
+
+  <div class="canvas-container">
+    <canvas id="gameCanvas" width="600" height="600"></canvas>
+    <div class="overlay" id="overlay">
+      <h2 id="overlayTitle">QIX</h2>
+      <p id="overlayDesc">Draw lines from the border into the field to claim territory! Reach 75% claimed to beat the level. Avoid the spinning Qix!</p>
+      <button id="startBtn">Start Game</button>
+    </div>
+  </div>
+
+  <div class="dpad">
+    <div></div><div class="dbtn" id="btnUp">▲</div><div></div>
+    <div class="dbtn" id="btnLeft">◀</div><div></div><div class="dbtn" id="btnRight">▶</div>
+    <div></div><div class="dbtn" id="btnDown">▼</div><div></div>
+  </div>
+
+<script>
+(function() {
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlayTitle');
+  const overlayDesc = document.getElementById('overlayDesc');
+  const startBtn = document.getElementById('startBtn');
+
+  const hudLives = document.getElementById('hudLives');
+  const hudClaimed = document.getElementById('hudClaimed');
+  const hudScore = document.getElementById('hudScore');
+
+  const COLS = 100;
+  const ROWS = 100;
+  const CELL = 6; // 100 * 6 = 600
+
+  // Grid values: 0 = Unclaimed, 1 = Claimed interior, 2 = Claimed border, 3 = Active trail
+  let grid = [];
+  let totalPlayableCells = (COLS - 4) * (ROWS - 4);
+
+  let state = 'MENU'; // MENU, PLAYING, GAMEOVER
+  let lives = 3;
+  let score = 0;
+  let claimedPct = 0;
+  let level = 1;
+
+  let player = {
+    x: 50,
+    y: 2,
+    drawing: false,
+    trail: [] // Array of {x, y}
+  };
+
+  // Qix Enemy
+  let qix = {
+    lines: [],
+    vx: 1.5, vy: 1.2,
+    angle: 0, vAngle: 0.05
+  };
+
+  let audioCtx = null;
+  function playSound(type) {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const now = audioCtx.currentTime;
+
+      if (type === 'claim') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(800, now + 0.2);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(now + 0.2);
+      } else if (type === 'hit') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(120, now);
+        osc.frequency.linearRampToValueAtTime(40, now + 0.3);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(now + 0.3);
+      }
+    } catch(e) {}
+  }
+
+  function initGrid() {
+    grid = new Array(COLS);
+    for (let x = 0; x < COLS; x++) {
+      grid[x] = new Uint8Array(ROWS);
+    }
+    // Set outer margins as border (2)
+    for (let x = 2; x < COLS - 2; x++) {
+      for (let y = 2; y < ROWS - 2; y++) {
+        if (x === 2 || x === COLS - 3 || y === 2 || y === ROWS - 3) {
+          grid[x][y] = 2;
+        } else {
+          grid[x][y] = 0;
+        }
+      }
+    }
+  }
+
+  function initQix() {
+    let cx = 300, cy = 300;
+    qix.lines = [];
+    for (let i = 0; i < 6; i++) {
+      qix.lines.push({
+        x1: cx + (Math.random() - 0.5) * 80,
+        y1: cy + (Math.random() - 0.5) * 80,
+        x2: cx + (Math.random() - 0.5) * 80,
+        y2: cy + (Math.random() - 0.5) * 80
+      });
+    }
+    qix.vx = (Math.random() < 0.5 ? 1 : -1) * (1.5 + level * 0.3);
+    qix.vy = (Math.random() < 0.5 ? 1 : -1) * (1.2 + level * 0.3);
+  }
+
+  function resetGame() {
+    lives = 3;
+    score = 0;
+    level = 1;
+    startLevel();
+  }
+
+  function startLevel() {
+    initGrid();
+    initQix();
+    player.x = 50;
+    player.y = 2;
+    player.drawing = false;
+    player.trail = [];
+    claimedPct = 0;
+    updateHUD();
+    state = 'PLAYING';
+    overlay.style.display = 'none';
+  }
+
+  function updateHUD() {
+    hudLives.textContent = lives;
+    hudClaimed.textContent = `${claimedPct.toFixed(1)}%`;
+    hudScore.textContent = score;
+  }
+
+  function movePlayer(dx, dy) {
+    if (state !== 'PLAYING') return;
+
+    let nx = player.x + dx;
+    let ny = player.y + dy;
+
+    if (nx < 2 || nx >= COLS - 2 || ny < 2 || ny >= ROWS - 2) return;
+
+    let targetVal = grid[nx][ny];
+
+    // Cannot backtrack into current active trail
+    if (targetVal === 3) return;
+
+    if (targetVal === 0) {
+      // Move into unclaimed space -> Start/continue drawing
+      if (!player.drawing) {
+        player.drawing = true;
+        player.trail = [{ x: player.x, y: player.y }];
+      }
+      player.x = nx;
+      player.y = ny;
+      grid[nx][ny] = 3;
+      player.trail.push({ x: nx, y: ny });
+    } else if (targetVal === 1 || targetVal === 2) {
+      if (player.drawing) {
+        // Connected back to claimed border! Finish claim.
+        player.x = nx;
+        player.y = ny;
+        grid[nx][ny] = 3;
+        player.trail.push({ x: nx, y: ny });
+        completeClaim();
+      } else {
+        // Move along border
+        player.x = nx;
+        player.y = ny;
+      }
+    }
+  }
+
+  function completeClaim() {
+    // Determine which side of active trail contains Qix center
+    let qixCenterCell = {
+      x: Math.min(COLS - 4, Math.max(3, Math.floor((qix.lines[0].x1 + qix.lines[0].x2) / 2 / CELL))),
+      y: Math.min(ROWS - 4, Math.max(3, Math.floor((qix.lines[0].y1 + qix.lines[0].y2) / 2 / CELL)))
+    };
+
+    // Flood fill from Qix center to find all connected unclaimed cells
+    let visited = new Array(COLS);
+    for (let x = 0; x < COLS; x++) visited[x] = new Uint8Array(ROWS);
+
+    let queue = [qixCenterCell];
+    if (grid[qixCenterCell.x][qixCenterCell.y] === 0) {
+      visited[qixCenterCell.x][qixCenterCell.y] = 1;
+    }
+
+    let head = 0;
+    while (head < queue.length) {
+      let curr = queue[head++];
+      let neighbors = [
+        { x: curr.x + 1, y: curr.y },
+        { x: curr.x - 1, y: curr.y },
+        { x: curr.x, y: curr.y + 1 },
+        { x: curr.x, y: curr.y - 1 }
+      ];
+      for (let n of neighbors) {
+        if (n.x >= 2 && n.x < COLS - 2 && n.y >= 2 && n.y < ROWS - 2) {
+          if (!visited[n.x][n.y] && grid[n.x][n.y] === 0) {
+            visited[n.x][n.y] = 1;
+            queue.push(n);
+          }
+        }
+      }
+    }
+
+    // Convert trail (3) to border (2)
+    for (let p of player.trail) {
+      grid[p.x][p.y] = 2;
+    }
+
+    // Any unclaimed cell (0) NOT visited by Qix flood-fill gets claimed (1)
+    let newlyClaimed = 0;
+    for (let x = 3; x < COLS - 3; x++) {
+      for (let y = 3; y < ROWS - 3; y++) {
+        if (grid[x][y] === 0 && !visited[x][y]) {
+          grid[x][y] = 1;
+          newlyClaimed++;
+        }
+      }
+    }
+
+    // Convert borders touching unclaimed area to 2, interior to 1
+    for (let x = 3; x < COLS - 3; x++) {
+      for (let y = 3; y < ROWS - 3; y++) {
+        if (grid[x][y] === 2) {
+          let touchesUnclaimed = false;
+          let dirs = [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
+          for (let d of dirs) {
+            if (grid[x + d.x][y + d.y] === 0) {
+              touchesUnclaimed = true;
+              break;
+            }
+          }
+          if (!touchesUnclaimed) grid[x][y] = 1;
+        }
+      }
+    }
+
+    playSound('claim');
+    player.drawing = false;
+    player.trail = [];
+
+    // Recalculate total claimed %
+    let claimedCount = 0;
+    for (let x = 3; x < COLS - 3; x++) {
+      for (let y = 3; y < ROWS - 3; y++) {
+        if (grid[x][y] === 1 || grid[x][y] === 2) claimedCount++;
+      }
+    }
+
+    claimedPct = (claimedCount / totalPlayableCells) * 100;
+    score += newlyClaimed * 10;
+    updateHUD();
+
+    if (claimedPct >= 75) {
+      level++;
+      overlayTitle.textContent = `LEVEL ${level - 1} CLEARED!`;
+      overlayDesc.textContent = `Claimed ${claimedPct.toFixed(1)}%! Next level starting...`;
+      startBtn.textContent = "Continue ▶";
+      overlay.style.display = 'flex';
+      state = 'MENU';
+    }
+  }
+
+  function handleHit() {
+    playSound('hit');
+    lives--;
+    updateHUD();
+
+    // Clear active trail
+    for (let p of player.trail) {
+      if (grid[p.x][p.y] === 3) grid[p.x][p.y] = 0;
+    }
+    player.drawing = false;
+    player.trail = [];
+
+    // Reset player to nearest border
+    player.x = 50; player.y = 2;
+
+    if (lives <= 0) {
+      state = 'GAMEOVER';
+      overlayTitle.textContent = "GAME OVER";
+      overlayDesc.textContent = `Final Score: ${score} | Territory Claimed: ${claimedPct.toFixed(1)}%`;
+      startBtn.textContent = "Play Again ↻";
+      overlay.style.display = 'flex';
+    }
+  }
+
+  // Keyboard
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') movePlayer(0, -1);
+    if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') movePlayer(0, 1);
+    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') movePlayer(-1, 0);
+    if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') movePlayer(1, 0);
+  });
+
+  // Touch D-Pad
+  document.getElementById('btnUp').addEventListener('click', () => movePlayer(0, -1));
+  document.getElementById('btnDown').addEventListener('click', () => movePlayer(0, 1));
+  document.getElementById('btnLeft').addEventListener('click', () => movePlayer(-1, 0));
+  document.getElementById('btnRight').addEventListener('click', () => movePlayer(1, 0));
+
+  startBtn.addEventListener('click', () => {
+    if (lives <= 0 || state === 'GAMEOVER') resetGame();
+    else startLevel();
+  });
+
+  function updateQix() {
+    qix.angle += qix.vAngle;
+
+    let center = { x: 0, y: 0 };
+    for (let l of qix.lines) {
+      center.x += (l.x1 + l.x2) / 2;
+      center.y += (l.y1 + l.y2) / 2;
+    }
+    center.x /= qix.lines.length;
+    center.y /= qix.lines.length;
+
+    let nextX = center.x + qix.vx;
+    let nextY = center.y + qix.vy;
+
+    // Check grid collision for bounce
+    let gx = Math.floor(nextX / CELL);
+    let gy = Math.floor(nextY / CELL);
+
+    if (gx < 3 || gx >= COLS - 3 || gy < 3 || gy >= ROWS - 3 || grid[gx][gy] !== 0) {
+      qix.vx = -qix.vx + (Math.random() - 0.5) * 0.5;
+      qix.vy = -qix.vy + (Math.random() - 0.5) * 0.5;
+    }
+
+    // Move lines
+    for (let l of qix.lines) {
+      l.x1 += qix.vx; l.y1 += qix.vy;
+      l.x2 += qix.vx; l.y2 += qix.vy;
+
+      // Check collision with player active trail (3)
+      if (player.drawing) {
+        let linePoints = [
+          { x: Math.floor(l.x1 / CELL), y: Math.floor(l.y1 / CELL) },
+          { x: Math.floor(l.x2 / CELL), y: Math.floor(l.y2 / CELL) }
+        ];
+        for (let pt of linePoints) {
+          if (pt.x >= 0 && pt.x < COLS && pt.y >= 0 && pt.y < ROWS) {
+            if (grid[pt.x][pt.y] === 3) {
+              handleHit();
+              return;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  function draw() {
+    ctx.fillStyle = '#08050e';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw Grid
+    for (let x = 2; x < COLS - 2; x++) {
+      for (let y = 2; y < ROWS - 2; y++) {
+        let val = grid[x][y];
+        if (val === 1) {
+          // Interior claimed
+          ctx.fillStyle = '#220044';
+          ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
+        } else if (val === 2) {
+          // Claimed border
+          ctx.fillStyle = '#00ffff';
+          ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
+        } else if (val === 3) {
+          // Active trail
+          ctx.fillStyle = '#ff0055';
+          ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
+        }
+      }
+    }
+
+    // Draw Qix lines
+    if (state === 'PLAYING') {
+      ctx.strokeStyle = '#ff00ff';
+      ctx.lineWidth = 2.5;
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = '#ff00ff';
+      for (let l of qix.lines) {
+        ctx.beginPath();
+        ctx.moveTo(l.x1, l.y1);
+        ctx.lineTo(l.x2, l.y2);
+        ctx.stroke();
+      }
+      ctx.shadowBlur = 0;
+
+      // Draw Player
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(player.x * CELL + CELL / 2, player.y * CELL + CELL / 2, CELL, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  function loop() {
+    if (state === 'PLAYING') {
+      updateQix();
+    }
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  initGrid();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

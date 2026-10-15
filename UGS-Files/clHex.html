@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hex</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .container {
+      background-color: #1e293b;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 720px;
+      width: 100%;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: #38bdf8;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+    select, button {
+      background-color: #334155;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    select:hover, button:hover {
+      background-color: #475569;
+      border-color: #64748b;
+    }
+    button.primary {
+      background-color: #2563eb;
+      border-color: #3b82f6;
+    }
+    button.primary:hover {
+      background-color: #1d4ed8;
+    }
+    .status {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      min-height: 1.6em;
+      text-align: center;
+      color: #facc15;
+    }
+    .board-wrapper {
+      position: relative;
+      background-color: #0f172a;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+      touch-action: manipulation;
+    }
+    canvas {
+      display: block;
+      cursor: pointer;
+    }
+    .how-to-play {
+      margin-top: 20px;
+      font-size: 0.88rem;
+      color: #94a3b8;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Hex</h1>
+    <div class="controls">
+      <select id="mode-select">
+        <option value="ai-red">VS AI (You Red / Top-Bottom)</option>
+        <option value="ai-blue">VS AI (AI Red / Top-Bottom)</option>
+        <option value="pvp">2 Player (Local)</option>
+      </select>
+      <button class="primary" id="restart-btn">New Game</button>
+    </div>
+    <div class="status" id="status">Red's Turn</div>
+    <div class="board-wrapper">
+      <canvas id="hex-canvas" width="640" height="460"></canvas>
+    </div>
+    <p class="how-to-play">Red connects Top to Bottom border; Blue connects Left to Right. First to form an unbroken path wins!</p>
+  </div>
+
+  <script>
+    (function() {
+      const BOARD_SIZE = 11;
+      const EMPTY = 0;
+      const RED = 1;  // Top-to-Bottom
+      const BLUE = 2; // Left-to-Right
+
+      const HEX_RADIUS = 18;
+      const SQRT3 = Math.sqrt(3);
+
+      let board = [];
+      let currentPlayer = RED;
+      let gameOver = false;
+      let gameMode = 'ai-red';
+      let winningPath = [];
+
+      const canvas = document.getElementById('hex-canvas');
+      const ctx = canvas.getContext('2d');
+      const statusEl = document.getElementById('status');
+      const restartBtn = document.getElementById('restart-btn');
+      const modeSelect = document.getElementById('mode-select');
+
+      let hoverHex = null;
+
+      function initGame() {
+        board = Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(EMPTY));
+        currentPlayer = RED;
+        gameOver = false;
+        winningPath = [];
+        hoverHex = null;
+        gameMode = modeSelect.value;
+
+        updateStatusText();
+        drawBoard();
+
+        if (gameMode === 'ai-blue' && currentPlayer === RED) {
+          setTimeout(makeAIMove, 500);
+        }
+      }
+
+      function isHumanTurn() {
+        if (gameMode === 'pvp') return true;
+        if (gameMode === 'ai-red' && currentPlayer === RED) return true;
+        if (gameMode === 'ai-blue' && currentPlayer === BLUE) return true;
+        return false;
+      }
+
+      function getHexCenter(r, c) {
+        const startX = 75;
+        const startY = 45;
+        const x = startX + c * (SQRT3 * HEX_RADIUS) + r * (SQRT3 * HEX_RADIUS / 2);
+        const y = startY + r * (1.5 * HEX_RADIUS);
+        return { x, y };
+      }
+
+      function drawBoard() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw side borders to clearly indicate player targets
+        // Top and Bottom borders = RED
+        // Left and Right borders = BLUE
+        drawBorderLines();
+
+        // Draw Hexes
+        for (let r = 0; r < BOARD_SIZE; r++) {
+          for (let c = 0; c < BOARD_SIZE; c++) {
+            const { x, y } = getHexCenter(r, c);
+            const val = board[r][c];
+            const isWinning = winningPath.some(p => p.r === r && p.c === c);
+            const isHover = hoverHex && hoverHex.r === r && hoverHex.c === c && val === EMPTY;
+
+            drawHexagon(x, y, HEX_RADIUS, val, isHover, isWinning);
+          }
+        }
+      }
+
+      function drawBorderLines() {
+        ctx.lineWidth = 6;
+
+        // Top Border (RED)
+        ctx.strokeStyle = '#ef4444';
+        ctx.beginPath();
+        for (let c = 0; c < BOARD_SIZE; c++) {
+          let { x, y } = getHexCenter(0, c);
+          y -= HEX_RADIUS + 3;
+          if (c === 0) ctx.moveTo(x - HEX_RADIUS, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Bottom Border (RED)
+        ctx.beginPath();
+        for (let c = 0; c < BOARD_SIZE; c++) {
+          let { x, y } = getHexCenter(BOARD_SIZE - 1, c);
+          y += HEX_RADIUS + 3;
+          if (c === 0) ctx.moveTo(x - HEX_RADIUS, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Left Border (BLUE)
+        ctx.strokeStyle = '#3b82f6';
+        ctx.beginPath();
+        for (let r = 0; r < BOARD_SIZE; r++) {
+          let { x, y } = getHexCenter(r, 0);
+          x -= HEX_RADIUS + 3;
+          if (r === 0) ctx.moveTo(x, y - HEX_RADIUS);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Right Border (BLUE)
+        ctx.beginPath();
+        for (let r = 0; r < BOARD_SIZE; r++) {
+          let { x, y } = getHexCenter(r, BOARD_SIZE - 1);
+          x += HEX_RADIUS + 3;
+          if (r === 0) ctx.moveTo(x, y - HEX_RADIUS);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+
+      function drawHexagon(x, y, radius, state, isHover, isWinning) {
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+          const angle = (Math.PI / 180) * (60 * i + 30);
+          const px = x + radius * Math.cos(angle);
+          const py = y + radius * Math.sin(angle);
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+
+        // Fill color
+        if (state === RED) ctx.fillStyle = isWinning ? '#ff6b6b' : '#ef4444';
+        else if (state === BLUE) ctx.fillStyle = isWinning ? '#60a5fa' : '#3b82f6';
+        else if (isHover) ctx.fillStyle = currentPlayer === RED ? 'rgba(239, 68, 68, 0.4)' : 'rgba(59, 130, 246, 0.4)';
+        else ctx.fillStyle = '#1e293b';
+
+        ctx.fill();
+
+        // Stroke
+        ctx.lineWidth = isWinning ? 3 : 1.5;
+        ctx.strokeStyle = isWinning ? '#ffffff' : '#475569';
+        ctx.stroke();
+
+        // Draw stone inner highlight
+        if (state !== EMPTY) {
+          ctx.beginPath();
+          ctx.arc(x, y, radius * 0.4, 0, Math.PI * 2);
+          ctx.fillStyle = state === RED ? '#fca5a5' : '#93c5fd';
+          ctx.fill();
+        }
+      }
+
+      function getNeighbors(r, c) {
+        return [
+          { r: r - 1, c: c },
+          { r: r - 1, c: c + 1 },
+          { r: r,     c: c - 1 },
+          { r: r,     c: c + 1 },
+          { r: r + 1, c: c - 1 },
+          { r: r + 1, c: c }
+        ].filter(n => n.r >= 0 && n.r < BOARD_SIZE && n.c >= 0 && n.c < BOARD_SIZE);
+      }
+
+      function checkWin(player) {
+        // Red wins if connecting r=0 to r=10
+        // Blue wins if connecting c=0 to c=10
+        const visited = Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(false));
+        const parent = Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(null));
+        const queue = [];
+
+        if (player === RED) {
+          for (let c = 0; c < BOARD_SIZE; c++) {
+            if (board[0][c] === RED) {
+              queue.push({ r: 0, c });
+              visited[0][c] = true;
+            }
+          }
+        } else {
+          for (let r = 0; r < BOARD_SIZE; r++) {
+            if (board[r][0] === BLUE) {
+              queue.push({ r, c: 0 });
+              visited[r][0] = true;
+            }
+          }
+        }
+
+        let endNode = null;
+
+        while (queue.length > 0) {
+          const curr = queue.shift();
+
+          if (player === RED && curr.r === BOARD_SIZE - 1) {
+            endNode = curr;
+            break;
+          }
+          if (player === BLUE && curr.c === BOARD_SIZE - 1) {
+            endNode = curr;
+            break;
+          }
+
+          for (let n of getNeighbors(curr.r, curr.c)) {
+            if (board[n.r][n.c] === player && !visited[n.r][n.c]) {
+              visited[n.r][n.c] = true;
+              parent[n.r][n.c] = curr;
+              queue.push(n);
+            }
+          }
+        }
+
+        if (endNode) {
+          const path = [];
+          let curr = endNode;
+          while (curr) {
+            path.push(curr);
+            curr = parent[curr.r][curr.c];
+          }
+          return path;
+        }
+
+        return null;
+      }
+
+      function executeMove(r, c) {
+        if (board[r][c] !== EMPTY || gameOver) return false;
+
+        board[r][c] = currentPlayer;
+
+        const path = checkWin(currentPlayer);
+        if (path) {
+          gameOver = true;
+          winningPath = path;
+          drawBoard();
+          statusEl.textContent = `${currentPlayer === RED ? 'Red' : 'Blue'} Wins!`;
+          return true;
+        }
+
+        currentPlayer = currentPlayer === RED ? BLUE : RED;
+        updateStatusText();
+        drawBoard();
+
+        if (!isHumanTurn()) {
+          setTimeout(makeAIMove, 450);
+        }
+        return true;
+      }
+
+      function updateStatusText() {
+        if (gameOver) return;
+        const name = currentPlayer === RED ? 'Red (Top-Bottom)' : 'Blue (Left-Right)';
+        if (isHumanTurn()) {
+          statusEl.textContent = `${name}'s Turn`;
+        } else {
+          statusEl.textContent = `AI (${name}) is thinking...`;
+        }
+      }
+
+      function getDistanceToTarget(player, testBoard) {
+        // Dijkstra shortest path from start side to end side for given player
+        const dist = Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(Infinity));
+        const queue = [];
+
+        if (player === RED) {
+          for (let c = 0; c < BOARD_SIZE; c++) {
+            const cost = testBoard[0][c] === RED ? 0 : (testBoard[0][c] === EMPTY ? 1 : Infinity);
+            dist[0][c] = cost;
+            if (cost !== Infinity) queue.push({ r: 0, c, cost });
+          }
+        } else {
+          for (let r = 0; r < BOARD_SIZE; r++) {
+            const cost = testBoard[r][0] === BLUE ? 0 : (testBoard[r][0] === EMPTY ? 1 : Infinity);
+            dist[r][0] = cost;
+            if (cost !== Infinity) queue.push({ r, c: 0, cost });
+          }
+        }
+
+        while (queue.length > 0) {
+          queue.sort((a, b) => a.cost - b.cost);
+          const curr = queue.shift();
+
+          if (player === RED && curr.r === BOARD_SIZE - 1) return curr.cost;
+          if (player === BLUE && curr.c === BOARD_SIZE - 1) return curr.cost;
+
+          for (let n of getNeighbors(curr.r, curr.c)) {
+            const val = testBoard[n.r][n.c];
+            if (val === (player === RED ? BLUE : RED)) continue;
+            const stepCost = val === player ? 0 : 1;
+            const newCost = curr.cost + stepCost;
+
+            if (newCost < dist[n.r][n.c]) {
+              dist[n.r][n.c] = newCost;
+              queue.push({ r: n.r, c: n.c, cost: newCost });
+            }
+          }
+        }
+
+        return Infinity;
+      }
+
+      function makeAIMove() {
+        if (gameOver) return;
+
+        const openHexes = [];
+        for (let r = 0; r < BOARD_SIZE; r++) {
+          for (let c = 0; c < BOARD_SIZE; c++) {
+            if (board[r][c] === EMPTY) openHexes.push({ r, c });
+          }
+        }
+
+        if (openHexes.length === 0) return;
+
+        let bestMove = openHexes[0];
+        let bestVal = -Infinity;
+        const oppPlayer = currentPlayer === RED ? BLUE : RED;
+
+        for (let hex of openHexes) {
+          // Check immediate win
+          board[hex.r][hex.c] = currentPlayer;
+          if (checkWin(currentPlayer)) {
+            board[hex.r][hex.c] = EMPTY;
+            executeMove(hex.r, hex.c);
+            return;
+          }
+          board[hex.r][hex.c] = EMPTY;
+
+          // Check block opponent win
+          board[hex.r][hex.c] = oppPlayer;
+          if (checkWin(oppPlayer)) {
+            board[hex.r][hex.c] = EMPTY;
+            executeMove(hex.r, hex.c);
+            return;
+          }
+          board[hex.r][hex.c] = EMPTY;
+
+          // Heuristic shortest path differential
+          board[hex.r][hex.c] = currentPlayer;
+          const myDist = getDistanceToTarget(currentPlayer, board);
+          const oppDist = getDistanceToTarget(oppPlayer, board);
+          board[hex.r][hex.c] = EMPTY;
+
+          const val = (oppDist * 3) - (myDist * 2);
+          if (val > bestVal) {
+            bestVal = val;
+            bestMove = hex;
+          }
+        }
+
+        executeMove(bestMove.r, bestMove.c);
+      }
+
+      function getClickedHex(mouseX, mouseY) {
+        for (let r = 0; r < BOARD_SIZE; r++) {
+          for (let c = 0; c < BOARD_SIZE; c++) {
+            const { x, y } = getHexCenter(r, c);
+            const dist = Math.hypot(mouseX - x, mouseY - y);
+            if (dist <= HEX_RADIUS) {
+              return { r, c };
+            }
+          }
+        }
+        return null;
+      }
+
+      canvas.addEventListener('mousemove', (e) => {
+        if (gameOver || !isHumanTurn()) return;
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        const hex = getClickedHex(mouseX, mouseY);
+        if (JSON.stringify(hex) !== JSON.stringify(hoverHex)) {
+          hoverHex = hex;
+          drawBoard();
+        }
+      });
+
+      canvas.addEventListener('mouseleave', () => {
+        if (hoverHex !== null) {
+          hoverHex = null;
+          drawBoard();
+        }
+      });
+
+      canvas.addEventListener('click', (e) => {
+        if (gameOver || !isHumanTurn()) return;
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        const hex = getClickedHex(mouseX, mouseY);
+        if (hex) {
+          executeMove(hex.r, hex.c);
+        }
+      });
+
+      restartBtn.addEventListener('click', initGame);
+      modeSelect.addEventListener('change', initGame);
+
+      initGame();
+    })();
+  </script>
+</body>
+</html>

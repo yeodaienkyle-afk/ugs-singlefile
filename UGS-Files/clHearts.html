@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hearts</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      background-color: #111111;
+      color: #f0f0f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    header {
+      background: #1e1e1e;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #333;
+    }
+    h1 { font-size: 1.4rem; color: #4caf50; letter-spacing: 1px; }
+    .btn {
+      background: #2e7d32;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #388e3c; }
+    .btn:disabled { background: #444; color: #888; cursor: not-allowed; }
+    
+    .game-container {
+      flex: 1;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      grid-template-columns: 200px 1fr;
+      height: calc(100vh - 54px);
+    }
+
+    /* Sidebar Scoreboard */
+    .sidebar {
+      background: #181818;
+      border-right: 1px solid #2a2a2a;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .score-title { font-size: 1rem; color: #aaa; text-transform: uppercase; font-weight: bold; }
+    .score-card {
+      background: #222;
+      border-radius: 6px;
+      padding: 10px;
+      border-left: 4px solid #555;
+    }
+    .score-card.active { border-left-color: #4caf50; background: #282d28; }
+    .player-name { font-weight: bold; font-size: 0.95rem; margin-bottom: 4px; }
+    .score-details { font-size: 0.85rem; color: #bbb; display: flex; justify-content: space-between; }
+
+    /* Play Area Layout */
+    .table-area {
+      grid-row: 1 / span 3;
+      grid-column: 2;
+      display: grid;
+      grid-template-rows: 110px 1fr 150px;
+      grid-template-columns: 140px 1fr 140px;
+      position: relative;
+      background: radial-gradient(circle, #1b3820 0%, #0d1a0e 100%);
+      padding: 10px;
+    }
+
+    .pos-north { grid-row: 1; grid-column: 2; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+    .pos-west  { grid-row: 2; grid-column: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .pos-east  { grid-row: 2; grid-column: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .pos-south { grid-row: 3; grid-column: 2; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+
+    .center-trick {
+      grid-row: 2;
+      grid-column: 2;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .status-banner {
+      position: absolute;
+      top: 15px;
+      background: rgba(0,0,0,0.75);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      color: #ffeb3b;
+      font-size: 0.95rem;
+      border: 1px solid rgba(255,255,255,0.1);
+      z-index: 10;
+    }
+
+    /* Hand Containers */
+    .hand-horizontal { display: flex; justify-content: center; position: relative; height: 100px; }
+    .hand-vertical { display: flex; flex-direction: column; justify-content: center; position: relative; width: 80px; }
+
+    /* Cards */
+    .card {
+      width: 70px;
+      height: 98px;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      position: relative;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 4px 6px;
+      font-size: 1rem;
+    }
+    .card.red { color: #d32f2f; }
+    .card.black { color: #111111; }
+    .card.selected { transform: translateY(-15px); box-shadow: 0 8px 16px rgba(255, 235, 59, 0.6); border: 2px solid #fbc02d; }
+    .card.disabled { cursor: not-allowed; opacity: 0.6; filter: grayscale(50%); }
+    .card-back {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      border: 2px solid #ffffff;
+      border-radius: 6px;
+      width: 70px;
+      height: 98px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    }
+
+    .card .corner-top { font-size: 0.85rem; line-height: 1; text-align: left; }
+    .card .suit-center { font-size: 1.8rem; text-align: center; line-height: 1; }
+    .card .corner-bottom { font-size: 0.85rem; line-height: 1; text-align: right; transform: rotate(180deg); }
+
+    /* Trick Played Cards */
+    .trick-card-slot {
+      position: absolute;
+      transition: all 0.3s ease;
+    }
+    .slot-N { top: 15px; left: calc(50% - 35px); }
+    .slot-S { bottom: 15px; left: calc(50% - 35px); }
+    .slot-W { left: 20%; top: calc(50% - 49px); }
+    .slot-E { right: 20%; top: calc(50% - 49px); }
+
+    .action-bar {
+      margin-top: 8px;
+      display: flex;
+      gap: 10px;
+    }
+
+    /* Modal / Overlay */
+    .overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    .modal {
+      background: #222;
+      padding: 30px;
+      border-radius: 8px;
+      max-width: 450px;
+      width: 90%;
+      text-align: center;
+      border: 1px solid #444;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+    }
+    .modal h2 { margin-bottom: 15px; color: #4caf50; }
+    .modal p { margin-bottom: 20px; color: #ddd; line-height: 1.5; }
+    
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>HEARTS</h1>
+    <div id="pass-info" style="font-weight: bold; color: #81c784;">Pass: Left</div>
+    <button class="btn" id="btn-new-game">New Game</button>
+  </header>
+
+  <div class="game-container">
+    <div class="sidebar">
+      <div class="score-title">Scoreboard</div>
+      <div class="score-card" id="sc-0">
+        <div class="player-name">South (You)</div>
+        <div class="score-details"><span>Round: <b id="rscore-0">0</b></span><span>Total: <b id="tscore-0">0</b></span></div>
+      </div>
+      <div class="score-card" id="sc-1">
+        <div class="player-name">West (AI)</div>
+        <div class="score-details"><span>Round: <b id="rscore-1">0</b></span><span>Total: <b id="tscore-1">0</b></span></div>
+      </div>
+      <div class="score-card" id="sc-2">
+        <div class="player-name">North (AI)</div>
+        <div class="score-details"><span>Round: <b id="rscore-2">0</b></span><span>Total: <b id="tscore-2">0</b></span></div>
+      </div>
+      <div class="score-card" id="sc-3">
+        <div class="player-name">East (AI)</div>
+        <div class="score-details"><span>Round: <b id="rscore-3">0</b></span><span>Total: <b id="tscore-3">0</b></span></div>
+      </div>
+    </div>
+
+    <div class="table-area">
+      <div class="status-banner" id="status-line">Select 3 cards to pass</div>
+
+      <div class="pos-north">
+        <div id="hand-N" class="hand-horizontal"></div>
+      </div>
+
+      <div class="pos-west">
+        <div id="hand-W" class="hand-vertical"></div>
+      </div>
+
+      <div class="center-trick" id="trick-area">
+        <div class="trick-card-slot slot-N" id="trick-2"></div>
+        <div class="trick-card-slot slot-W" id="trick-1"></div>
+        <div class="trick-card-slot slot-E" id="trick-3"></div>
+        <div class="trick-card-slot slot-S" id="trick-0"></div>
+      </div>
+
+      <div class="pos-east">
+        <div id="hand-E" class="hand-vertical"></div>
+      </div>
+
+      <div class="pos-south">
+        <div id="hand-S" class="hand-horizontal"></div>
+        <div class="action-bar">
+          <button class="btn" id="btn-action" disabled>Pass 3 Cards</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="modal-overlay">
+    <div class="modal">
+      <h2 id="modal-title">Game Over</h2>
+      <p id="modal-msg"></p>
+      <button class="btn" id="btn-modal-restart">Play Again</button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // Safe localStorage
+      const storage = {
+        getItem: function(k) { try { return localStorage.getItem(k); } catch(e) { return null; } },
+        setItem: function(k, v) { try { localStorage.setItem(k, v); } catch(e) {} }
+      };
+
+      const SUITS = ['C', 'D', 'S', 'H']; // Clubs, Diamonds, Spades, Hearts
+      const SYMBOLS = { 'C': '♣', 'D': '♦', 'S': '♠', 'H': '♥' };
+      const RANKS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+      const RANK_LABELS = { 11: 'J', 12: 'Q', 13: 'K', 14: 'A' };
+
+      const PASS_DIRECTIONS = ['Left', 'Right', 'Across', 'Hold'];
+
+      // Players: 0: South (Human), 1: West, 2: North, 3: East
+      let hands = [[], [], [], []];
+      let roundScores = [0, 0, 0, 0];
+      let totalScores = [0, 0, 0, 0];
+      let currentPassDir = 0; // index in PASS_DIRECTIONS
+      let roundCount = 0;
+
+      let currentTrick = []; // [{player, card}]
+      let leadSuit = null;
+      let currentPlayer = 0;
+      let heartsBroken = false;
+      let isFirstTrick = true;
+      let phase = 'PASSING'; // 'PASSING', 'PLAYING', 'ROUND_END', 'GAME_OVER'
+
+      let selectedCards = []; // for human passing
+
+      // DOM Elements
+      const statusLine = document.getElementById('status-line');
+      const passInfo = document.getElementById('pass-info');
+      const btnAction = document.getElementById('btn-action');
+      const btnNewGame = document.getElementById('btn-new-game');
+      const modalOverlay = document.getElementById('modal-overlay');
+      const modalTitle = document.getElementById('modal-title');
+      const modalMsg = document.getElementById('modal-msg');
+      const btnModalRestart = document.getElementById('btn-modal-restart');
+
+      function getRankLabel(r) { return RANK_LABELS[r] || r.toString(); }
+
+      function createDeck() {
+        let deck = [];
+        for (let s of SUITS) {
+          for (let r of RANKS) {
+            deck.push({ suit: s, rank: r });
+          }
+        }
+        return deck;
+      }
+
+      function shuffle(deck) {
+        for (let i = deck.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+      }
+
+      function sortHand(hand) {
+        const suitOrder = { 'C': 0, 'D': 1, 'S': 2, 'H': 3 };
+        hand.sort((a, b) => {
+          if (suitOrder[a.suit] !== suitOrder[b.suit]) return suitOrder[a.suit] - suitOrder[b.suit];
+          return a.rank - b.rank;
+        });
+      }
+
+      function renderCardDOM(card, clickable = false, isSelected = false, isDisabled = false) {
+        const div = document.createElement('div');
+        const isRed = (card.suit === 'H' || card.suit === 'D');
+        div.className = `card ${isRed ? 'red' : 'black'}${isSelected ? ' selected' : ''}${isDisabled ? ' disabled' : ''}`;
+        
+        const label = getRankLabel(card.rank);
+        const sym = SYMBOLS[card.suit];
+
+        div.innerHTML = `
+          <div class="corner-top">${label}<br>${sym}</div>
+          <div class="suit-center">${sym}</div>
+          <div class="corner-bottom">${label}<br>${sym}</div>
+        `;
+
+        return div;
+      }
+
+      function renderCardBackDOM() {
+        const div = document.createElement('div');
+        div.className = 'card-back';
+        return div;
+      }
+
+      function initGame() {
+        totalScores = [0, 0, 0, 0];
+        roundCount = 0;
+        startRound();
+      }
+
+      function startRound() {
+        roundScores = [0, 0, 0, 0];
+        heartsBroken = false;
+        isFirstTrick = true;
+        currentTrick = [];
+        leadSuit = null;
+        selectedCards = [];
+
+        currentPassDir = roundCount % 4;
+        passInfo.textContent = `Pass: ${PASS_DIRECTIONS[currentPassDir]}`;
+
+        const deck = createDeck();
+        shuffle(deck);
+
+        hands = [[], [], [], []];
+        for (let i = 0; i < 52; i++) {
+          hands[i % 4].push(deck[i]);
+        }
+        for (let i = 0; i < 4; i++) sortHand(hands[i]);
+
+        updateScoreboard();
+        clearTrickArea();
+
+        if (PASS_DIRECTIONS[currentPassDir] === 'Hold') {
+          phase = 'PLAYING';
+          statusLine.textContent = 'Hold Round - No passing!';
+          btnAction.classList.add('hidden');
+          determineFirstLead();
+        } else {
+          phase = 'PASSING';
+          statusLine.textContent = `Select 3 cards to pass ${PASS_DIRECTIONS[currentPassDir]}`;
+          btnAction.classList.remove('hidden');
+          btnAction.textContent = `Pass 3 Cards`;
+          btnAction.disabled = true;
+          renderHands();
+        }
+      }
+
+      function updateScoreboard() {
+        for (let i = 0; i < 4; i++) {
+          document.getElementById(`rscore-${i}`).textContent = roundScores[i];
+          document.getElementById(`tscore-${i}`).textContent = totalScores[i];
+          const sc = document.getElementById(`sc-${i}`);
+          if (phase === 'PLAYING' && currentPlayer === i) {
+            sc.classList.add('active');
+          } else {
+            sc.classList.remove('active');
+          }
+        }
+      }
+
+      function renderHands() {
+        // South Hand (Interactive)
+        const southHandEl = document.getElementById('hand-S');
+        southHandEl.innerHTML = '';
+        hands[0].forEach((card, idx) => {
+          const isSel = selectedCards.includes(idx);
+          let isDis = false;
+
+          if (phase === 'PLAYING') {
+            if (currentPlayer !== 0) {
+              isDis = true;
+            } else {
+              isDis = !isCardPlayable(card, hands[0]);
+            }
+          }
+
+          const cardEl = renderCardDOM(card, true, isSel, isDis);
+          cardEl.style.marginLeft = idx === 0 ? '0' : '-25px';
+
+          cardEl.addEventListener('click', () => handleSouthCardClick(idx));
+          southHandEl.appendChild(cardEl);
+        });
+
+        // AI Hands (Hidden backs)
+        const ids = ['hand-W', 'hand-N', 'hand-E'];
+        const aiIndices = [1, 2, 3];
+        aiIndices.forEach((pIdx, i) => {
+          const el = document.getElementById(ids[i]);
+          el.innerHTML = '';
+          const count = hands[pIdx].length;
+          for (let c = 0; c < count; c++) {
+            const cb = renderCardBackDOM();
+            if (pIdx === 2) {
+              cb.style.marginLeft = c === 0 ? '0' : '-35px';
+            } else {
+              cb.style.marginTop = c === 0 ? '0' : '-65px';
+            }
+            el.appendChild(cb);
+          }
+        });
+      }
+
+      function handleSouthCardClick(idx) {
+        if (phase === 'PASSING') {
+          if (selectedCards.includes(idx)) {
+            selectedCards = selectedCards.filter(i => i !== idx);
+          } else {
+            if (selectedCards.length < 3) selectedCards.push(idx);
+          }
+          btnAction.disabled = (selectedCards.length !== 3);
+          renderHands();
+        } else if (phase === 'PLAYING' && currentPlayer === 0) {
+          const card = hands[0][idx];
+          if (isCardPlayable(card, hands[0])) {
+            playCard(0, idx);
+          }
+        }
+      }
+
+      btnAction.addEventListener('click', () => {
+        if (phase === 'PASSING' && selectedCards.length === 3) {
+          executePassing();
+        }
+      });
+
+      function executePassing() {
+        const passes = [[], [], [], []];
+
+        // Human passes selected
+        selectedCards.sort((a,b) => b-a);
+        for (let idx of selectedCards) {
+          passes[0].push(hands[0].splice(idx, 1)[0]);
+        }
+
+        // AI Pass selection logic
+        for (let p = 1; p < 4; p++) {
+          passes[p] = aiChoosePassCards(hands[p]);
+        }
+
+        // Pass mapping
+        // 0: Left (0->1, 1->2, 2->3, 3->0)
+        // 1: Right (0->3, 3->2, 2->1, 1->0)
+        // 2: Across (0<->2, 1<->3)
+        let targetMap = [];
+        if (currentPassDir === 0) targetMap = [1, 2, 3, 0];
+        else if (currentPassDir === 1) targetMap = [3, 0, 1, 2];
+        else if (currentPassDir === 2) targetMap = [2, 3, 0, 1];
+
+        for (let p = 0; p < 4; p++) {
+          const dest = targetMap[p];
+          hands[dest].push(...passes[p]);
+        }
+
+        for (let p = 0; p < 4; p++) sortHand(hands[p]);
+
+        phase = 'PLAYING';
+        btnAction.classList.add('hidden');
+        statusLine.textContent = 'Passing complete. Finding 2 of Clubs...';
+        determineFirstLead();
+      }
+
+      function aiChoosePassCards(hand) {
+        // Priority to pass: Q of Spades, A/K of Spades, High Hearts, highest cards
+        let pass = [];
+        let copy = [...hand];
+
+        // Find Q♠
+        let qsIdx = copy.findIndex(c => c.suit === 'S' && c.rank === 12);
+        if (qsIdx !== -1) { pass.push(copy.splice(qsIdx, 1)[0]); }
+
+        // Find A♠, K♠
+        if (pass.length < 3) {
+          let highSpades = copy.filter(c => c.suit === 'S' && c.rank > 12);
+          for (let c of highSpades) {
+            if (pass.length < 3) {
+              pass.push(c);
+              copy = copy.filter(x => x !== c);
+            }
+          }
+        }
+
+        // High Hearts
+        if (pass.length < 3) {
+          let highHearts = copy.filter(c => c.suit === 'H').sort((a,b) => b.rank - a.rank);
+          for (let c of highHearts) {
+            if (pass.length < 3) {
+              pass.push(c);
+              copy = copy.filter(x => x !== c);
+            }
+          }
+        }
+
+        // Remaining highest cards
+        copy.sort((a,b) => b.rank - a.rank);
+        while (pass.length < 3 && copy.length > 0) {
+          pass.push(copy.shift());
+        }
+
+        // Remove passed from actual hand
+        for (let c of pass) {
+          let i = hand.findIndex(x => x.suit === c.suit && x.rank === c.rank);
+          if (i !== -1) hand.splice(i, 1);
+        }
+
+        return pass;
+      }
+
+      function determineFirstLead() {
+        for (let p = 0; p < 4; p++) {
+          if (hands[p].some(c => c.suit === 'C' && c.rank === 2)) {
+            currentPlayer = p;
+            break;
+          }
+        }
+        updateScoreboard();
+        renderHands();
+        const pNames = ['South (You)', 'West', 'North', 'East'];
+        statusLine.textContent = `${pNames[currentPlayer]} has 2♣ and leads!`;
+
+        if (currentPlayer !== 0) {
+          setTimeout(aiPlayTurn, 800);
+        }
+      }
+
+      function isCardPlayable(card, hand) {
+        if (isFirstTrick) {
+          if (currentTrick.length === 0) {
+            // Must lead 2 of clubs
+            return (card.suit === 'C' && card.rank === 2);
+          } else {
+            // Must follow clubs if have clubs
+            const hasClubs = hand.some(c => c.suit === 'C');
+            if (hasClubs) return card.suit === 'C';
+            // Otherwise can't play points on 1st trick unless only points
+            const isPointCard = (card.suit === 'H' || (card.suit === 'S' && card.rank === 12));
+            const hasNonPoints = hand.some(c => !(c.suit === 'H' || (c.suit === 'S' && c.rank === 12)));
+            if (isPointCard && hasNonPoints) return false;
+            return true;
+          }
+        }
+
+        if (currentTrick.length === 0) {
+          // Leading trick
+          if (card.suit === 'H' && !heartsBroken) {
+            // Can only lead hearts if hearts broken OR hand has only hearts
+            const onlyHearts = hand.every(c => c.suit === 'H');
+            return onlyHearts;
+          }
+          return true;
+        } else {
+          // Following lead suit
+          const hasLeadSuit = hand.some(c => c.suit === leadSuit);
+          if (hasLeadSuit) {
+            return card.suit === leadSuit;
+          }
+          // Void in lead suit, can play anything
+          return true;
+        }
+      }
+
+      function playCard(pIdx, cardIdx) {
+        const card = hands[pIdx].splice(cardIdx, 1)[0];
+
+        if (currentTrick.length === 0) {
+          leadSuit = card.suit;
+        }
+
+        if (card.suit === 'H' || (card.suit === 'S' && card.rank === 12)) {
+          heartsBroken = true;
+        }
+
+        currentTrick.push({ player: pIdx, card: card });
+
+        renderTrickCard(pIdx, card);
+        renderHands();
+
+        if (currentTrick.length === 4) {
+          setTimeout(evaluateTrick, 1200);
+        } else {
+          currentPlayer = (currentPlayer + 1) % 4;
+          updateScoreboard();
+          renderHands();
+          if (currentPlayer !== 0) {
+            setTimeout(aiPlayTurn, 600);
+          } else {
+            statusLine.textContent = 'Your turn!';
+          }
+        }
+      }
+
+      function renderTrickCard(pIdx, card) {
+        const slot = document.getElementById(`trick-${pIdx}`);
+        slot.innerHTML = '';
+        slot.appendChild(renderCardDOM(card));
+      }
+
+      function clearTrickArea() {
+        for (let i = 0; i < 4; i++) {
+          document.getElementById(`trick-${i}`).innerHTML = '';
+        }
+      }
+
+      function aiPlayTurn() {
+        const hand = hands[currentPlayer];
+        const legalCards = hand.filter(c => isCardPlayable(c, hand));
+
+        let chosenCard = null;
+
+        if (currentTrick.length === 0) {
+          // Leading
+          if (isFirstTrick) {
+            chosenCard = legalCards.find(c => c.suit === 'C' && c.rank === 2);
+          } else {
+            // Lead lowest card
+            legalCards.sort((a,b) => a.rank - b.rank);
+            chosenCard = legalCards[0];
+          }
+        } else {
+          // Following or discarding
+          const followingSuit = legalCards.filter(c => c.suit === leadSuit);
+          if (followingSuit.length > 0) {
+            // Try to stay under highest played card if points in trick
+            const highestInTrick = Math.max(...currentTrick.filter(t => t.card.suit === leadSuit).map(t => t.card.rank));
+            const lowers = followingSuit.filter(c => c.rank < highestInTrick);
+            if (lowers.length > 0) {
+              lowers.sort((a,b) => b.rank - a.rank);
+              chosenCard = lowers[0];
+            } else {
+              // Play lowest card to minimize high card exposure
+              followingSuit.sort((a,b) => a.rank - b.rank);
+              chosenCard = followingSuit[0];
+            }
+          } else {
+            // Void! Dump Q of Spades or high Hearts or highest card
+            const qs = legalCards.find(c => c.suit === 'S' && c.rank === 12);
+            if (qs) {
+              chosenCard = qs;
+            } else {
+              const hearts = legalCards.filter(c => c.suit === 'H').sort((a,b) => b.rank - a.rank);
+              if (hearts.length > 0) {
+                chosenCard = hearts[0];
+              } else {
+                legalCards.sort((a,b) => b.rank - a.rank);
+                chosenCard = legalCards[0];
+              }
+            }
+          }
+        }
+
+        if (!chosenCard) chosenCard = legalCards[0];
+        const cardIdx = hand.findIndex(c => c === chosenCard);
+        playCard(currentPlayer, cardIdx);
+      }
+
+      function evaluateTrick() {
+        isFirstTrick = false;
+
+        let winningPlay = currentTrick[0];
+        for (let i = 1; i < currentTrick.length; i++) {
+          const play = currentTrick[i];
+          if (play.card.suit === leadSuit && play.card.rank > winningPlay.card.rank) {
+            winningPlay = play;
+          }
+        }
+
+        // Calculate penalty points
+        let points = 0;
+        for (let play of currentTrick) {
+          if (play.card.suit === 'H') points += 1;
+          if (play.card.suit === 'S' && play.card.rank === 12) points += 13;
+        }
+
+        const winner = winningPlay.player;
+        roundScores[winner] += points;
+
+        const pNames = ['South (You)', 'West', 'North', 'East'];
+        statusLine.textContent = `${pNames[winner]} wins trick (+${points} pts)`;
+
+        currentPlayer = winner;
+        updateScoreboard();
+
+        setTimeout(() => {
+          clearTrickArea();
+          if (hands[0].length === 0) {
+            endRound();
+          } else {
+            statusLine.textContent = `${pNames[currentPlayer]}'s lead`;
+            if (currentPlayer !== 0) {
+              setTimeout(aiPlayTurn, 600);
+            } else {
+              renderHands();
+            }
+          }
+        }, 1000);
+      }
+
+      function endRound() {
+        phase = 'ROUND_END';
+
+        // Check Shoot the moon
+        let moonShooter = roundScores.findIndex(s => s === 26);
+        if (moonShooter !== -1) {
+          const names = ['South (You)', 'West', 'North', 'East'];
+          statusLine.textContent = `${names[moonShooter]} SHOT THE MOON! Everyone else +26!`;
+          for (let i = 0; i < 4; i++) {
+            if (i === moonShooter) {
+              roundScores[i] = 0;
+            } else {
+              roundScores[i] = 26;
+            }
+          }
+        }
+
+        for (let i = 0; i < 4; i++) {
+          totalScores[i] += roundScores[i];
+        }
+        updateScoreboard();
+
+        // Check Game Over (>= 100 pts)
+        if (totalScores.some(s => s >= 100)) {
+          phase = 'GAME_OVER';
+          let minScore = Math.min(...totalScores);
+          let winners = [];
+          for (let i = 0; i < 4; i++) {
+            if (totalScores[i] === minScore) winners.push(i);
+          }
+          const names = ['South (You)', 'West', 'North', 'East'];
+          let winText = winners.map(w => names[w]).join(', ') + ' won the game!';
+          showModal('Game Over!', `${winText}<br><br>Final Scores:<br>` +
+            names.map((n, i) => `${n}: ${totalScores[i]} pts`).join('<br>')
+          );
+        } else {
+          roundCount++;
+          setTimeout(startRound, 2500);
+        }
+      }
+
+      function showModal(title, msg) {
+        modalTitle.textContent = title;
+        modalMsg.innerHTML = msg;
+        modalOverlay.classList.remove('hidden');
+      }
+
+      btnModalRestart.addEventListener('click', () => {
+        modalOverlay.classList.add('hidden');
+        initGame();
+      });
+
+      btnNewGame.addEventListener('click', () => {
+        if (confirm('Start a new game? Current progress will be lost.')) {
+          initGame();
+        }
+      });
+
+      // Start game on load
+      initGame();
+    })();
+  </script>
+</body>
+</html>

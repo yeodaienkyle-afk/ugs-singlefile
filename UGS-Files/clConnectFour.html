@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connect Four</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .container {
+      background-color: #1e293b;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 580px;
+      width: 100%;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: #38bdf8;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+    select, button {
+      background-color: #334155;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    select:hover, button:hover {
+      background-color: #475569;
+      border-color: #64748b;
+    }
+    button.primary {
+      background-color: #2563eb;
+      border-color: #3b82f6;
+    }
+    button.primary:hover {
+      background-color: #1d4ed8;
+    }
+    .status {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      min-height: 1.6em;
+      text-align: center;
+      color: #facc15;
+    }
+    .board-container {
+      position: relative;
+      background-color: #1e3a8a;
+      padding: 12px;
+      border-radius: 12px;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
+      touch-action: manipulation;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+    .cell {
+      width: min(10vw, 64px);
+      height: min(10vw, 64px);
+      background-color: #0f172a;
+      border-radius: 50%;
+      cursor: pointer;
+      position: relative;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cell:hover {
+      transform: scale(1.03);
+    }
+    .cell.red {
+      background-color: #ef4444;
+      box-shadow: inset 0 -4px 6px rgba(0,0,0,0.3), 0 0 10px rgba(239, 68, 68, 0.5);
+    }
+    .cell.yellow {
+      background-color: #eab308;
+      box-shadow: inset 0 -4px 6px rgba(0,0,0,0.3), 0 0 10px rgba(234, 179, 8, 0.5);
+    }
+    .cell.winning {
+      animation: pulse 0.8s infinite alternate;
+      border: 3px solid #ffffff;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 5px #fff; }
+      100% { transform: scale(1.08); box-shadow: 0 0 18px #fff; }
+    }
+    .how-to-play {
+      margin-top: 20px;
+      font-size: 0.88rem;
+      color: #94a3b8;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Connect Four</h1>
+    <div class="controls">
+      <select id="mode-select">
+        <option value="ai-red">VS AI (You First)</option>
+        <option value="ai-yellow">VS AI (AI First)</option>
+        <option value="pvp">2 Player (Local)</option>
+      </select>
+      <button class="primary" id="restart-btn">New Game</button>
+    </div>
+    <div class="status" id="status">Red's Turn</div>
+    <div class="board-container">
+      <div class="grid" id="grid"></div>
+    </div>
+    <p class="how-to-play">Click any column to drop your piece. Connect 4 discs vertically, horizontally, or diagonally to win!</p>
+  </div>
+
+  <script>
+    (function() {
+      const ROWS = 6;
+      const COLS = 7;
+      const EMPTY = 0;
+      const RED = 1;
+      const YELLOW = 2;
+
+      let board = [];
+      let currentPlayer = RED;
+      let gameOver = false;
+      let gameMode = 'ai-red';
+      let winningCells = [];
+
+      const gridEl = document.getElementById('grid');
+      const statusEl = document.getElementById('status');
+      const restartBtn = document.getElementById('restart-btn');
+      const modeSelect = document.getElementById('mode-select');
+
+      function initBoard() {
+        board = Array.from({ length: ROWS }, () => Array(COLS).fill(EMPTY));
+        currentPlayer = RED;
+        gameOver = false;
+        winningCells = [];
+        gameMode = modeSelect.value;
+        renderGrid();
+        updateStatus();
+
+        if (gameMode === 'ai-yellow') {
+          setTimeout(makeAIMove, 400);
+        }
+      }
+
+      function renderGrid() {
+        gridEl.innerHTML = '';
+        for (let r = 0; r < ROWS; r++) {
+          for (let c = 0; c < COLS; c++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            if (board[r][c] === RED) cell.classList.add('red');
+            if (board[r][c] === YELLOW) cell.classList.add('yellow');
+            if (winningCells.some(w => w.r === r && w.c === c)) {
+              cell.classList.add('winning');
+            }
+            cell.dataset.col = c;
+            cell.addEventListener('click', () => handleColumnClick(c));
+            gridEl.appendChild(cell);
+          }
+        }
+      }
+
+      function handleColumnClick(col) {
+        if (gameOver) return;
+        if (gameMode.startsWith('ai-') && isAITurn()) return;
+
+        if (makeMove(col, currentPlayer)) {
+          if (!gameOver && gameMode.startsWith('ai-') && isAITurn()) {
+            setTimeout(makeAIMove, 350);
+          }
+        }
+      }
+
+      function isAITurn() {
+        if (gameMode === 'ai-red') return currentPlayer === YELLOW;
+        if (gameMode === 'ai-yellow') return currentPlayer === RED;
+        return false;
+      }
+
+      function getNextOpenRow(b, col) {
+        for (let r = ROWS - 1; r >= 0; r--) {
+          if (b[r][col] === EMPTY) return r;
+        }
+        return -1;
+      }
+
+      function makeMove(col, player) {
+        const row = getNextOpenRow(board, col);
+        if (row === -1) return false;
+
+        board[row][col] = player;
+        const winInfo = checkWin(board, player);
+
+        if (winInfo) {
+          gameOver = true;
+          winningCells = winInfo;
+          renderGrid();
+          const winnerName = player === RED ? 'Red' : 'Yellow';
+          statusEl.textContent = winnerName + ' Wins!';
+          return true;
+        }
+
+        if (isBoardFull(board)) {
+          gameOver = true;
+          renderGrid();
+          statusEl.textContent = "It's a Draw!";
+          return true;
+        }
+
+        currentPlayer = currentPlayer === RED ? YELLOW : RED;
+        renderGrid();
+        updateStatus();
+        return true;
+      }
+
+      function updateStatus() {
+        if (gameOver) return;
+        if (gameMode.startsWith('ai-') && isAITurn()) {
+          statusEl.textContent = 'AI is thinking...';
+        } else {
+          const name = currentPlayer === RED ? "Red's" : "Yellow's";
+          statusEl.textContent = name + ' Turn';
+        }
+      }
+
+      function isBoardFull(b) {
+        return b[0].every(cell => cell !== EMPTY);
+      }
+
+      function checkWin(b, player) {
+        // Horizontal
+        for (let r = 0; r < ROWS; r++) {
+          for (let c = 0; c < COLS - 3; c++) {
+            if (b[r][c] === player && b[r][c+1] === player && b[r][c+2] === player && b[r][c+3] === player) {
+              return [{r,c}, {r,c:c+1}, {r,c:c+2}, {r,c:c+3}];
+            }
+          }
+        }
+        // Vertical
+        for (let r = 0; r < ROWS - 3; r++) {
+          for (let c = 0; c < COLS; c++) {
+            if (b[r][c] === player && b[r+1][c] === player && b[r+2][c] === player && b[r+3][c] === player) {
+              return [{r,c}, {r:r+1,c}, {r:r+2,c}, {r:r+3,c}];
+            }
+          }
+        }
+        // Diagonal /
+        for (let r = 3; r < ROWS; r++) {
+          for (let c = 0; c < COLS - 3; c++) {
+            if (b[r][c] === player && b[r-1][c+1] === player && b[r-2][c+2] === player && b[r-3][c+3] === player) {
+              return [{r,c}, {r:r-1,c:c+1}, {r:r-2,c:c+2}, {r:r-3,c:c+3}];
+            }
+          }
+        }
+        // Diagonal \
+        for (let r = 0; r < ROWS - 3; r++) {
+          for (let c = 0; c < COLS - 3; c++) {
+            if (b[r][c] === player && b[r+1][c+1] === player && b[r+2][c+2] === player && b[r+3][c+3] === player) {
+              return [{r,c}, {r:r+1,c:c+1}, {r:r+2,c:c+2}, {r:r+3,c:c+3}];
+            }
+          }
+        }
+        return null;
+      }
+
+      function getValidLocations(b) {
+        const valid = [];
+        for (let c = 0; c < COLS; c++) {
+          if (b[0][c] === EMPTY) valid.push(c);
+        }
+        return valid;
+      }
+
+      function evaluateWindow(window, player) {
+        const oppPlayer = player === RED ? YELLOW : RED;
+        let score = 0;
+        let playerCount = window.filter(p => p === player).length;
+        let emptyCount = window.filter(p => p === EMPTY).length;
+        let oppCount = window.filter(p => p === oppPlayer).length;
+
+        if (playerCount === 4) score += 10000;
+        else if (playerCount === 3 && emptyCount === 1) score += 100;
+        else if (playerCount === 2 && emptyCount === 2) score += 10;
+
+        if (oppCount === 3 && emptyCount === 1) score -= 80;
+        if (oppCount === 4) score -= 10000;
+
+        return score;
+      }
+
+      function scorePosition(b, player) {
+        let score = 0;
+        // Center column preference
+        const centerArray = b.map(row => row[Math.floor(COLS/2)]);
+        const centerCount = centerArray.filter(p => p === player).length;
+        score += centerCount * 6;
+
+        // Horizontal
+        for (let r = 0; r < ROWS; r++) {
+          for (let c = 0; c < COLS - 3; c++) {
+            const window = [b[r][c], b[r][c+1], b[r][c+2], b[r][c+3]];
+            score += evaluateWindow(window, player);
+          }
+        }
+        // Vertical
+        for (let r = 0; r < ROWS - 3; r++) {
+          for (let c = 0; c < COLS; c++) {
+            const window = [b[r][c], b[r+1][c], b[r+2][c], b[r+3][c]];
+            score += evaluateWindow(window, player);
+          }
+        }
+        // Diagonals
+        for (let r = 3; r < ROWS; r++) {
+          for (let c = 0; c < COLS - 3; c++) {
+            const window = [b[r][c], b[r-1][c+1], b[r-2][c+2], b[r-3][c+3]];
+            score += evaluateWindow(window, player);
+          }
+        }
+        for (let r = 0; r < ROWS - 3; r++) {
+          for (let c = 0; c < COLS - 3; c++) {
+            const window = [b[r][c], b[r+1][c+1], b[r+2][c+2], b[r+3][c+3]];
+            score += evaluateWindow(window, player);
+          }
+        }
+        return score;
+      }
+
+      function minimax(b, depth, alpha, beta, maximizingPlayer, aiPlayer) {
+        const validLocations = getValidLocations(b);
+        const oppPlayer = aiPlayer === RED ? YELLOW : RED;
+
+        if (checkWin(b, aiPlayer)) return { score: 1000000 };
+        if (checkWin(b, oppPlayer)) return { score: -1000000 };
+        if (validLocations.length === 0 || depth === 0) {
+          return { score: scorePosition(b, aiPlayer) };
+        }
+
+        if (maximizingPlayer) {
+          let value = -Infinity;
+          let bestCol = validLocations[Math.floor(Math.random() * validLocations.length)];
+          for (let col of validLocations) {
+            let r = getNextOpenRow(b, col);
+            b[r][col] = aiPlayer;
+            let newScore = minimax(b, depth - 1, alpha, beta, false, aiPlayer).score;
+            b[r][col] = EMPTY;
+            if (newScore > value) {
+              value = newScore;
+              bestCol = col;
+            }
+            alpha = Math.max(alpha, value);
+            if (alpha >= beta) break;
+          }
+          return { col: bestCol, score: value };
+        } else {
+          let value = Infinity;
+          let bestCol = validLocations[Math.floor(Math.random() * validLocations.length)];
+          for (let col of validLocations) {
+            let r = getNextOpenRow(b, col);
+            b[r][col] = oppPlayer;
+            let newScore = minimax(b, depth - 1, alpha, beta, true, aiPlayer).score;
+            b[r][col] = EMPTY;
+            if (newScore < value) {
+              value = newScore;
+              bestCol = col;
+            }
+            beta = Math.min(beta, value);
+            if (alpha >= beta) break;
+          }
+          return { col: bestCol, score: value };
+        }
+      }
+
+      function makeAIMove() {
+        if (gameOver) return;
+        const result = minimax(board, 4, -Infinity, Infinity, true, currentPlayer);
+        if (result.col !== undefined) {
+          makeMove(result.col, currentPlayer);
+        }
+      }
+
+      restartBtn.addEventListener('click', initBoard);
+      modeSelect.addEventListener('change', initBoard);
+
+      try {
+        // Safe localStorage usage pattern test if needed in future
+      } catch (e) {}
+
+      initBoard();
+    })();
+  </script>
+</body>
+</html>

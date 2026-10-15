@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slot Machine</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background-color: #111116;
+      color: #e2e8f0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 620px;
+      background: #1e1e26;
+      border: 1px solid #2d2d3a;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      position: relative;
+    }
+
+    header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #2d2d3a;
+      padding-bottom: 14px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-reset {
+      background: #334155;
+      color: #f8fafc;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-reset:hover { background: #475569; }
+
+    .stats-bar {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      background: #14141a;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid #282834;
+    }
+
+    .stat-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 600;
+    }
+
+    .stat-value {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-top: 2px;
+    }
+
+    .stat-value.win-amount { color: #34d399; }
+
+    /* Machine Layout */
+    .slot-cabinet {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: radial-gradient(circle at 50% 30%, #2a2a38, #16161f);
+      padding: 24px;
+      border-radius: 16px;
+      border: 2px solid #3b3b4f;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+      position: relative;
+    }
+
+    .canvas-container {
+      position: relative;
+      background: #09090d;
+      border: 4px solid #f59e0b;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.3), inset 0 0 10px rgba(0, 0, 0, 0.9);
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    /* Payline Indicator */
+    .payline {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: rgba(239, 68, 68, 0.8);
+      box-shadow: 0 0 8px #ef4444;
+      pointer-events: none;
+      transform: translateY(-50%);
+    }
+
+    /* Lever Styling */
+    .lever-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .lever-ball {
+      width: 32px;
+      height: 32px;
+      background: radial-gradient(circle at 35% 35%, #ef4444, #991b1b);
+      border-radius: 50%;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+      transition: transform 0.3s ease;
+    }
+
+    .lever-stick {
+      width: 8px;
+      height: 90px;
+      background: linear-gradient(to right, #94a3b8, #cbd5e1, #64748b);
+      border-radius: 4px;
+      transition: height 0.3s ease, transform 0.3s ease;
+    }
+
+    .lever-base {
+      width: 28px;
+      height: 20px;
+      background: #334155;
+      border-radius: 4px;
+    }
+
+    .lever-container.pulled .lever-ball {
+      transform: translateY(60px);
+    }
+
+    .lever-container.pulled .lever-stick {
+      height: 30px;
+      transform: translateY(30px);
+    }
+
+    /* Controls */
+    .controls-panel {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .bet-selector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .bet-label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+
+    .btn-bet {
+      background: #262632;
+      border: 1px solid #3f3f52;
+      color: #f1f5f9;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-bet:hover:not(.active) { background: #323242; }
+
+    .btn-bet.active {
+      background: linear-gradient(135deg, #38bdf8, #0284c7);
+      border-color: #38bdf8;
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    }
+
+    .btn-spin {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.3rem;
+      font-weight: 900;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
+      transition: transform 0.1s, filter 0.2s, opacity 0.2s;
+    }
+
+    .btn-spin:hover:not(:disabled) { filter: brightness(1.1); }
+    .btn-spin:active:not(:disabled) { transform: scale(0.98); }
+
+    .btn-spin:disabled {
+      background: #334155;
+      color: #64748b;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    .banner-status {
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+      min-height: 24px;
+      color: #cbd5e1;
+    }
+
+    .banner-status.win {
+      color: #34d399;
+      animation: pulseWin 0.6s infinite alternate;
+    }
+
+    @keyframes pulseWin {
+      from { transform: scale(1); }
+      to { transform: scale(1.04); }
+    }
+
+    /* Paytable display */
+    .paytable {
+      width: 100%;
+      background: #14141a;
+      border: 1px solid #282834;
+      border-radius: 12px;
+      padding: 12px 16px;
+    }
+
+    .paytable-title {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .paytable-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      font-size: 0.85rem;
+    }
+
+    .pay-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: #1e1e28;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #2a2a38;
+      font-weight: 600;
+    }
+
+    /* Modal / Free Credits */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 15, 20, 0.88);
+      backdrop-filter: blur(4px);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 10;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-title {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #ef4444;
+      margin-bottom: 10px;
+    }
+
+    .modal-sub {
+      font-size: 1rem;
+      color: #cbd5e1;
+      margin-bottom: 20px;
+    }
+
+    .btn-modal {
+      background: linear-gradient(135deg, #38bdf8, #0284c7);
+      color: #ffffff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Slot Machine</h1>
+      <div class="top-actions">
+        <button class="btn-reset" id="btn-reset">Reset ($100)</button>
+      </div>
+    </header>
+
+    <div class="stats-bar">
+      <div class="stat-card">
+        <span class="stat-label">Credits</span>
+        <span class="stat-value" id="val-credits">100</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Bet</span>
+        <span class="stat-value" id="val-bet">1</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Last Win</span>
+        <span class="stat-value win-amount" id="val-win">0</span>
+      </div>
+    </div>
+
+    <div class="banner-status" id="banner-status">Select your bet and spin!</div>
+
+    <div class="slot-cabinet">
+      <div class="canvas-container">
+        <canvas id="slot-canvas" width="320" height="210"></canvas>
+        <div class="payline"></div>
+      </div>
+
+      <div class="lever-container" id="lever">
+        <div class="lever-ball"></div>
+        <div class="lever-stick"></div>
+        <div class="lever-base"></div>
+      </div>
+    </div>
+
+    <div class="controls-panel">
+      <div class="bet-selector">
+        <span class="bet-label">BET AMOUNT:</span>
+        <button class="btn-bet active" data-bet="1">1</button>
+        <button class="btn-bet" data-bet="5">5</button>
+        <button class="btn-bet" data-bet="10">10</button>
+      </div>
+
+      <button class="btn-spin" id="btn-spin">SPIN [Spacebar]</button>
+    </div>
+
+    <div class="paytable">
+      <div class="paytable-title">Paytable Multipliers</div>
+      <div class="paytable-grid">
+        <div class="pay-item">7️⃣7️⃣7️⃣ 100x</div>
+        <div class="pay-item">💎💎💎 50x</div>
+        <div class="pay-item">🔔🔔🔔 25x</div>
+        <div class="pay-item">🍇🍇🍇 15x</div>
+        <div class="pay-item">🍋🍋🍋 10x</div>
+        <div class="pay-item">🍒🍒🍒 8x</div>
+        <div class="pay-item">🍒🍒 3x</div>
+        <div class="pay-item">🍒 1x</div>
+      </div>
+    </div>
+
+    <!-- Bust Modal -->
+    <div class="modal-overlay" id="modal-bust">
+      <div class="modal-title">OUT OF CREDITS!</div>
+      <div class="modal-sub">You ran out of credits. Grab some free credits to keep playing!</div>
+      <button class="btn-modal" id="btn-free-credits">+100 Free Credits</button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const SYMBOLS = [
+        { name: 'cherry', char: '🍒' },
+        { name: 'lemon', char: '🍋' },
+        { name: 'grape', char: '🍇' },
+        { name: 'bell', char: '🔔' },
+        { name: 'diamond', char: '💎' },
+        { name: 'seven', char: '7️⃣' }
+      ];
+
+      const SYMBOL_HEIGHT = 70;
+      const CANVAS_WIDTH = 320;
+      const CANVAS_HEIGHT = 210; // 3 visible rows
+      const REEL_WIDTH = CANVAS_WIDTH / 3;
+
+      let credits = 100;
+      let currentBet = 1;
+      let lastWin = 0;
+      let isSpinning = false;
+
+      // Reel position states
+      let reelPositions = [0, 1, 2]; // Current float offset in symbol units
+      let targetSymbols = [0, 1, 2]; // Final symbol index for each reel
+      let spinStartTimes = [0, 0, 0];
+      let spinDurations = [1000, 1500, 2000]; // Staggered reel stops
+
+      const canvas = document.getElementById('slot-canvas');
+      const ctx = canvas.getContext('2d');
+
+      const valCredits = document.getElementById('val-credits');
+      const valBet = document.getElementById('val-bet');
+      const valWin = document.getElementById('val-win');
+      const bannerStatus = document.getElementById('banner-status');
+      const btnSpin = document.getElementById('btn-spin');
+      const btnReset = document.getElementById('btn-reset');
+      const lever = document.getElementById('lever');
+      const modalBust = document.getElementById('modal-bust');
+      const btnFreeCredits = document.getElementById('btn-free-credits');
+
+      // Bet selector buttons
+      const betButtons = document.querySelectorAll('.btn-bet');
+
+      // Try load saved stats
+      try {
+        const savedCredits = localStorage.getItem('slot_credits');
+        if (savedCredits !== null) {
+          credits = Math.max(0, parseInt(savedCredits, 10) || 100);
+        }
+      } catch (e) {}
+
+      function saveCredits() {
+        try {
+          localStorage.setItem('slot_credits', credits.toString());
+        } catch (e) {}
+      }
+
+      function updateUI() {
+        valCredits.textContent = credits;
+        valBet.textContent = currentBet;
+        valWin.textContent = lastWin;
+
+        if (credits < currentBet && !isSpinning) {
+          btnSpin.disabled = true;
+          if (credits === 0) {
+            modalBust.classList.add('active');
+          }
+        } else {
+          btnSpin.disabled = isSpinning;
+        }
+      }
+
+      function selectBet(betVal) {
+        if (isSpinning) return;
+        currentBet = betVal;
+        betButtons.forEach(btn => {
+          if (parseInt(btn.dataset.bet, 10) === betVal) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+        updateUI();
+      }
+
+      function drawReels() {
+        ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        // Draw background column dividers
+        ctx.fillStyle = '#101018';
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        for (let col = 0; col < 3; col++) {
+          const x = col * REEL_WIDTH;
+
+          // Reel background
+          ctx.fillStyle = '#181824';
+          ctx.fillRect(x + 2, 0, REEL_WIDTH - 4, CANVAS_HEIGHT);
+
+          // Draw vertical separator
+          if (col > 0) {
+            ctx.fillStyle = '#2d2d3e';
+            ctx.fillRect(x - 1, 0, 2, CANVAS_HEIGHT);
+          }
+
+          const offset = reelPositions[col]; // Symbol index position
+          const startIdx = Math.floor(offset) - 1;
+
+          for (let row = -1; row <= 3; row++) {
+            const symbolIdx = ((startIdx + row + 1000) % SYMBOLS.length + SYMBOLS.length) % SYMBOLS.length;
+            const sym = SYMBOLS[symbolIdx];
+
+            const y = (row - (offset % 1)) * SYMBOL_HEIGHT + (CANVAS_HEIGHT / 2 - SYMBOL_HEIGHT / 2);
+
+            ctx.font = '42px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(sym.char, x + REEL_WIDTH / 2, y + SYMBOL_HEIGHT / 2);
+          }
+        }
+
+        // Draw top and bottom overlay gradients for 3D depth
+        const topGrad = ctx.createLinearGradient(0, 0, 0, 50);
+        topGrad.addColorStop(0, 'rgba(10, 10, 15, 0.9)');
+        topGrad.addColorStop(1, 'rgba(10, 10, 15, 0)');
+        ctx.fillStyle = topGrad;
+        ctx.fillRect(0, 0, CANVAS_WIDTH, 50);
+
+        const botGrad = ctx.createLinearGradient(0, CANVAS_HEIGHT - 50, 0, CANVAS_HEIGHT);
+        botGrad.addColorStop(0, 'rgba(10, 10, 15, 0)');
+        botGrad.addColorStop(1, 'rgba(10, 10, 15, 0.9)');
+        ctx.fillStyle = botGrad;
+        ctx.fillRect(0, CANVAS_HEIGHT - 50, CANVAS_WIDTH, 50);
+      }
+
+      function easeOutBack(x) {
+        const c1 = 1.70158;
+        const c3 = c1 + 1;
+        return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+      }
+
+      function spinStep(now) {
+        let allStopped = true;
+
+        for (let i = 0; i < 3; i++) {
+          const elapsed = now - spinStartTimes[i];
+          const dur = spinDurations[i];
+
+          if (elapsed < dur) {
+            allStopped = false;
+            // High speed spin
+            reelPositions[i] += 0.35;
+          } else if (elapsed < dur + 400) {
+            allStopped = false;
+            // Decelerate & ease into target position
+            const progress = (elapsed - dur) / 400;
+            const startPos = Math.floor(reelPositions[i]);
+            const targetPos = startPos + (targetSymbols[i] - (startPos % SYMBOLS.length) + SYMBOLS.length) % SYMBOLS.length;
+            const easedProgress = Math.min(1, easeOutBack(progress));
+            reelPositions[i] = startPos + (targetPos - startPos) * easedProgress;
+          } else {
+            // Snapped target
+            reelPositions[i] = targetSymbols[i];
+          }
+        }
+
+        drawReels();
+
+        if (!allStopped) {
+          requestAnimationFrame(spinStep);
+        } else {
+          finishSpin();
+        }
+      }
+
+      function calculatePayout() {
+        const s1 = SYMBOLS[targetSymbols[0]].name;
+        const s2 = SYMBOLS[targetSymbols[1]].name;
+        const s3 = SYMBOLS[targetSymbols[2]].name;
+
+        let multiplier = 0;
+
+        if (s1 === s2 && s2 === s3) {
+          switch (s1) {
+            case 'seven': multiplier = 100; break;
+            case 'diamond': multiplier = 50; break;
+            case 'bell': multiplier = 25; break;
+            case 'grape': multiplier = 15; break;
+            case 'lemon': multiplier = 10; break;
+            case 'cherry': multiplier = 8; break;
+          }
+        } else {
+          // Check cherry partials
+          const cherryCount = [s1, s2, s3].filter(s => s === 'cherry').length;
+          if (cherryCount === 2) multiplier = 3;
+          else if (cherryCount === 1) multiplier = 1;
+        }
+
+        return multiplier * currentBet;
+      }
+
+      function finishSpin() {
+        isSpinning = false;
+        lever.classList.remove('pulled');
+
+        const winAmount = calculatePayout();
+        lastWin = winAmount;
+
+        if (winAmount > 0) {
+          credits += winAmount;
+          bannerStatus.textContent = `WINNER! You won $${winAmount}! 🎉`;
+          bannerStatus.className = 'banner-status win';
+        } else {
+          bannerStatus.textContent = 'No luck this time. Try again!';
+          bannerStatus.className = 'banner-status';
+        }
+
+        saveCredits();
+        updateUI();
+      }
+
+      function startSpin() {
+        if (isSpinning || credits < currentBet) return;
+
+        isSpinning = true;
+        credits -= currentBet;
+        lastWin = 0;
+
+        bannerStatus.textContent = 'Spinning... Good luck!';
+        bannerStatus.className = 'banner-status';
+
+        updateUI();
+        lever.classList.add('pulled');
+
+        // Pick random target symbols for 3 reels
+        for (let i = 0; i < 3; i++) {
+          targetSymbols[i] = Math.floor(Math.random() * SYMBOLS.length);
+        }
+
+        const now = performance.now();
+        spinStartTimes = [now, now, now];
+
+        requestAnimationFrame(spinStep);
+      }
+
+      // Event Listeners
+      btnSpin.addEventListener('click', startSpin);
+      lever.addEventListener('click', startSpin);
+
+      betButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectBet(parseInt(btn.dataset.bet, 10));
+        });
+      });
+
+      btnReset.addEventListener('click', () => {
+        credits = 100;
+        lastWin = 0;
+        saveCredits();
+        bannerStatus.textContent = 'Credits reset to 100.';
+        updateUI();
+      });
+
+      btnFreeCredits.addEventListener('click', () => {
+        credits += 100;
+        saveCredits();
+        modalBust.classList.remove('active');
+        bannerStatus.textContent = 'Added +100 free credits!';
+        updateUI();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          startSpin();
+        }
+      });
+
+      // Initial Render
+      drawReels();
+      updateUI();
+    })();
+  </script>
+</body>
+</html>

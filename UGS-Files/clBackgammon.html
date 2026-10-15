@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backgammon</title>
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: #0f0f13;
+    color: #f1f5f9;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 15px;
+  }
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: #f59e0b;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  }
+  .game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 850px;
+    width: 100%;
+  }
+  .status-bar {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    padding: 8px 16px;
+    background: #1e1e2d;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    text-align: center;
+    min-width: 300px;
+    color: #e2e8f0;
+  }
+  canvas {
+    background: #181824;
+    border: 4px solid #334155;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    cursor: pointer;
+    touch-action: none;
+    max-width: 100%;
+    height: auto;
+  }
+  .controls {
+    margin-top: 14px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  button {
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    padding: 10px 22px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    min-height: 44px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  }
+  button:hover:not(:disabled) {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+  }
+  button:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  button:disabled {
+    background: #475569;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  button.secondary {
+    background: #475569;
+  }
+  button.secondary:hover:not(:disabled) {
+    background: #334155;
+  }
+  .instructions {
+    margin-top: 12px;
+    font-size: 0.9rem;
+    color: #94a3b8;
+    text-align: center;
+    max-width: 600px;
+  }
+</style>
+</head>
+<body>
+<div class="game-container">
+  <h1>Backgammon</h1>
+  <div class="status-bar" id="status">Click "Roll Dice" to start!</div>
+  <canvas id="board" width="800" height="500"></canvas>
+  <div class="controls">
+    <button id="rollBtn" onclick="handleRoll()">Roll Dice</button>
+    <button id="passBtn" onclick="handlePass()" disabled class="secondary">Pass / End Turn</button>
+    <button id="restartBtn" onclick="initGame()" class="secondary">New Game</button>
+  </div>
+  <div class="instructions">
+    You (Gold) move counter-clockwise towards Home (Points 1–6) to bear off. Click a checker/bar then a highlighted point to move.
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('board');
+  const ctx = canvas.getContext('2d');
+  const statusEl = document.getElementById('status');
+  const rollBtn = document.getElementById('rollBtn');
+  const passBtn = document.getElementById('passBtn');
+
+  // Game state
+  let board = new Array(25).fill(0); // 1..24, positive = Gold (Human), negative = Teal (AI)
+  let bar = { human: 0, ai: 0 };
+  let off = { human: 0, ai: 0 };
+  let turn = 'human'; // 'human' or 'ai'
+  let dice = [];
+  let selected = null; // null, 'bar', or integer 1..24
+  let validTargets = [];
+  let gameOver = false;
+
+  function initGame() {
+    board = new Array(25).fill(0);
+    // Standard setup
+    // Human (+): 24:2, 13:5, 8:3, 6:5
+    board[24] = 2;
+    board[13] = 5;
+    board[8] = 3;
+    board[6] = 5;
+
+    // AI (-): 1:-2, 12:-5, 17:-3, 19:-5
+    board[1] = -2;
+    board[12] = -5;
+    board[17] = -3;
+    board[19] = -5;
+
+    bar = { human: 0, ai: 0 };
+    off = { human: 0, ai: 0 };
+    turn = 'human';
+    dice = [];
+    selected = null;
+    validTargets = [];
+    gameOver = false;
+
+    rollBtn.disabled = false;
+    passBtn.disabled = true;
+    updateStatus("Your turn! Click 'Roll Dice'.");
+    render();
+  }
+
+  function updateStatus(msg) {
+    statusEl.textContent = msg;
+  }
+
+  function rollDice() {
+    const d1 = Math.floor(Math.random() * 6) + 1;
+    const d2 = Math.floor(Math.random() * 6) + 1;
+    if (d1 === d2) {
+      return [d1, d1, d1, d1];
+    }
+    return [d1, d2];
+  }
+
+  function handleRoll() {
+    if (gameOver || dice.length > 0) return;
+    dice = rollDice();
+    rollBtn.disabled = true;
+    updateStatus(`You rolled ${dice.join(', ')}. Select a piece to move.`);
+    checkHumanMoves();
+    render();
+  }
+
+  function checkHumanMoves() {
+    // Check if human has ANY valid move
+    const moves = getValidMovesForPlayer('human');
+    if (moves.length === 0) {
+      updateStatus(`You rolled ${dice.join(', ')}. No legal moves available!`);
+      passBtn.disabled = false;
+    } else {
+      passBtn.disabled = true;
+    }
+  }
+
+  function handlePass() {
+    if (turn !== 'human') return;
+    dice = [];
+    selected = null;
+    validTargets = [];
+    passBtn.disabled = true;
+    startAiTurn();
+  }
+
+  function getValidMovesForPlayer(player) {
+    const isHuman = player === 'human';
+    const moves = []; // array of { from, to, die }
+
+    if (dice.length === 0) return moves;
+
+    const uniqueDice = [...new Set(dice)];
+
+    if (isHuman) {
+      // Must move from Bar if checkers on Bar
+      if (bar.human > 0) {
+        for (let d of uniqueDice) {
+          let target = 25 - d;
+          if (target >= 19 && board[target] >= -1) {
+            moves.push({ from: 'bar', to: target, die: d });
+          }
+        }
+        return moves;
+      }
+
+      // Normal board moves
+      const canBearOff = isHomeReady('human');
+
+      for (let p = 1; p <= 24; p++) {
+        if (board[p] > 0) {
+          for (let d of uniqueDice) {
+            let target = p - d;
+            if (target >= 1) {
+              if (board[target] >= -1) {
+                moves.push({ from: p, to: target, die: d });
+              }
+            } else if (canBearOff) {
+              // Bear off
+              if (target === 0) {
+                moves.push({ from: p, to: 0, die: d });
+              } else if (target < 0) {
+                // Can bear off with larger die if no checkers on higher points
+                let higherCheckers = false;
+                for (let hp = p + 1; hp <= 6; hp++) {
+                  if (board[hp] > 0) higherCheckers = true;
+                }
+                if (!higherCheckers) {
+                  moves.push({ from: p, to: 0, die: d });
+                }
+              }
+            }
+          }
+        }
+      }
+    } else {
+      // AI
+      if (bar.ai > 0) {
+        for (let d of uniqueDice) {
+          let target = d;
+          if (target <= 6 && board[target] <= 1) {
+            moves.push({ from: 'bar', to: target, die: d });
+          }
+        }
+        return moves;
+      }
+
+      const canBearOff = isHomeReady('ai');
+
+      for (let p = 1; p <= 24; p++) {
+        if (board[p] < 0) {
+          for (let d of uniqueDice) {
+            let target = p + d;
+            if (target <= 24) {
+              if (board[target] <= 1) {
+                moves.push({ from: p, to: target, die: d });
+              }
+            } else if (canBearOff) {
+              if (target === 25) {
+                moves.push({ from: p, to: 25, die: d });
+              } else if (target > 25) {
+                let higherCheckers = false;
+                for (let hp = p - 1; hp >= 19; hp--) {
+                  if (board[hp] < 0) higherCheckers = true;
+                }
+                if (!higherCheckers) {
+                  moves.push({ from: p, to: 25, die: d });
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return moves;
+  }
+
+  function isHomeReady(player) {
+    if (player === 'human') {
+      if (bar.human > 0) return false;
+      for (let p = 7; p <= 24; p++) {
+        if (board[p] > 0) return false;
+      }
+      return true;
+    } else {
+      if (bar.ai > 0) return false;
+      for (let p = 1; p <= 18; p++) {
+        if (board[p] < 0) return false;
+      }
+      return true;
+    }
+  }
+
+  function executeMove(player, move) {
+    const isHuman = player === 'human';
+    // Remove die
+    const idx = dice.indexOf(move.die);
+    if (idx !== -1) dice.splice(idx, 1);
+
+    if (move.from === 'bar') {
+      if (isHuman) bar.human--;
+      else bar.ai--;
+    } else {
+      if (isHuman) board[move.from]--;
+      else board[move.from]++;
+    }
+
+    if (move.to === 0) {
+      off.human++;
+    } else if (move.to === 25) {
+      off.ai++;
+    } else {
+      if (isHuman) {
+        if (board[move.to] === -1) {
+          // Hit AI
+          board[move.to] = 1;
+          bar.ai++;
+        } else {
+          board[move.to]++;
+        }
+      } else {
+        if (board[move.to] === 1) {
+          // Hit Human
+          board[move.to] = -1;
+          bar.human++;
+        } else {
+          board[move.to]--;
+        }
+      }
+    }
+
+    // Check win
+    if (off.human === 15) {
+      gameOver = true;
+      updateStatus("🎉 YOU WIN! You bore off all checkers!");
+      rollBtn.disabled = true;
+      passBtn.disabled = true;
+      return;
+    }
+    if (off.ai === 15) {
+      gameOver = true;
+      updateStatus("🤖 AI WINS! AI bore off all checkers!");
+      rollBtn.disabled = true;
+      passBtn.disabled = true;
+      return;
+    }
+  }
+
+  // Click handling
+  canvas.addEventListener('click', (e) => {
+    if (turn !== 'human' || gameOver || dice.length === 0) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+    const clickedPoint = getPointFromCoords(x, y);
+
+    if (selected !== null) {
+      // Try to move to clickedPoint
+      if (clickedPoint !== null && validTargets.includes(clickedPoint)) {
+        // Find matching move
+        const allMoves = getValidMovesForPlayer('human').filter(m => m.from === selected && m.to === clickedPoint);
+        if (allMoves.length > 0) {
+          executeMove('human', allMoves[0]);
+          selected = null;
+          validTargets = [];
+          if (!gameOver) {
+            if (dice.length > 0) {
+              const remaining = getValidMovesForPlayer('human');
+              if (remaining.length === 0) {
+                updateStatus(`Remaining dice: ${dice.join(', ')} (no legal moves). Turn ending...`);
+                setTimeout(startAiTurn, 1000);
+              } else {
+                updateStatus(`Dice remaining: ${dice.join(', ')}. Select next move.`);
+              }
+            } else {
+              startAiTurn();
+            }
+          }
+          render();
+          return;
+        }
+      }
+    }
+
+    // Selecting piece
+    if (clickedPoint !== null) {
+      if (bar.human > 0) {
+        if (clickedPoint === 'bar') {
+          selected = 'bar';
+          validTargets = getValidMovesForPlayer('human').map(m => m.to);
+        } else {
+          updateStatus("Must re-enter checker from the Bar first!");
+          selected = null;
+          validTargets = [];
+        }
+      } else {
+        if (typeof clickedPoint === 'number' && board[clickedPoint] > 0) {
+          selected = clickedPoint;
+          validTargets = getValidMovesForPlayer('human').filter(m => m.from === clickedPoint).map(m => m.to);
+        } else {
+          selected = null;
+          validTargets = [];
+        }
+      }
+    } else {
+      selected = null;
+      validTargets = [];
+    }
+    render();
+  });
+
+  function getPointFromCoords(x, y) {
+    // Check Bar
+    if (x >= 370 && x <= 430) {
+      return 'bar';
+    }
+    // Check Bear Off Area (x > 730)
+    if (x > 730) {
+      return 0; // Home / Bear off
+    }
+
+    // Points 13..24 on Top, Points 12..1 on Bottom
+    let col = -1;
+    if (x >= 40 && x <= 360) {
+      col = Math.floor((x - 40) / 53.33); // 0..5
+    } else if (x >= 440 && x <= 760) {
+      col = 6 + Math.floor((x - 440) / 53.33); // 6..11
+    }
+
+    if (col !== -1) {
+      if (y < 230) {
+        // Top half: points 13..24
+        return 13 + col;
+      } else if (y > 270) {
+        // Bottom half: points 12..1
+        return 12 - col;
+      }
+    }
+    return null;
+  }
+
+  function startAiTurn() {
+    turn = 'ai';
+    rollBtn.disabled = true;
+    passBtn.disabled = true;
+    selected = null;
+    validTargets = [];
+    updateStatus("AI's turn...");
+    render();
+
+    setTimeout(() => {
+      dice = rollDice();
+      updateStatus(`AI rolled ${dice.join(', ')}.`);
+      render();
+
+      setTimeout(processAiStep, 800);
+    }, 600);
+  }
+
+  function processAiStep() {
+    if (gameOver) return;
+
+    if (dice.length === 0) {
+      endAiTurn();
+      return;
+    }
+
+    const moves = getValidMovesForPlayer('ai');
+    if (moves.length === 0) {
+      updateStatus(`AI rolled ${dice.join(', ')} (no legal moves). Passing...`);
+      setTimeout(endAiTurn, 1000);
+      return;
+    }
+
+    // Score AI moves
+    let bestMove = moves[0];
+    let bestScore = -9999;
+
+    for (let m of moves) {
+      let score = 0;
+      if (m.to === 25) score += 100; // Bear off
+      else if (board[m.to] === 1) score += 50; // Hit blot
+      else if (board[m.to] < 0) score += 20; // Safe point (stacking)
+
+      // Advance score
+      let dist = (m.from === 'bar') ? m.die : (m.to - m.from);
+      score += dist;
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestMove = m;
+      }
+    }
+
+    executeMove('ai', bestMove);
+    render();
+
+    if (!gameOver) {
+      if (dice.length > 0) {
+        setTimeout(processAiStep, 700);
+      } else {
+        setTimeout(endAiTurn, 600);
+      }
+    }
+  }
+
+  function endAiTurn() {
+    turn = 'human';
+    dice = [];
+    rollBtn.disabled = false;
+    updateStatus("Your turn! Click 'Roll Dice'.");
+    render();
+  }
+
+  // RENDER BOARD
+  function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Board background outer frame
+    ctx.fillStyle = '#261a12';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Inner board felt
+    ctx.fillStyle = '#181824';
+    ctx.fillRect(30, 20, 700, 460);
+
+    // Center Bar
+    ctx.fillStyle = '#3a271d';
+    ctx.fillRect(370, 20, 60, 460);
+
+    // Draw Triangles
+    for (let i = 0; i < 12; i++) {
+      let x = (i < 6) ? 40 + i * 53.33 : 440 + (i - 6) * 53.33;
+      let pointTop = 13 + i;
+      let pointBottom = 12 - i;
+
+      // Top Triangles (pointing down)
+      ctx.beginPath();
+      ctx.moveTo(x, 20);
+      ctx.lineTo(x + 53.33, 20);
+      ctx.lineTo(x + 26.66, 210);
+      ctx.closePath();
+      ctx.fillStyle = (i % 2 === 0) ? '#3b2d54' : '#222838';
+      ctx.fill();
+
+      // Bottom Triangles (pointing up)
+      ctx.beginPath();
+      ctx.moveTo(x, 480);
+      ctx.lineTo(x + 53.33, 480);
+      ctx.lineTo(x + 26.66, 290);
+      ctx.closePath();
+      ctx.fillStyle = (i % 2 === 1) ? '#3b2d54' : '#222838';
+      ctx.fill();
+
+      // Highlight target points
+      if (validTargets.includes(pointTop)) {
+        ctx.fillStyle = 'rgba(34, 197, 94, 0.4)';
+        ctx.beginPath();
+        ctx.moveTo(x, 20);
+        ctx.lineTo(x + 53.33, 20);
+        ctx.lineTo(x + 26.66, 210);
+        ctx.fill();
+      }
+      if (validTargets.includes(pointBottom)) {
+        ctx.fillStyle = 'rgba(34, 197, 94, 0.4)';
+        ctx.beginPath();
+        ctx.moveTo(x, 480);
+        ctx.lineTo(x + 53.33, 480);
+        ctx.lineTo(x + 26.66, 290);
+        ctx.fill();
+      }
+
+      // Point Numbers
+      ctx.fillStyle = '#64748b';
+      ctx.font = '11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(pointTop, x + 26.66, 15);
+      ctx.fillText(pointBottom, x + 26.66, 495);
+    }
+
+    // Highlight bear off if target
+    if (validTargets.includes(0)) {
+      ctx.fillStyle = 'rgba(34, 197, 94, 0.5)';
+      ctx.fillRect(735, 250, 60, 220);
+    }
+
+    // Draw Checkers on Points
+    for (let p = 1; p <= 24; p++) {
+      let count = board[p];
+      if (count === 0) continue;
+
+      let color = count > 0 ? 'human' : 'ai';
+      let absCount = Math.abs(count);
+
+      // Coordinates
+      let col = (p >= 13) ? p - 13 : 12 - p;
+      let isTop = (p >= 13);
+      let x = (col < 6) ? 40 + col * 53.33 + 26.66 : 440 + (col - 6) * 53.33 + 26.66;
+
+      let maxStack = 5;
+      for (let c = 0; c < absCount; c++) {
+        let y = isTop ? 40 + c * 32 : 460 - c * 32;
+        if (c >= maxStack) {
+          // Label over top checker if stacked high
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 14px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(`+${absCount - maxStack + 1}`, x, isTop ? 40 + (maxStack - 1) * 32 + 5 : 460 - (maxStack - 1) * 32 + 5);
+          break;
+        }
+        drawChecker(x, y, color, selected === p);
+      }
+    }
+
+    // Draw Bar Checkers
+    if (bar.human > 0) {
+      for (let c = 0; c < bar.human; c++) {
+        drawChecker(400, 320 + c * 25, 'human', selected === 'bar');
+      }
+    }
+    if (bar.ai > 0) {
+      for (let c = 0; c < bar.ai; c++) {
+        drawChecker(400, 180 - c * 25, 'ai', false);
+      }
+    }
+
+    // Draw Bear Off Trays
+    ctx.fillStyle = '#111827';
+    ctx.fillRect(735, 20, 60, 220);
+    ctx.fillRect(735, 260, 60, 220);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(`AI: ${off.ai}`, 765, 35);
+    ctx.fillText(`You: ${off.human}`, 765, 275);
+
+    // Draw Bear Off Mini Checkers
+    for (let c = 0; c < off.ai; c++) {
+      ctx.fillStyle = '#06b6d4';
+      ctx.fillRect(740, 45 + c * 11, 50, 8);
+    }
+    for (let c = 0; c < off.human; c++) {
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillRect(740, 285 + c * 11, 50, 8);
+    }
+
+    // Draw Current Dice
+    if (dice.length > 0) {
+      ctx.fillStyle = '#1e293b';
+      let startX = turn === 'human' ? 480 : 200;
+      for (let i = 0; i < dice.length; i++) {
+        drawDie(startX + i * 45, 235, dice[i]);
+      }
+    }
+  }
+
+  function drawChecker(x, y, player, isSelected) {
+    ctx.beginPath();
+    ctx.arc(x, y, 18, 0, Math.PI * 2);
+    if (player === 'human') {
+      ctx.fillStyle = '#f59e0b'; // Gold
+    } else {
+      ctx.fillStyle = '#06b6d4'; // Teal
+    }
+    ctx.fill();
+
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = isSelected ? '#38bdf8' : '#0f172a';
+    ctx.stroke();
+
+    if (isSelected) {
+      ctx.beginPath();
+      ctx.arc(x, y, 22, 0, Math.PI * 2);
+      ctx.strokeStyle = '#facc15';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  }
+
+  function drawDie(x, y, val) {
+    ctx.fillStyle = '#f8fafc';
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(x, y, 36, 36, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#0f172a';
+    const dots = {
+      1: [[18, 18]],
+      2: [[10, 10], [26, 26]],
+      3: [[10, 10], [18, 18], [26, 26]],
+      4: [[10, 10], [26, 10], [10, 26], [26, 26]],
+      5: [[10, 10], [26, 10], [18, 18], [10, 26], [26, 26]],
+      6: [[10, 10], [26, 10], [10, 18], [26, 18], [10, 26], [26, 26]]
+    };
+
+    if (dots[val]) {
+      for (let p of dots[val]) {
+        ctx.beginPath();
+        ctx.arc(x + p[0], y + p[1], 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+
+  // Initial call
+  initGame();
+</script>
+</body>
+</html>

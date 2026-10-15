@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cryptogram</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 16px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 0.95rem;
+      color: #94a3b8;
+      margin-bottom: 12px;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .btn {
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn:hover {
+      background: #334155;
+      border-color: #475569;
+    }
+    .btn-primary {
+      background: #0284c7;
+      border-color: #0369a1;
+    }
+    .btn-primary:hover {
+      background: #0369a1;
+    }
+    .btn-success {
+      background: #16a34a;
+      border-color: #15803d;
+    }
+    .btn-success:hover {
+      background: #15803d;
+    }
+    .btn-warning {
+      background: #d97706;
+      border-color: #b45309;
+    }
+    .btn-warning:hover {
+      background: #b45309;
+    }
+    .game-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 24px;
+      max-width: 800px;
+      width: 100%;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .quote-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px 20px;
+      justify-content: center;
+      min-height: 140px;
+      align-items: flex-start;
+    }
+    .word-box {
+      display: flex;
+      gap: 4px;
+    }
+    .letter-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 32px;
+    }
+    .cipher-letter {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-bottom: 4px;
+    }
+    .guess-box {
+      width: 32px;
+      height: 38px;
+      background: #0f172a;
+      border: 2px solid #475569;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #f8fafc;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .letter-card.selected .guess-box {
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px #38bdf8;
+      background: #1e3a8a;
+    }
+    .letter-card.highlight .cipher-letter {
+      color: #f59e0b;
+      transform: scale(1.15);
+    }
+    .guess-box.correct {
+      background: #14532d;
+      border-color: #22c55e;
+      color: #4ade80;
+    }
+    .guess-box.incorrect {
+      background: #7f1d1d;
+      border-color: #ef4444;
+      color: #fca5a5;
+    }
+    .punct-card {
+      display: flex;
+      align-items: flex-end;
+      padding-bottom: 6px;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #94a3b8;
+    }
+    .author-text {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      text-align: right;
+      margin-top: 8px;
+      font-style: italic;
+    }
+    .key-visualizer {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 12px;
+      overflow-x: auto;
+    }
+    .key-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #94a3b8;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .key-grid {
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+      min-width: 650px;
+    }
+    .key-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+    }
+    .key-top {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+    .key-bottom {
+      width: 26px;
+      height: 28px;
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #f8fafc;
+    }
+    .virtual-keyboard {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+      margin-top: 4px;
+    }
+    .kb-row {
+      display: flex;
+      gap: 6px;
+    }
+    .kb-key {
+      background: #334155;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+      min-width: 34px;
+      text-align: center;
+    }
+    .kb-key:hover {
+      background: #475569;
+    }
+    .status-msg {
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+      min-height: 26px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Cryptogram</h1>
+    <p class="subtitle">Decipher the quote by matching cipher letters to their plaintext letters!</p>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-primary" id="newGameBtn">New Quote</button>
+    <button class="btn btn-success" id="checkBtn">Check Answer</button>
+    <button class="btn btn-warning" id="hintBtn">Hint</button>
+    <button class="btn" id="revealBtn">Reveal</button>
+  </div>
+
+  <div class="game-card">
+    <div class="quote-container" id="quoteContainer"></div>
+    <div class="author-text" id="authorText"></div>
+
+    <div class="status-msg" id="statusMsg"></div>
+
+    <div class="key-visualizer">
+      <div class="key-title">Cipher Key Mapping (Cipher → Guessed)</div>
+      <div class="key-grid" id="keyGrid"></div>
+    </div>
+
+    <div class="virtual-keyboard" id="virtualKeyboard"></div>
+  </div>
+
+  <script>
+    (function() {
+      const QUOTES = [
+        { text: "THE ONLY WAY TO DO GREAT WORK IS TO LOVE WHAT YOU DO.", author: "- STEVE JOBS" },
+        { text: "LIFE IS WHAT HAPPENS WHEN YOU ARE BUSY MAKING OTHER PLANS.", author: "- JOHN LENNON" },
+        { text: "IN THE MIDDLE OF DIFFICULTY LIES OPPORTUNITY.", author: "- ALBERT EINSTEIN" },
+        { text: "SUCCESS IS NOT FINAL FAILURE IS NOT FATAL IT IS THE COURAGE TO CONTINUE THAT COUNTS.", author: "- WINSTON CHURCHILL" },
+        { text: "BE THE CHANGE THAT YOU WISH TO SEE IN THE WORLD.", author: "- MAHATMA GANDHI" },
+        { text: "DO ONE THING EVERY DAY THAT SCARS YOU.", author: "- ELEANOR ROOSEVELT" },
+        { text: "STAY HUNGRY STAY FOOLISH.", author: "- STEVE JOBS" },
+        { text: "KNOWLEDGE IS POWER.", author: "- FRANCIS BACON" },
+        { text: "CREATIVITY IS INTELLIGENCE HAVING FUN.", author: "- ALBERT EINSTEIN" },
+        { text: "THE FUTURE BELONGS TO THOSE WHO BELIEVE IN THE BEAUTY OF THEIR DREAMS.", author: "- ELEANOR ROOSEVELT" }
+      ];
+
+      let currentQuote = null;
+      let cipherMap = {}; // Plain -> Cipher
+      let reverseCipherMap = {}; // Cipher -> Plain
+      let userGuesses = {}; // Cipher -> User Guessed Plain
+      let lockedLetters = {}; // Cipher -> boolean
+      let selectedCipher = null;
+
+      function generateCipher() {
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        let shuffled = [...alphabet];
+        do {
+          for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+          }
+        } while (shuffled.some((char, idx) => char === alphabet[idx]));
+
+        cipherMap = {};
+        reverseCipherMap = {};
+        alphabet.forEach((char, idx) => {
+          cipherMap[char] = shuffled[idx];
+          reverseCipherMap[shuffled[idx]] = char;
+        });
+      }
+
+      function initGame() {
+        generateCipher();
+        const randIdx = Math.floor(Math.random() * QUOTES.length);
+        currentQuote = QUOTES[randIdx];
+        userGuesses = {};
+        lockedLetters = {};
+        selectedCipher = null;
+
+        document.getElementById('authorText').textContent = currentQuote.author;
+        document.getElementById('statusMsg').textContent = '';
+
+        renderQuote();
+        renderKeyGrid();
+        renderKeyboard();
+      }
+
+      function renderQuote() {
+        const container = document.getElementById('quoteContainer');
+        container.innerHTML = '';
+
+        const words = currentQuote.text.split(' ');
+
+        words.forEach(wordStr => {
+          const wordDiv = document.createElement('div');
+          wordDiv.className = 'word-box';
+
+          for (let i = 0; i < wordStr.length; i++) {
+            const char = wordStr[i];
+            if (/[A-Z]/.test(char)) {
+              const cipherChar = cipherMap[char];
+
+              const card = document.createElement('div');
+              card.className = 'letter-card';
+              if (selectedCipher === cipherChar) {
+                card.classList.add('selected');
+              } else if (selectedCipher && selectedCipher === cipherChar) {
+                card.classList.add('highlight');
+              }
+
+              const cipherSpan = document.createElement('span');
+              cipherSpan.className = 'cipher-letter';
+              cipherSpan.textContent = cipherChar;
+
+              const guessBox = document.createElement('div');
+              guessBox.className = 'guess-box';
+              guessBox.textContent = userGuesses[cipherChar] || '';
+
+              if (lockedLetters[cipherChar]) {
+                guessBox.classList.add('correct');
+              }
+
+              card.appendChild(cipherSpan);
+              card.appendChild(guessBox);
+
+              card.addEventListener('click', () => {
+                selectCipherLetter(cipherChar);
+              });
+
+              wordDiv.appendChild(card);
+            } else {
+              const punctDiv = document.createElement('div');
+              punctDiv.className = 'punct-card';
+              punctDiv.textContent = char;
+              wordDiv.appendChild(punctDiv);
+            }
+          }
+          container.appendChild(wordDiv);
+        });
+      }
+
+      function selectCipherLetter(cipherChar) {
+        selectedCipher = cipherChar;
+        renderQuote();
+        renderKeyGrid();
+      }
+
+      function assignGuess(plainChar) {
+        if (!selectedCipher || lockedLetters[selectedCipher]) return;
+
+        userGuesses[selectedCipher] = plainChar;
+        renderQuote();
+        renderKeyGrid();
+
+        // Check auto win condition
+        checkAutoWin();
+      }
+
+      function clearCurrentGuess() {
+        if (!selectedCipher || lockedLetters[selectedCipher]) return;
+        delete userGuesses[selectedCipher];
+        renderQuote();
+        renderKeyGrid();
+      }
+
+      function renderKeyGrid() {
+        const grid = document.getElementById('keyGrid');
+        grid.innerHTML = '';
+
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        alphabet.forEach(ciph => {
+          const col = document.createElement('div');
+          col.className = 'key-col';
+
+          const top = document.createElement('div');
+          top.className = 'key-top';
+          top.textContent = ciph;
+
+          const btm = document.createElement('div');
+          btm.className = 'key-bottom';
+          btm.textContent = userGuesses[ciph] || '';
+          if (lockedLetters[ciph]) {
+            btm.style.background = '#14532d';
+            btm.style.borderColor = '#22c55e';
+          }
+
+          if (selectedCipher === ciph) {
+            top.style.color = '#f59e0b';
+            btm.style.borderColor = '#38bdf8';
+          }
+
+          col.appendChild(top);
+          col.appendChild(btm);
+
+          col.addEventListener('click', () => {
+            selectCipherLetter(ciph);
+          });
+
+          grid.appendChild(col);
+        });
+      }
+
+      function renderKeyboard() {
+        const kb = document.getElementById('virtualKeyboard');
+        kb.innerHTML = '';
+
+        const rows = [
+          "QWERTYUIOP".split(""),
+          "ASDFGHJKL".split(""),
+          "ZXCVBNM".split("")
+        ];
+
+        rows.forEach((rowKeys, rIdx) => {
+          const rowDiv = document.createElement('div');
+          rowDiv.className = 'kb-row';
+
+          rowKeys.forEach(k => {
+            const btn = document.createElement('button');
+            btn.className = 'kb-key';
+            btn.textContent = k;
+            btn.addEventListener('click', () => assignGuess(k));
+            rowDiv.appendChild(btn);
+          });
+
+          if (rIdx === 2) {
+            const delBtn = document.createElement('button');
+            delBtn.className = 'kb-key';
+            delBtn.style.background = '#991b1b';
+            delBtn.textContent = 'DEL';
+            delBtn.addEventListener('click', clearCurrentGuess);
+            rowDiv.appendChild(delBtn);
+          }
+
+          kb.appendChild(rowDiv);
+        });
+      }
+
+      function checkAnswers() {
+        let allCorrect = true;
+        let anyFilled = false;
+
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        alphabet.forEach(ciph => {
+          if (userGuesses[ciph]) {
+            anyFilled = true;
+            if (userGuesses[ciph] === reverseCipherMap[ciph]) {
+              lockedLetters[ciph] = true;
+            } else {
+              allCorrect = false;
+            }
+          } else {
+            allCorrect = false;
+          }
+        });
+
+        renderQuote();
+        renderKeyGrid();
+
+        const statusEl = document.getElementById('statusMsg');
+        if (allCorrect) {
+          statusEl.textContent = "🎉 Excellent! Quote decoded successfully!";
+          statusEl.style.color = "#4ade80";
+        } else {
+          statusEl.textContent = "Checked answers! Correct letters locked in green, incorrect in red.";
+          statusEl.style.color = "#f59e0b";
+        }
+      }
+
+      function checkAutoWin() {
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        const usedCiphers = new Set();
+        for (let char of currentQuote.text) {
+          if (/[A-Z]/.test(char)) usedCiphers.add(cipherMap[char]);
+        }
+
+        let isComplete = true;
+        usedCiphers.forEach(ciph => {
+          if (userGuesses[ciph] !== reverseCipherMap[ciph]) {
+            isComplete = false;
+          }
+        });
+
+        if (isComplete) {
+          usedCiphers.forEach(ciph => lockedLetters[ciph] = true);
+          renderQuote();
+          renderKeyGrid();
+          const statusEl = document.getElementById('statusMsg');
+          statusEl.textContent = "🎉 Congratulations! You solved the cryptogram!";
+          statusEl.style.color = "#4ade80";
+        }
+      }
+
+      function giveHint() {
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        const unrevealed = alphabet.filter(ciph => {
+          return currentQuote.text.includes(reverseCipherMap[ciph]) && !lockedLetters[ciph];
+        });
+
+        if (unrevealed.length === 0) return;
+
+        const randCiph = unrevealed[Math.floor(Math.random() * unrevealed.length)];
+        const correctPlain = reverseCipherMap[randCiph];
+        userGuesses[randCiph] = correctPlain;
+        lockedLetters[randCiph] = true;
+
+        renderQuote();
+        renderKeyGrid();
+        checkAutoWin();
+
+        const statusEl = document.getElementById('statusMsg');
+        statusEl.textContent = `Hint: '${randCiph}' stands for '${correctPlain}'!`;
+        statusEl.style.color = "#ec4899";
+      }
+
+      function revealAll() {
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        alphabet.forEach(ciph => {
+          userGuesses[ciph] = reverseCipherMap[ciph];
+          lockedLetters[ciph] = true;
+        });
+        renderQuote();
+        renderKeyGrid();
+        const statusEl = document.getElementById('statusMsg');
+        statusEl.textContent = "Full key revealed!";
+        statusEl.style.color = "#38bdf8";
+      }
+
+      // Physical Keyboard Handler
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace') {
+          clearCurrentGuess();
+        } else if (/^[a-zA-Z]$/.test(e.key)) {
+          assignGuess(e.key.toUpperCase());
+        }
+      });
+
+      document.getElementById('newGameBtn').addEventListener('click', initGame);
+      document.getElementById('checkBtn').addEventListener('click', checkAnswers);
+      document.getElementById('hintBtn').addEventListener('click', giveHint);
+      document.getElementById('revealBtn').addEventListener('click', revealAll);
+
+      window.initGame = initGame;
+      initGame();
+    })();
+  </script>
+</body>
+</html>

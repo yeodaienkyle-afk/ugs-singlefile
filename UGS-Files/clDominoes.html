@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Draw Dominoes</title>
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: #0f172a;
+    color: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 15px;
+  }
+  h1 {
+    font-size: 2rem;
+    color: #38bdf8;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  }
+  .game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 850px;
+    width: 100%;
+  }
+  .status-bar {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    padding: 8px 16px;
+    background: #1e293b;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    text-align: center;
+    min-width: 320px;
+    color: #f1f5f9;
+  }
+  canvas {
+    background: #020617;
+    border: 3px solid #334155;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    cursor: pointer;
+    touch-action: none;
+    max-width: 100%;
+    height: auto;
+  }
+  .controls {
+    margin-top: 14px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  button {
+    background: #0284c7;
+    color: #ffffff;
+    border: none;
+    padding: 10px 22px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    min-height: 44px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  }
+  button:hover:not(:disabled) {
+    background: #0369a1;
+    transform: translateY(-1px);
+  }
+  button:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  button:disabled {
+    background: #475569;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  button.secondary {
+    background: #475569;
+  }
+  button.secondary:hover:not(:disabled) {
+    background: #334155;
+  }
+  .instructions {
+    margin-top: 12px;
+    font-size: 0.9rem;
+    color: #94a3b8;
+    text-align: center;
+    max-width: 600px;
+  }
+</style>
+</head>
+<body>
+<div class="game-container">
+  <h1>Draw Dominoes</h1>
+  <div class="status-bar" id="status">Select a tile in your hand to play!</div>
+  <canvas id="board" width="800" height="520"></canvas>
+  <div class="controls">
+    <button id="drawBtn" onclick="handleDraw()">Draw Tile</button>
+    <button id="passBtn" onclick="handlePass()" disabled class="secondary">Pass Turn</button>
+    <button id="restartBtn" onclick="initGame()" class="secondary">New Game</button>
+  </div>
+  <div class="instructions">
+    Click a tile in your hand to select it, then choose which end of the chain to match. Draw from the boneyard if stuck.
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('board');
+  const ctx = canvas.getContext('2d');
+  const statusEl = document.getElementById('status');
+  const drawBtn = document.getElementById('drawBtn');
+  const passBtn = document.getElementById('passBtn');
+
+  // Game state
+  let boneyard = [];
+  let humanHand = [];
+  let aiHand = [];
+  let chain = []; // Array of {a: number, b: number}
+  let turn = 'human'; // 'human' or 'ai'
+  let selectedTileIdx = null;
+  let validEnds = []; // ['left', 'right']
+  let gameOver = false;
+
+  function initGame() {
+    // Generate 28 double-six dominoes
+    let pool = [];
+    for (let i = 0; i <= 6; i++) {
+      for (let j = i; j <= 6; j++) {
+        pool.push({ a: i, b: j });
+      }
+    }
+    // Shuffle pool
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+
+    // Deal 7 each
+    humanHand = pool.slice(0, 7);
+    aiHand = pool.slice(7, 14);
+    boneyard = pool.slice(14);
+
+    chain = [];
+    turn = 'human';
+    selectedTileIdx = null;
+    validEnds = [];
+    gameOver = false;
+
+    // Find starting player: player with highest double or highest tile
+    let highestHuman = getHighestTile(humanHand);
+    let highestAi = getHighestTile(aiHand);
+
+    if (highestAi.weight > highestHuman.weight) {
+      turn = 'ai';
+      updateStatus("AI has the higher starting tile and plays first.");
+      render();
+      setTimeout(aiTurn, 1000);
+    } else {
+      turn = 'human';
+      updateStatus("You have the higher starting tile! Select a tile to start.");
+      checkHumanControls();
+      render();
+    }
+  }
+
+  function getHighestTile(hand) {
+    let best = { tile: null, weight: -1 };
+    for (let t of hand) {
+      let w = (t.a === t.b) ? (t.a * 10 + 100) : (t.a + t.b);
+      if (w > best.weight) {
+        best = { tile: t, weight: w };
+      }
+    }
+    return best;
+  }
+
+  function updateStatus(msg) {
+    statusEl.textContent = msg;
+  }
+
+  function getChainEnds() {
+    if (chain.length === 0) return { left: null, right: null };
+    return {
+      left: chain[0].a,
+      right: chain[chain.length - 1].b
+    };
+  }
+
+  function getPlayableEnds(tile) {
+    if (chain.length === 0) return ['left', 'right'];
+    const { left, right } = getChainEnds();
+    const ends = [];
+    if (tile.a === left || tile.b === left) ends.push('left');
+    if (tile.a === right || tile.b === right) ends.push('right');
+    return ends;
+  }
+
+  function checkHumanControls() {
+    if (turn !== 'human' || gameOver) {
+      drawBtn.disabled = true;
+      passBtn.disabled = true;
+      return;
+    }
+
+    let hasPlayable = humanHand.some(t => getPlayableEnds(t).length > 0);
+
+    if (hasPlayable) {
+      drawBtn.disabled = true;
+      passBtn.disabled = true;
+    } else if (boneyard.length > 0) {
+      drawBtn.disabled = false;
+      passBtn.disabled = true;
+    } else {
+      drawBtn.disabled = true;
+      passBtn.disabled = false;
+    }
+  }
+
+  function handleDraw() {
+    if (turn !== 'human' || boneyard.length === 0 || gameOver) return;
+    let drawn = boneyard.pop();
+    humanHand.push(drawn);
+    updateStatus(`You drew [${drawn.a}|${drawn.b}].`);
+    selectedTileIdx = null;
+    validEnds = [];
+    checkHumanControls();
+    render();
+  }
+
+  function handlePass() {
+    if (turn !== 'human' || gameOver) return;
+    updateStatus("You passed your turn.");
+    selectedTileIdx = null;
+    validEnds = [];
+    turn = 'ai';
+    checkHumanControls();
+    render();
+    setTimeout(aiTurn, 1000);
+  }
+
+  function playTile(player, tileIdx, side) {
+    let hand = (player === 'human') ? humanHand : aiHand;
+    let tile = hand.splice(tileIdx, 1)[0];
+
+    if (chain.length === 0) {
+      chain.push({ a: tile.a, b: tile.b });
+    } else {
+      const { left, right } = getChainEnds();
+      if (side === 'left') {
+        if (tile.b === left) {
+          chain.unshift({ a: tile.a, b: tile.b });
+        } else {
+          chain.unshift({ a: tile.b, b: tile.a });
+        }
+      } else { // right
+        if (tile.a === right) {
+          chain.push({ a: tile.a, b: tile.b });
+        } else {
+          chain.push({ a: tile.b, b: tile.a });
+        }
+      }
+    }
+
+    // Check Win
+    if (hand.length === 0) {
+      gameOver = true;
+      let winnerText = (player === 'human') ? "🎉 YOU WIN! You played all your dominoes!" : "🤖 AI WINS! AI played all its dominoes!";
+      updateStatus(winnerText);
+      checkHumanControls();
+      render();
+      return;
+    }
+
+    // Switch Turn
+    if (player === 'human') {
+      turn = 'ai';
+      selectedTileIdx = null;
+      validEnds = [];
+      updateStatus("AI's turn...");
+      checkHumanControls();
+      render();
+      setTimeout(aiTurn, 1000);
+    } else {
+      turn = 'human';
+      updateStatus("Your turn! Select a tile to play.");
+      checkHumanControls();
+      render();
+    }
+  }
+
+  function aiTurn() {
+    if (gameOver) return;
+
+    // AI logic: draw until tile playable or boneyard empty
+    let playable = getAiPlayableOptions();
+
+    while (playable.length === 0 && boneyard.length > 0) {
+      let drawn = boneyard.pop();
+      aiHand.push(drawn);
+      playable = getAiPlayableOptions();
+    }
+
+    if (playable.length === 0) {
+      // AI must pass
+      updateStatus("AI has no legal moves and passed.");
+      // Check if both players blocked!
+      if (boneyard.length === 0) {
+        let humanHasPlayable = humanHand.some(t => getPlayableEnds(t).length > 0);
+        if (!humanHasPlayable) {
+          checkBlockedGameWinner();
+          return;
+        }
+      }
+      turn = 'human';
+      checkHumanControls();
+      render();
+      return;
+    }
+
+    // Pick best option (highest total pips or double)
+    playable.sort((m1, m2) => {
+      let tile1 = aiHand[m1.idx];
+      let tile2 = aiHand[m2.idx];
+      let score1 = (tile1.a === tile1.b ? 50 : 0) + (tile1.a + tile1.b);
+      let score2 = (tile2.a === tile2.b ? 50 : 0) + (tile2.a + tile2.b);
+      return score2 - score1;
+    });
+
+    let bestChoice = playable[0];
+    playTile('ai', bestChoice.idx, bestChoice.side);
+  }
+
+  function getAiPlayableOptions() {
+    let options = [];
+    for (let i = 0; i < aiHand.length; i++) {
+      let ends = getPlayableEnds(aiHand[i]);
+      for (let e of ends) {
+        options.push({ idx: i, side: e });
+      }
+    }
+    return options;
+  }
+
+  function checkBlockedGameWinner() {
+    gameOver = true;
+    let humanPips = humanHand.reduce((s, t) => s + t.a + t.b, 0);
+    let aiPips = aiHand.reduce((s, t) => s + t.a + t.b, 0);
+
+    let msg = `Game Blocked! Pips -> You: ${humanPips}, AI: ${aiPips}. `;
+    if (humanPips < aiPips) {
+      msg += "🎉 YOU WIN with fewer pips!";
+    } else if (aiPips < humanPips) {
+      msg += "🤖 AI WINS with fewer pips!";
+    } else {
+      msg += "🤝 IT'S A DRAW!";
+    }
+    updateStatus(msg);
+    checkHumanControls();
+    render();
+  }
+
+  // Canvas click handling
+  canvas.addEventListener('click', (e) => {
+    if (turn !== 'human' || gameOver) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+    // Check if clicked Left/Right play buttons when tile is selected
+    if (selectedTileIdx !== null && validEnds.length > 0) {
+      // Left button zone
+      if (validEnds.includes('left') && x >= 30 && x <= 130 && y >= 220 && y <= 270) {
+        playTile('human', selectedTileIdx, 'left');
+        return;
+      }
+      // Right button zone
+      if (validEnds.includes('right') && x >= 670 && x <= 770 && y >= 220 && y <= 270) {
+        playTile('human', selectedTileIdx, 'right');
+        return;
+      }
+    }
+
+    // Check hand tiles (bottom row: y >= 390)
+    if (y >= 380) {
+      const tileWidth = 50;
+      const tileHeight = 90;
+      const totalWidth = humanHand.length * (tileWidth + 10);
+      const startX = Math.max(20, (canvas.width - totalWidth) / 2);
+
+      for (let i = 0; i < humanHand.length; i++) {
+        let tx = startX + i * (tileWidth + 10);
+        if (x >= tx && x <= tx + tileWidth && y >= 400 && y <= 400 + tileHeight) {
+          let ends = getPlayableEnds(humanHand[i]);
+          if (ends.length > 0) {
+            selectedTileIdx = i;
+            validEnds = ends;
+            if (ends.length === 1) {
+              // Auto play if only 1 end option!
+              playTile('human', i, ends[0]);
+              return;
+            } else {
+              updateStatus(`Tile [${humanHand[i].a}|${humanHand[i].b}] selected. Click 'Play Left' or 'Play Right'.`);
+            }
+          } else {
+            updateStatus("This tile does not match either end of the chain.");
+            selectedTileIdx = null;
+            validEnds = [];
+          }
+          render();
+          return;
+        }
+      }
+    }
+  });
+
+  // RENDER BOARD
+  function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Background
+    ctx.fillStyle = '#020617';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // AI Hand (Top)
+    ctx.fillStyle = '#64748b';
+    ctx.font = '14px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`AI Hand (${aiHand.length} tiles)`, 20, 30);
+
+    for (let i = 0; i < aiHand.length; i++) {
+      drawTileFaceDown(20 + i * 35, 40, 28, 48);
+    }
+
+    // Boneyard Count
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(`Boneyard: ${boneyard.length} tiles`, 780, 30);
+
+    // Board / Chain Display Area
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(20, 110, 760, 260);
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(20, 110, 760, 260);
+
+    // Render Chain
+    if (chain.length === 0) {
+      ctx.fillStyle = '#475569';
+      ctx.font = '16px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText("Chain is empty. Play any tile to start!", 400, 240);
+    } else {
+      // Draw chain tiles horizontally with wrapping or scrolling centering
+      let tileWidth = 42;
+      let tileHeight = 70;
+      let spacing = 6;
+      let visibleCount = Math.min(chain.length, 12);
+      let startIndex = Math.max(0, chain.length - 12); // show recent tiles if chain is long
+
+      let totalW = visibleCount * (tileWidth + spacing);
+      let startX = (canvas.width - totalW) / 2;
+      let startY = 205;
+
+      for (let i = startIndex; i < chain.length; i++) {
+        let t = chain[i];
+        let idx = i - startIndex;
+        let x = startX + idx * (tileWidth + spacing);
+        drawDominoTile(x, startY, tileWidth, tileHeight, t.a, t.b, false);
+      }
+    }
+
+    // Play Left / Right Action Buttons
+    if (selectedTileIdx !== null && validEnds.length > 0) {
+      if (validEnds.includes('left')) {
+        ctx.fillStyle = '#22c55e';
+        ctx.beginPath();
+        ctx.roundRect(30, 220, 100, 45, 8);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText("👈 Play Left", 80, 247);
+      }
+      if (validEnds.includes('right')) {
+        ctx.fillStyle = '#22c55e';
+        ctx.beginPath();
+        ctx.roundRect(670, 220, 100, 45, 8);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText("Play Right 👉", 720, 247);
+      }
+    }
+
+    // Human Hand (Bottom)
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = '14px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText("Your Hand:", 20, 395);
+
+    const tileW = 50;
+    const tileH = 90;
+    const totalW = humanHand.length * (tileW + 10);
+    const startX = Math.max(20, (canvas.width - totalW) / 2);
+
+    for (let i = 0; i < humanHand.length; i++) {
+      let t = humanHand[i];
+      let x = startX + i * (tileW + 10);
+      let isSelected = (selectedTileIdx === i);
+      let isPlayable = getPlayableEnds(t).length > 0 && turn === 'human';
+      drawDominoTile(x, 410, tileW, tileH, t.a, t.b, isSelected, isPlayable);
+    }
+  }
+
+  function drawTileFaceDown(x, y, w, h) {
+    ctx.fillStyle = '#334155';
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, 4);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(x + 4, y + 4, w - 8, h - 8);
+  }
+
+  function drawDominoTile(x, y, w, h, a, b, isSelected, isPlayable = true) {
+    // Tile Base
+    ctx.fillStyle = isSelected ? '#fef08a' : (isPlayable ? '#f8fafc' : '#cbd5e1');
+    ctx.strokeStyle = isSelected ? '#eab308' : '#334155';
+    ctx.lineWidth = isSelected ? 3 : 2;
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    // Center divider line
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x + 4, y + h / 2);
+    ctx.lineTo(x + w - 4, y + h / 2);
+    ctx.stroke();
+
+    // Draw Pips
+    drawPips(x, y, w, h / 2, a);
+    drawPips(x, y + h / 2, w, h / 2, b);
+  }
+
+  function drawPips(x, y, w, h, val) {
+    ctx.fillStyle = '#0f172a';
+    const radius = Math.max(2, w / 12);
+
+    const cx = x + w / 2;
+    const cy = y + h / 2;
+    const left = x + w * 0.28;
+    const right = x + w * 0.72;
+    const top = y + h * 0.28;
+    const bottom = y + h * 0.72;
+
+    const pipPositions = {
+      1: [[cx, cy]],
+      2: [[left, top], [right, bottom]],
+      3: [[left, top], [cx, cy], [right, bottom]],
+      4: [[left, top], [right, top], [left, bottom], [right, bottom]],
+      5: [[left, top], [right, top], [cx, cy], [left, bottom], [right, bottom]],
+      6: [[left, top], [right, top], [left, cy], [right, cy], [left, bottom], [right, bottom]]
+    };
+
+    if (pipPositions[val]) {
+      for (let pos of pipPositions[val]) {
+        ctx.beginPath();
+        ctx.arc(pos[0], pos[1], radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+
+  // Initial setup
+  initGame();
+</script>
+</body>
+</html>

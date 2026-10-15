@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Golf 3D</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #111;
+      color: #eee;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 10px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #33ff33;
+      text-shadow: 0 0 10px #33ff33;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 700px;
+      margin-bottom: 6px;
+      font-size: 1rem;
+      font-weight: bold;
+      background: #102410;
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid #33ff3344;
+    }
+    .hud-val { color: #33ff33; font-family: monospace; font-size: 1.1rem; }
+
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      max-width: 700px;
+      aspect-ratio: 7 / 5;
+      background: #081208;
+      border: 3px solid #33ff33;
+      box-shadow: 0 0 20px rgba(51, 255, 51, 0.3);
+      border-radius: 8px;
+      overflow: hidden;
+      touch-action: none;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(8, 18, 8, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+    .overlay h2 {
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+      color: #33ff33;
+      text-shadow: 0 0 8px #33ff33;
+    }
+    .overlay p {
+      margin-bottom: 20px;
+      color: #ccc;
+      max-width: 480px;
+      line-height: 1.4;
+    }
+    button {
+      background: #33ff33;
+      color: #000;
+      border: none;
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 10px rgba(51, 255, 51, 0.5);
+    }
+    button:hover {
+      background: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    }
+    .scorecard {
+      margin-top: 15px;
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 400px;
+    }
+    .scorecard th, .scorecard td {
+      border: 1px solid #33ff3388;
+      padding: 6px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Mini Golf</h1>
+
+  <div class="hud">
+    <div>Hole: <span class="hud-val" id="hudHole">1 / 9</span></div>
+    <div>Par: <span class="hud-val" id="hudPar">3</span></div>
+    <div>Strokes: <span class="hud-val" id="hudStrokes">0</span></div>
+    <div>Total: <span class="hud-val" id="hudTotal">E</span></div>
+  </div>
+
+  <div class="canvas-container" id="container">
+    <canvas id="gameCanvas" width="700" height="500"></canvas>
+    <div class="overlay" id="overlay">
+      <h2 id="overlayTitle">MINI GOLF 9 HOLES</h2>
+      <p id="overlayDesc">Click and drag from the ball to aim and set power. Avoid sand and water hazards to sink the ball in as few strokes as possible!</p>
+      <button id="startBtn">Start Game</button>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const container = document.getElementById('container');
+  const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlayTitle');
+  const overlayDesc = document.getElementById('overlayDesc');
+  const startBtn = document.getElementById('startBtn');
+
+  const hudHole = document.getElementById('hudHole');
+  const hudPar = document.getElementById('hudPar');
+  const hudStrokes = document.getElementById('hudStrokes');
+  const hudTotal = document.getElementById('hudTotal');
+
+  let audioCtx = null;
+  function playSound(type) {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const now = audioCtx.currentTime;
+
+      if (type === 'hit') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.exponentialRampToValueAtTime(150, now + 0.1);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(now + 0.1);
+      } else if (type === 'bounce') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(250, now);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(now + 0.05);
+      } else if (type === 'sink') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523, now);
+        osc.frequency.setValueAtTime(659, now + 0.1);
+        osc.frequency.setValueAtTime(783, now + 0.2);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(now + 0.35);
+      } else if (type === 'water') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(120, now);
+        osc.frequency.linearRampToValueAtTime(60, now + 0.2);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(now + 0.2);
+      }
+    } catch(e) {}
+  }
+
+  // 9 Course Holes
+  const HOLES = [
+    {
+      par: 3, start: { x: 100, y: 250 }, cup: { x: 600, y: 250 },
+      walls: [{ x: 320, y: 150, w: 20, h: 200 }],
+      hazards: []
+    },
+    {
+      par: 3, start: { x: 100, y: 120 }, cup: { x: 600, y: 380 },
+      walls: [
+        { x: 250, y: 0, w: 20, h: 280 },
+        { x: 450, y: 220, w: 20, h: 280 }
+      ],
+      hazards: [{ type: 'sand', x: 270, y: 300, w: 180, h: 120 }]
+    },
+    {
+      par: 3, start: { x: 100, y: 250 }, cup: { x: 600, y: 250 },
+      walls: [],
+      hazards: [
+        { type: 'sand', x: 280, y: 100, w: 140, h: 300 }
+      ]
+    },
+    {
+      par: 4, start: { x: 100, y: 250 }, cup: { x: 600, y: 250 },
+      walls: [],
+      hazards: [
+        { type: 'water', x: 250, y: 100, w: 180, h: 300 }
+      ]
+    },
+    {
+      par: 4, start: { x: 100, y: 400 }, cup: { x: 600, y: 100 },
+      walls: [
+        { x: 0, y: 220, w: 450, h: 20 },
+        { x: 450, y: 0, w: 20, h: 120 }
+      ],
+      hazards: [{ type: 'sand', x: 470, y: 240, w: 120, h: 120 }]
+    },
+    {
+      par: 3, start: { x: 100, y: 250 }, cup: { x: 600, y: 250 },
+      walls: [],
+      hazards: [
+        { type: 'water', x: 480, y: 50, w: 200, h: 150 },
+        { type: 'water', x: 480, y: 300, w: 200, h: 150 }
+      ]
+    },
+    {
+      par: 4, start: { x: 100, y: 250 }, cup: { x: 600, y: 250 },
+      walls: [
+        { x: 250, y: 80, w: 20, h: 120 },
+        { x: 250, y: 300, w: 20, h: 120 },
+        { x: 450, y: 180, w: 20, h: 140 }
+      ],
+      hazards: [{ type: 'sand', x: 270, y: 200, w: 180, h: 100 }]
+    },
+    {
+      par: 4, start: { x: 100, y: 100 }, cup: { x: 100, y: 400 },
+      walls: [
+        { x: 250, y: 0, w: 20, h: 360 },
+        { x: 450, y: 140, w: 20, h: 360 }
+      ],
+      hazards: [{ type: 'water', x: 270, y: 380, w: 180, h: 120 }]
+    },
+    {
+      par: 5, start: { x: 80, y: 250 }, cup: { x: 620, y: 250 },
+      walls: [
+        { x: 200, y: 0, w: 20, h: 200 },
+        { x: 200, y: 300, w: 20, h: 200 },
+        { x: 450, y: 100, w: 20, h: 300 }
+      ],
+      hazards: [
+        { type: 'water', x: 220, y: 200, w: 230, h: 100 },
+        { type: 'sand', x: 470, y: 150, w: 120, h: 200 }
+      ]
+    }
+  ];
+
+  let currentHoleIdx = 0;
+  let strokes = 0;
+  let holeScores = [];
+  let state = 'MENU'; // MENU, AIMING, MOVING, HOLE_COMPLETE, GAMEOVER
+
+  let ball = {
+    x: 100, y: 250,
+    vx: 0, vy: 0,
+    radius: 7,
+    lastX: 100, lastY: 250
+  };
+
+  let dragging = false;
+  let dragStart = { x: 0, y: 0 };
+  let dragCurr = { x: 0, y: 0 };
+
+  function loadHole(idx) {
+    currentHoleIdx = idx;
+    let h = HOLES[idx];
+    ball.x = h.start.x;
+    ball.y = h.start.y;
+    ball.vx = 0;
+    ball.vy = 0;
+    ball.lastX = ball.x;
+    ball.lastY = ball.y;
+    strokes = 0;
+    state = 'AIMING';
+    updateHUD();
+    overlay.style.display = 'none';
+  }
+
+  function updateHUD() {
+    let curPar = HOLES[currentHoleIdx].par;
+    hudHole.textContent = `${currentHoleIdx + 1} / 9`;
+    hudPar.textContent = curPar;
+    hudStrokes.textContent = strokes;
+
+    let totalStrokes = holeScores.reduce((a, b) => a + b, 0) + strokes;
+    let totalPar = HOLES.slice(0, currentHoleIdx + (state === 'MOVING' || state === 'AIMING' ? 0 : 1)).reduce((a, b) => a + b.par, 0);
+    let diff = totalStrokes - totalPar;
+    hudTotal.textContent = diff === 0 ? "E" : (diff > 0 ? `+${diff}` : `${diff}`);
+  }
+
+  function startNewGame() {
+    holeScores = [];
+    currentHoleIdx = 0;
+    loadHole(0);
+  }
+
+  // Pointer interactions
+  function getCanvasCoords(e) {
+    const rect = canvas.getBoundingClientRect();
+    let cx = e.clientX, cy = e.clientY;
+    if (e.touches && e.touches.length > 0) {
+      cx = e.touches[0].clientX;
+      cy = e.touches[0].clientY;
+    }
+    return {
+      x: (cx - rect.left) * (700 / rect.width),
+      y: (cy - rect.top) * (500 / rect.height)
+    };
+  }
+
+  function handleStart(e) {
+    if (state !== 'AIMING') return;
+    let pos = getCanvasCoords(e);
+    let dist = Math.hypot(pos.x - ball.x, pos.y - ball.y);
+    if (dist < 40) {
+      dragging = true;
+      dragStart = { x: ball.x, y: ball.y };
+      dragCurr = pos;
+    }
+  }
+
+  function handleMove(e) {
+    if (!dragging) return;
+    dragCurr = getCanvasCoords(e);
+  }
+
+  function handleEnd() {
+    if (!dragging) return;
+    dragging = false;
+
+    let dx = dragStart.x - dragCurr.x;
+    let dy = dragStart.y - dragCurr.y;
+    let dist = Math.hypot(dx, dy);
+
+    if (dist > 8) {
+      let power = Math.min(dist * 0.12, 14);
+      let ang = Math.atan2(dy, dx);
+      ball.vx = Math.cos(ang) * power;
+      ball.vy = Math.sin(ang) * power;
+
+      ball.lastX = ball.x;
+      ball.lastY = ball.y;
+
+      strokes++;
+      playSound('hit');
+      state = 'MOVING';
+      updateHUD();
+    }
+  }
+
+  container.addEventListener('mousedown', handleStart);
+  window.addEventListener('mousemove', handleMove);
+  window.addEventListener('mouseup', handleEnd);
+
+  container.addEventListener('touchstart', (e) => { e.preventDefault(); handleStart(e); });
+  window.addEventListener('touchmove', (e) => { if (dragging) e.preventDefault(); handleMove(e); }, { passive: false });
+  window.addEventListener('touchend', handleEnd);
+
+  startBtn.addEventListener('click', () => {
+    if (state === 'HOLE_COMPLETE') {
+      if (currentHoleIdx + 1 < HOLES.length) loadHole(currentHoleIdx + 1);
+      else showGameOver();
+    } else {
+      startNewGame();
+    }
+  });
+
+  function updatePhysics() {
+    if (state !== 'MOVING') return;
+
+    let h = HOLES[currentHoleIdx];
+
+    // Check hazard under ball
+    let inSand = false;
+    for (let haz of h.hazards) {
+      if (ball.x >= haz.x && ball.x <= haz.x + haz.w && ball.y >= haz.y && ball.y <= haz.y + haz.h) {
+        if (haz.type === 'sand') {
+          inSand = true;
+        } else if (haz.type === 'water') {
+          // Water penalty!
+          playSound('water');
+          strokes++; // Penalty stroke
+          ball.x = ball.lastX;
+          ball.y = ball.lastY;
+          ball.vx = 0; ball.vy = 0;
+          state = 'AIMING';
+          updateHUD();
+          return;
+        }
+      }
+    }
+
+    // Apply friction (higher in sand)
+    let friction = inSand ? 0.88 : 0.978;
+    ball.vx *= friction;
+    ball.vy *= friction;
+
+    ball.x += ball.vx;
+    ball.y += ball.vy;
+
+    // Outer Boundary Wall bounces
+    if (ball.x - ball.radius < 10) { ball.x = 10 + ball.radius; ball.vx = -ball.vx * 0.8; playSound('bounce'); }
+    if (ball.x + ball.radius > 690) { ball.x = 690 - ball.radius; ball.vx = -ball.vx * 0.8; playSound('bounce'); }
+    if (ball.y - ball.radius < 10) { ball.y = 10 + ball.radius; ball.vy = -ball.vy * 0.8; playSound('bounce'); }
+    if (ball.y + ball.radius > 490) { ball.y = 490 - ball.radius; ball.vy = -ball.vy * 0.8; playSound('bounce'); }
+
+    // Inner Wall Bounces
+    for (let w of h.walls) {
+      if (ball.x + ball.radius > w.x && ball.x - ball.radius < w.x + w.w &&
+          ball.y + ball.radius > w.y && ball.y - ball.radius < w.y + w.h) {
+
+        // Simple AABB bounce
+        let overlapLeft = (ball.x + ball.radius) - w.x;
+        let overlapRight = (w.x + w.w) - (ball.x - ball.radius);
+        let overlapTop = (ball.y + ball.radius) - w.y;
+        let overlapBottom = (w.y + w.h) - (ball.y - ball.radius);
+
+        let minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
+
+        if (minOverlap === overlapLeft) { ball.x = w.x - ball.radius; ball.vx = -ball.vx * 0.8; }
+        else if (minOverlap === overlapRight) { ball.x = w.x + w.w + ball.radius; ball.vx = -ball.vx * 0.8; }
+        else if (minOverlap === overlapTop) { ball.y = w.y - ball.radius; ball.vy = -ball.vy * 0.8; }
+        else if (minOverlap === overlapBottom) { ball.y = w.y + w.h + ball.radius; ball.vy = -ball.vy * 0.8; }
+
+        playSound('bounce');
+      }
+    }
+
+    // Check Cup Capture
+    let distToCup = Math.hypot(ball.x - h.cup.x, ball.y - h.cup.y);
+    let ballSpeed = Math.hypot(ball.vx, ball.vy);
+
+    if (distToCup < 10 && ballSpeed < 4.5) {
+      playSound('sink');
+      ball.x = h.cup.x;
+      ball.y = h.cup.y;
+      ball.vx = 0; ball.vy = 0;
+
+      holeScores.push(strokes);
+      state = 'HOLE_COMPLETE';
+
+      let parDiff = strokes - h.par;
+      let term = parDiff === -2 ? "EAGLE!" : parDiff === -1 ? "BIRDIE!" : parDiff === 0 ? "PAR" : parDiff === 1 ? "BOGEY" : `+${parDiff}`;
+      if (strokes === 1) term = "HOLE IN ONE!!!";
+
+      overlayTitle.textContent = term;
+      overlayDesc.textContent = `Hole ${currentHoleIdx + 1} completed in ${strokes} stroke(s) (Par ${h.par})`;
+      startBtn.textContent = currentHoleIdx + 1 < HOLES.length ? "Next Hole ▶" : "View Scorecard ▶";
+      overlay.style.display = 'flex';
+      return;
+    }
+
+    // Check stopped
+    if (ballSpeed < 0.12) {
+      ball.vx = 0; ball.vy = 0;
+      state = 'AIMING';
+    }
+  }
+
+  function showGameOver() {
+    state = 'GAMEOVER';
+    let totalStrokes = holeScores.reduce((a, b) => a + b, 0);
+    let totalPar = HOLES.reduce((a, b) => a + b.par, 0);
+    let diff = totalStrokes - totalPar;
+    let scoreStr = diff === 0 ? "EVEN PAR" : (diff > 0 ? `+${diff}` : `${diff}`);
+
+    overlayTitle.textContent = "COURSE COMPLETED!";
+    overlayDesc.innerHTML = `Final Score: <b>${scoreStr}</b> (${totalStrokes} total strokes)<br><br>Great round!`;
+    startBtn.textContent = "Play Again ↻";
+    overlay.style.display = 'flex';
+  }
+
+  function draw() {
+    ctx.fillStyle = '#0a1a0a';
+    ctx.fillRect(0, 0, 700, 500);
+
+    let h = HOLES[currentHoleIdx];
+
+    // Draw Fairway Grass border
+    ctx.fillStyle = '#143314';
+    ctx.fillRect(10, 10, 680, 480);
+
+    // Hazards
+    for (let haz of h.hazards) {
+      if (haz.type === 'sand') {
+        ctx.fillStyle = '#d2b48c';
+        ctx.fillRect(haz.x, haz.y, haz.w, haz.h);
+      } else if (haz.type === 'water') {
+        ctx.fillStyle = '#0066cc';
+        ctx.fillRect(haz.x, haz.y, haz.w, haz.h);
+      }
+    }
+
+    // Inner Walls
+    ctx.fillStyle = '#2a1a08';
+    ctx.strokeStyle = '#5a3a18';
+    ctx.lineWidth = 2;
+    for (let w of h.walls) {
+      ctx.fillRect(w.x, w.y, w.w, w.h);
+      ctx.strokeRect(w.x, w.y, w.w, w.h);
+    }
+
+    // Outer Walls
+    ctx.strokeStyle = '#33ff33';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(10, 10, 680, 480);
+
+    // Cup / Hole
+    ctx.fillStyle = '#000000';
+    ctx.beginPath(); ctx.arc(h.cup.x, h.cup.y, 11, 0, Math.PI * 2); ctx.fill();
+
+    // Flag pole
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(h.cup.x, h.cup.y); ctx.lineTo(h.cup.x, h.cup.y - 25); ctx.stroke();
+    ctx.fillStyle = '#ff0055';
+    ctx.beginPath(); ctx.moveTo(h.cup.x, h.cup.y - 25); ctx.lineTo(h.cup.x + 12, h.cup.y - 20); ctx.lineTo(h.cup.x, h.cup.y - 15); ctx.fill();
+
+    // Ball
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowBlur = 6; ctx.shadowColor = '#ffffff';
+    ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Drag Aim Line
+    if (dragging) {
+      ctx.strokeStyle = '#33ff33';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(ball.x, ball.y);
+      ctx.lineTo(ball.x + (dragStart.x - dragCurr.x), ball.y + (dragStart.y - dragCurr.y));
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+
+  function loop() {
+    updatePhysics();
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  loadHole(0);
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

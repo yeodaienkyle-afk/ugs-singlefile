@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ludo</title>
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: #0d1117;
+    color: #f0f6fc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 15px;
+  }
+  h1 {
+    font-size: 2rem;
+    color: #f87171;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  }
+  .game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 650px;
+    width: 100%;
+  }
+  .status-bar {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    padding: 8px 16px;
+    background: #161b22;
+    border-radius: 8px;
+    border: 1px solid #30363d;
+    text-align: center;
+    width: 100%;
+    color: #f0f6fc;
+  }
+  canvas {
+    background: #010409;
+    border: 3px solid #30363d;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    cursor: pointer;
+    touch-action: none;
+    max-width: 100%;
+    height: auto;
+  }
+  .controls {
+    margin-top: 14px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  button {
+    background: #dc2626;
+    color: #ffffff;
+    border: none;
+    padding: 10px 22px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    min-height: 44px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  }
+  button:hover:not(:disabled) {
+    background: #b91c1c;
+    transform: translateY(-1px);
+  }
+  button:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  button:disabled {
+    background: #484f58;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  button.secondary {
+    background: #30363d;
+  }
+  button.secondary:hover:not(:disabled) {
+    background: #21262d;
+  }
+  .instructions {
+    margin-top: 12px;
+    font-size: 0.9rem;
+    color: #8b949e;
+    text-align: center;
+    max-width: 600px;
+  }
+</style>
+</head>
+<body>
+<div class="game-container">
+  <h1>Ludo</h1>
+  <div class="status-bar" id="status">You are Red! Click "Roll Die" to start.</div>
+  <canvas id="board" width="600" height="600"></canvas>
+  <div class="controls">
+    <button id="rollBtn" onclick="handleRoll()">Roll Die</button>
+    <button id="restartBtn" onclick="initGame()" class="secondary">New Game</button>
+  </div>
+  <div class="instructions">
+    Roll a 6 to leave base. Landing on opponent pawns captures them. First pawn to reach the center finish wins!
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('board');
+  const ctx = canvas.getContext('2d');
+  const statusEl = document.getElementById('status');
+  const rollBtn = document.getElementById('rollBtn');
+
+  const PLAYERS = [
+    { name: 'Red (You)', color: '#ef4444', startSq: 0, homeEntrySq: 51 },
+    { name: 'Green (AI)', color: '#22c55e', startSq: 13, homeEntrySq: 12 },
+    { name: 'Yellow (AI)', color: '#eab308', startSq: 26, homeEntrySq: 25 },
+    { name: 'Blue (AI)', color: '#3b82f6', startSq: 39, homeEntrySq: 38 }
+  ];
+
+  // 52-square perimeter track on 15x15 grid
+  const TRACK_GRID = [
+    {r:13, c:6}, {r:12, c:6}, {r:11, c:6}, {r:10, c:6}, {r:9, c:6}, {r:8, c:5},
+    {r:8, c:4}, {r:8, c:3}, {r:8, c:2}, {r:8, c:1}, {r:8, c:0}, {r:7, c:0},
+    {r:6, c:0}, {r:6, c:1}, {r:6, c:2}, {r:6, c:3}, {r:6, c:4}, {r:6, c:5},
+    {r:5, c:6}, {r:4, c:6}, {r:3, c:6}, {r:2, c:6}, {r:1, c:6}, {r:0, c:6},
+    {r:0, c:7}, {r:0, c:8},
+    {r:1, c:8}, {r:2, c:8}, {r:3, c:8}, {r:4, c:8}, {r:5, c:8}, {r:6, c:9},
+    {r:6, c:10}, {r:6, c:11}, {r:6, c:12}, {r:6, c:13}, {r:6, c:14}, {r:7, c:14},
+    {r:8, c:14}, {r:8, c:13}, {r:8, c:12}, {r:8, c:11}, {r:8, c:10}, {r:8, c:9},
+    {r:9, c:8}, {r:10, c:8}, {r:11, c:8}, {r:12, c:8}, {r:13, c:8}, {r:14, c:8},
+    {r:14, c:7}, {r:14, c:6}
+  ];
+
+  // Home Stretches (6 cells leading to finish)
+  const HOME_STRETCHES = [
+    // Red (up col 7)
+    [{r:13, c:7}, {r:12, c:7}, {r:11, c:7}, {r:10, c:7}, {r:9, c:7}, {r:7, c:7}],
+    // Green (right row 7)
+    [{r:7, c:1}, {r:7, c:2}, {r:7, c:3}, {r:7, c:4}, {r:7, c:5}, {r:7, c:7}],
+    // Yellow (down col 7)
+    [{r:1, c:7}, {r:2, c:7}, {r:3, c:7}, {r:4, c:7}, {r:5, c:7}, {r:7, c:7}],
+    // Blue (left row 7)
+    [{r:7, c:13}, {r:7, c:12}, {r:7, c:11}, {r:7, c:10}, {r:7, c:9}, {r:7, c:7}]
+  ];
+
+  // Base Pawn Offsets (row, col)
+  const BASE_OFFSETS = [
+    // Red (bottom-left)
+    [{r:10, c:2}, {r:10, c:3}, {r:12, c:2}, {r:12, c:3}],
+    // Green (top-left)
+    [{r:2, c:2}, {r:2, c:3}, {r:4, c:2}, {r:4, c:3}],
+    // Yellow (top-right)
+    [{r:2, c:11}, {r:2, c:12}, {r:4, c:11}, {r:4, c:12}],
+    // Blue (bottom-right)
+    [{r:10, c:11}, {r:10, c:12}, {r:12, c:11}, {r:12, c:12}]
+  ];
+
+  // Game state
+  // pawns[playerIdx][pawnIdx] = steps (-1: base, 0..50: track, 51..56: home stretch, >=56: finished)
+  let pawns = [];
+  let currentTurn = 0; // 0: Red, 1: Green, 2: Yellow, 3: Blue
+  let currentDie = null;
+  let consecutiveSixes = 0;
+  let selectablePawns = [];
+  let gameOver = false;
+
+  function initGame() {
+    pawns = [
+      [-1, -1, -1, -1], // Red
+      [-1, -1, -1, -1], // Green
+      [-1, -1, -1, -1], // Yellow
+      [-1, -1, -1, -1]  // Blue
+    ];
+    currentTurn = 0;
+    currentDie = null;
+    consecutiveSixes = 0;
+    selectablePawns = [];
+    gameOver = false;
+
+    rollBtn.disabled = false;
+    updateStatus("Your turn (Red)! Click 'Roll Die'.");
+    render();
+  }
+
+  function updateStatus(msg) {
+    statusEl.textContent = msg;
+  }
+
+  function handleRoll() {
+    if (currentTurn !== 0 || gameOver || selectablePawns.length > 0) return;
+
+    currentDie = Math.floor(Math.random() * 6) + 1;
+
+    if (currentDie === 6) {
+      consecutiveSixes++;
+    } else {
+      consecutiveSixes = 0;
+    }
+
+    if (consecutiveSixes === 3) {
+      updateStatus(`Rolled 6 three times in a row! Turn forfeited.`);
+      consecutiveSixes = 0;
+      rollBtn.disabled = true;
+      setTimeout(nextTurn, 1200);
+      render();
+      return;
+    }
+
+    let moves = getValidPawns(0, currentDie);
+
+    if (moves.length === 0) {
+      updateStatus(`You rolled a ${currentDie}. No legal moves!`);
+      rollBtn.disabled = true;
+      setTimeout(nextTurn, 1200);
+    } else if (moves.length === 1) {
+      updateStatus(`You rolled a ${currentDie}. Auto-moving pawn.`);
+      rollBtn.disabled = true;
+      setTimeout(() => movePawn(0, moves[0]), 600);
+    } else {
+      selectablePawns = moves;
+      updateStatus(`You rolled a ${currentDie}! Click a highlighted pawn to move.`);
+      rollBtn.disabled = true;
+    }
+    render();
+  }
+
+  function getValidPawns(playerIdx, die) {
+    const valid = [];
+    for (let i = 0; i < 4; i++) {
+      let st = pawns[playerIdx][i];
+      if (st === -1) {
+        if (die === 6) valid.push(i);
+      } else if (st < 56) {
+        if (st + die <= 56) valid.push(i);
+      }
+    }
+    return valid;
+  }
+
+  function movePawn(playerIdx, pawnIdx) {
+    let die = currentDie;
+    let st = pawns[playerIdx][pawnIdx];
+
+    if (st === -1) {
+      pawns[playerIdx][pawnIdx] = 0; // Enter track
+    } else {
+      pawns[playerIdx][pawnIdx] += die;
+    }
+
+    let newSt = pawns[playerIdx][pawnIdx];
+
+    // Check Capture
+    if (newSt >= 0 && newSt <= 50) {
+      let absSq = (PLAYERS[playerIdx].startSq + newSt) % 52;
+      // Check if landing on opponent pawn
+      for (let p = 0; p < 4; p++) {
+        if (p === playerIdx) continue;
+        for (let i = 0; i < 4; i++) {
+          let oppSt = pawns[p][i];
+          if (oppSt >= 0 && oppSt <= 50) {
+            let oppAbsSq = (PLAYERS[p].startSq + oppSt) % 52;
+            if (oppAbsSq === absSq) {
+              // Captured! Send home
+              pawns[p][i] = -1;
+              updateStatus(`${PLAYERS[playerIdx].name} CAPTURED ${PLAYERS[p].name}'s pawn!`);
+            }
+          }
+        }
+      }
+    }
+
+    // Check Win Condition: First pawn past finish (newSt >= 56) or first player to finish
+    if (newSt >= 56) {
+      gameOver = true;
+      let winText = (playerIdx === 0) ? "🎉 YOU WIN! Your pawn reached the finish!" : `🤖 ${PLAYERS[playerIdx].name} WINS!`;
+      updateStatus(winText);
+      rollBtn.disabled = true;
+      selectablePawns = [];
+      render();
+      return;
+    }
+
+    selectablePawns = [];
+
+    // Extra roll on 6
+    if (die === 6 && consecutiveSixes < 3 && !gameOver) {
+      if (playerIdx === 0) {
+        updateStatus("You rolled a 6! Roll again.");
+        rollBtn.disabled = false;
+      } else {
+        setTimeout(aiRoll, 800);
+      }
+    } else {
+      consecutiveSixes = 0;
+      setTimeout(nextTurn, 800);
+    }
+    render();
+  }
+
+  function nextTurn() {
+    if (gameOver) return;
+    currentTurn = (currentTurn + 1) % 4;
+    currentDie = null;
+    selectablePawns = [];
+
+    if (currentTurn === 0) {
+      rollBtn.disabled = false;
+      updateStatus("Your turn! Click 'Roll Die'.");
+      render();
+    } else {
+      rollBtn.disabled = true;
+      updateStatus(`${PLAYERS[currentTurn].name}'s turn...`);
+      render();
+      setTimeout(aiRoll, 800);
+    }
+  }
+
+  function aiRoll() {
+    if (gameOver || currentTurn === 0) return;
+
+    currentDie = Math.floor(Math.random() * 6) + 1;
+
+    if (currentDie === 6) consecutiveSixes++;
+    else consecutiveSixes = 0;
+
+    if (consecutiveSixes === 3) {
+      updateStatus(`${PLAYERS[currentTurn].name} rolled 6 three times! Turn forfeited.`);
+      consecutiveSixes = 0;
+      setTimeout(nextTurn, 1000);
+      render();
+      return;
+    }
+
+    let moves = getValidPawns(currentTurn, currentDie);
+
+    if (moves.length === 0) {
+      updateStatus(`${PLAYERS[currentTurn].name} rolled ${currentDie} (no legal moves).`);
+      setTimeout(nextTurn, 1000);
+    } else {
+      // AI Heuristic: 1. Capture 2. Leave Base 3. Move closest to finish
+      let bestPawn = moves[0];
+      let bestScore = -999;
+
+      for (let pIdx of moves) {
+        let score = 0;
+        let st = pawns[currentTurn][pIdx];
+
+        if (st === -1) {
+          score += 50; // Leave base
+        } else {
+          let nextSt = st + currentDie;
+          if (nextSt <= 50) {
+            let nextAbsSq = (PLAYERS[currentTurn].startSq + nextSt) % 52;
+            // Check capture
+            for (let opp = 0; opp < 4; opp++) {
+              if (opp === currentTurn) continue;
+              for (let i = 0; i < 4; i++) {
+                let oppSt = pawns[opp][i];
+                if (oppSt >= 0 && oppSt <= 50) {
+                  let oppAbsSq = (PLAYERS[opp].startSq + oppSt) % 52;
+                  if (oppAbsSq === nextAbsSq) score += 100; // Capture!
+                }
+              }
+            }
+          }
+          score += nextSt; // Advance score
+        }
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestPawn = pIdx;
+        }
+      }
+
+      updateStatus(`${PLAYERS[currentTurn].name} rolled ${currentDie} and moves a pawn.`);
+      render();
+      setTimeout(() => movePawn(currentTurn, bestPawn), 700);
+    }
+    render();
+  }
+
+  // Click handling for Human player (Red)
+  canvas.addEventListener('click', (e) => {
+    if (currentTurn !== 0 || gameOver || selectablePawns.length === 0) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+    const cellSize = canvas.width / 15;
+
+    for (let pIdx of selectablePawns) {
+      let pos = getPawnCoords(0, pIdx);
+      let px = pos.c * cellSize + cellSize / 2;
+      let py = pos.r * cellSize + cellSize / 2;
+
+      let dist = Math.hypot(x - px, y - py);
+      if (dist <= cellSize) {
+        movePawn(0, pIdx);
+        return;
+      }
+    }
+  });
+
+  function getPawnCoords(playerIdx, pawnIdx) {
+    let st = pawns[playerIdx][pawnIdx];
+    if (st === -1) {
+      return BASE_OFFSETS[playerIdx][pawnIdx];
+    } else if (st <= 50) {
+      let absSq = (PLAYERS[playerIdx].startSq + st) % 52;
+      return TRACK_GRID[absSq];
+    } else {
+      let homeIdx = Math.min(st - 51, 5);
+      return HOME_STRETCHES[playerIdx][homeIdx];
+    }
+  }
+
+  // RENDER BOARD
+  function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const cellSize = canvas.width / 15;
+
+    // Background
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw Bases (6x6 corners)
+    drawBase(0, 9, '#ef4444');  // Red (Bottom-Left)
+    drawBase(0, 0, '#22c55e');  // Green (Top-Left)
+    drawBase(9, 0, '#eab308');  // Yellow (Top-Right)
+    drawBase(9, 9, '#3b82f6');  // Blue (Bottom-Right)
+
+    // Draw Track Grid Cells
+    for (let r = 0; r < 15; r++) {
+      for (let c = 0; c < 15; c++) {
+        // Skip bases & center
+        if ((r < 6 && c < 6) || (r < 6 && c > 8) || (r > 8 && c < 6) || (r > 8 && c > 8) || (r >= 6 && r <= 8 && c >= 6 && c <= 8)) continue;
+
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(c * cellSize, r * cellSize, cellSize, cellSize);
+      }
+    }
+
+    // Highlight Start Squares
+    fillCell(13, 6, '#fca5a5'); // Red Start
+    fillCell(1, 6, '#86efac');  // Green Start
+    fillCell(1, 8, '#fde047');  // Yellow Start
+    fillCell(13, 8, '#93c5fd'); // Blue Start
+
+    // Draw Home Stretches
+    for (let i = 0; i < 5; i++) {
+      fillCell(HOME_STRETCHES[0][i].r, HOME_STRETCHES[0][i].c, '#ef4444');
+      fillCell(HOME_STRETCHES[1][i].r, HOME_STRETCHES[1][i].c, '#22c55e');
+      fillCell(HOME_STRETCHES[2][i].r, HOME_STRETCHES[2][i].c, '#eab308');
+      fillCell(HOME_STRETCHES[3][i].r, HOME_STRETCHES[3][i].c, '#3b82f6');
+    }
+
+    // Draw Center Home (3x3 triangle center)
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(6 * cellSize, 6 * cellSize, 3 * cellSize, 3 * cellSize);
+    ctx.strokeStyle = '#f8fafc';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(6 * cellSize, 6 * cellSize, 3 * cellSize, 3 * cellSize);
+
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText("HOME", 7.5 * cellSize, 7.6 * cellSize);
+
+    // Draw Current Die Roll
+    if (currentDie !== null) {
+      drawDie(canvas.width / 2 - 20, canvas.height / 2 - 20, currentDie);
+    }
+
+    // Draw Pawns
+    for (let p = 0; p < 4; p++) {
+      for (let i = 0; i < 4; i++) {
+        let pos = getPawnCoords(p, i);
+        let px = pos.c * cellSize + cellSize / 2;
+        let py = pos.r * cellSize + cellSize / 2;
+        let isSelectable = (p === 0 && selectablePawns.includes(i));
+        drawPawn(px, py, PLAYERS[p].color, isSelectable, i + 1);
+      }
+    }
+  }
+
+  function fillCell(r, c, color) {
+    const cellSize = canvas.width / 15;
+    ctx.fillStyle = color;
+    ctx.fillRect(c * cellSize + 1, r * cellSize + 1, cellSize - 2, cellSize - 2);
+  }
+
+  function drawBase(rowStart, colStart, color) {
+    const cellSize = canvas.width / 15;
+    ctx.fillStyle = color;
+    ctx.fillRect(colStart * cellSize, rowStart * cellSize, 6 * cellSize, 6 * cellSize);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect((colStart + 1) * cellSize, (rowStart + 1) * cellSize, 4 * cellSize, 4 * cellSize);
+  }
+
+  function drawPawn(x, y, color, isSelectable, num) {
+    ctx.beginPath();
+    ctx.arc(x, y, 14, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#ffffff';
+    ctx.stroke();
+
+    if (isSelectable) {
+      ctx.beginPath();
+      ctx.arc(x, y, 18, 0, Math.PI * 2);
+      ctx.strokeStyle = '#facc15';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(num, x, y + 4);
+  }
+
+  function drawDie(x, y, val) {
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(x, y, 40, 40, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#000000';
+    const dots = {
+      1: [[20, 20]],
+      2: [[10, 10], [30, 30]],
+      3: [[10, 10], [20, 20], [30, 30]],
+      4: [[10, 10], [30, 10], [10, 30], [30, 30]],
+      5: [[10, 10], [30, 10], [20, 20], [10, 30], [30, 30]],
+      6: [[10, 10], [30, 10], [10, 20], [30, 20], [10, 30], [30, 30]]
+    };
+
+    if (dots[val]) {
+      for (let p of dots[val]) {
+        ctx.beginPath();
+        ctx.arc(x + p[0], y + p[1], 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+
+  // Initial setup
+  initGame();
+</script>
+</body>
+</html>

@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nonogram - Picture Logic Puzzle</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body {
+      margin: 0;
+      padding: 16px;
+      background-color: #111218;
+      color: #e2e8f0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 600px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      margin: 0 0 6px 0;
+      font-size: 1.8rem;
+      color: #00e5ff;
+      text-align: center;
+      text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+    }
+    .instructions {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    button, select {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid #334155;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-height: 40px;
+    }
+    button:hover, select:hover {
+      background: #334155;
+      border-color: #00e5ff;
+    }
+    button.active-mode {
+      background: #0284c7;
+      border-color: #38bdf8;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+    }
+    .stats {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+    .stat-box {
+      background: #1e293b;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+    }
+    .board-wrapper {
+      background: #181824;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #2e3248;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      display: inline-block;
+      touch-action: none;
+    }
+    .grid-table {
+      border-collapse: collapse;
+    }
+    .clue-cell {
+      background: #12131c;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #93c5fd;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .col-clue {
+      padding: 4px 2px;
+      vertical-align: bottom;
+      line-height: 1.2;
+      border-bottom: 2px solid #475569;
+    }
+    .row-clue {
+      padding: 2px 6px;
+      text-align: right;
+      white-space: nowrap;
+      border-right: 2px solid #475569;
+    }
+    .corner-cell {
+      background: #0d0e15;
+      border-right: 2px solid #475569;
+      border-bottom: 2px solid #475569;
+    }
+    .cell {
+      width: 32px;
+      height: 32px;
+      background: #242736;
+      border: 1px solid #363b52;
+      cursor: pointer;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 1.1rem;
+      font-weight: bold;
+      transition: background-color 0.1s;
+    }
+    .cell.border-right-thick {
+      border-right: 2px solid #64748b;
+    }
+    .cell.border-bottom-thick {
+      border-bottom: 2px solid #64748b;
+    }
+    .cell.filled {
+      background: #00e5ff;
+      box-shadow: inset 0 0 5px rgba(255,255,255,0.3);
+    }
+    .cell.x-marked {
+      background: #1e2230;
+      color: #ef4444;
+    }
+    .cell.x-marked::after {
+      content: '✕';
+      font-size: 0.9rem;
+    }
+    .cell.error {
+      background: #991b1b !important;
+      color: #ffffff;
+    }
+    .status-msg {
+      margin-top: 14px;
+      min-height: 28px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      text-align: center;
+    }
+    .status-msg.win {
+      color: #4ade80;
+      text-shadow: 0 0 10px rgba(74, 222, 128, 0.4);
+    }
+    .status-msg.info {
+      color: #38bdf8;
+    }
+    @media (max-width: 480px) {
+      .cell {
+        width: 26px;
+        height: 26px;
+      }
+      .col-clue { font-size: 0.65rem; }
+      .row-clue { font-size: 0.65rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Nonogram</h1>
+    <div class="instructions">Fill cells (Left Click / Tap) or mark X (Right Click / Toggle) based on clues!</div>
+
+    <div class="controls">
+      <select id="preset-select">
+        <option value="random">Random Puzzle</option>
+        <option value="heart" selected>Heart</option>
+        <option value="invader">Space Invader</option>
+        <option value="duck">Rubber Duck</option>
+        <option value="sword">Sword</option>
+        <option value="smile">Smiley Face</option>
+        <option value="tree">Pine Tree</option>
+        <option value="star">Star</option>
+        <option value="house">House</option>
+      </select>
+      <button id="btn-new">New Game</button>
+      <button id="btn-mode" class="active-mode">Tool: FILL (■)</button>
+      <button id="btn-check">Check Solution</button>
+      <button id="btn-reset">Reset Board</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat-box">Mistakes: <span id="mistake-count">0</span></div>
+      <div class="stat-box">Progress: <span id="progress-percent">0%</span></div>
+    </div>
+
+    <div class="board-wrapper">
+      <table class="grid-table" id="board-table"></table>
+    </div>
+
+    <div class="status-msg" id="status-text"></div>
+  </div>
+
+  <script>
+    (function() {
+      const GRID_SIZE = 10;
+      
+      const PRESETS = {
+        heart: [
+          [0,1,1,0,0,0,1,1,0,0],
+          [1,1,1,1,0,1,1,1,1,0],
+          [1,1,1,1,1,1,1,1,1,0],
+          [1,1,1,1,1,1,1,1,1,0],
+          [0,1,1,1,1,1,1,1,0,0],
+          [0,0,1,1,1,1,1,0,0,0],
+          [0,0,0,1,1,1,0,0,0,0],
+          [0,0,0,0,1,0,0,0,0,0],
+          [0,0,0,0,0,0,0,0,0,0],
+          [0,0,0,0,0,0,0,0,0,0]
+        ],
+        invader: [
+          [0,0,1,0,0,0,0,1,0,0],
+          [0,0,0,1,0,0,1,0,0,0],
+          [0,0,1,1,1,1,1,1,0,0],
+          [0,1,1,0,1,1,0,1,1,0],
+          [1,1,1,1,1,1,1,1,1,1],
+          [1,0,1,1,1,1,1,1,0,1],
+          [1,0,1,0,0,0,0,1,0,1],
+          [0,0,0,1,1,1,1,0,0,0],
+          [0,0,0,0,0,0,0,0,0,0],
+          [0,0,0,0,0,0,0,0,0,0]
+        ],
+        duck: [
+          [0,0,0,1,1,1,1,0,0,0],
+          [0,0,1,1,1,1,1,1,0,0],
+          [0,0,1,0,1,1,1,1,0,0],
+          [0,0,1,1,1,1,1,1,0,0],
+          [0,0,0,0,1,1,1,0,0,0],
+          [0,1,1,1,1,1,1,1,1,0],
+          [1,1,1,1,1,1,1,1,1,1],
+          [1,1,1,1,1,1,1,1,1,1],
+          [0,1,1,1,1,1,1,1,1,0],
+          [0,0,0,0,0,0,0,0,0,0]
+        ],
+        sword: [
+          [0,0,0,0,0,0,0,0,0,1],
+          [0,0,0,0,0,0,0,0,1,1],
+          [0,0,0,0,0,0,0,1,1,0],
+          [0,0,0,0,0,0,1,1,0,0],
+          [0,0,0,0,0,1,1,0,0,0],
+          [0,0,0,0,1,1,0,0,0,0],
+          [0,1,0,1,1,0,0,0,0,0],
+          [0,0,1,1,0,0,0,0,0,0],
+          [0,1,1,1,0,0,0,0,0,0],
+          [1,0,0,0,0,0,0,0,0,0]
+        ],
+        smile: [
+          [0,0,1,1,1,1,1,1,0,0],
+          [0,1,0,0,0,0,0,0,1,0],
+          [1,0,1,1,0,0,1,1,0,1],
+          [1,0,1,1,0,0,1,1,0,1],
+          [1,0,0,0,0,0,0,0,0,1],
+          [1,0,1,0,0,0,0,1,0,1],
+          [1,0,0,1,1,1,1,0,0,1],
+          [0,1,0,0,0,0,0,0,1,0],
+          [0,0,1,1,1,1,1,1,0,0],
+          [0,0,0,0,0,0,0,0,0,0]
+        ],
+        tree: [
+          [0,0,0,0,1,1,0,0,0,0],
+          [0,0,0,1,1,1,1,0,0,0],
+          [0,0,0,0,1,1,0,0,0,0],
+          [0,0,1,1,1,1,1,1,0,0],
+          [0,1,1,1,1,1,1,1,1,0],
+          [0,0,0,1,1,1,1,0,0,0],
+          [0,1,1,1,1,1,1,1,1,0],
+          [1,1,1,1,1,1,1,1,1,1],
+          [0,0,0,0,1,1,0,0,0,0],
+          [0,0,0,0,1,1,0,0,0,0]
+        ],
+        star: [
+          [0,0,0,0,1,1,0,0,0,0],
+          [0,0,0,0,1,1,0,0,0,0],
+          [1,1,1,1,1,1,1,1,1,1],
+          [0,1,1,1,1,1,1,1,1,0],
+          [0,0,1,1,1,1,1,1,0,0],
+          [0,0,1,1,1,1,1,1,0,0],
+          [0,1,1,1,0,0,1,1,1,0],
+          [1,1,1,0,0,0,0,1,1,1],
+          [1,1,0,0,0,0,0,0,1,1],
+          [0,0,0,0,0,0,0,0,0,0]
+        ],
+        house: [
+          [0,0,0,0,1,1,0,0,0,0],
+          [0,0,0,1,1,1,1,0,0,0],
+          [0,0,1,1,1,1,1,1,0,0],
+          [0,1,1,1,1,1,1,1,1,0],
+          [1,1,1,1,1,1,1,1,1,1],
+          [0,1,1,0,0,0,0,1,1,0],
+          [0,1,1,0,1,1,0,1,1,0],
+          [0,1,1,0,1,1,0,1,1,0],
+          [0,1,1,1,1,1,1,1,1,0],
+          [0,0,0,0,0,0,0,0,0,0]
+        ]
+      };
+
+      let solution = [];
+      let userGrid = [];
+      let rowClues = [];
+      let colClues = [];
+      let currentTool = 1; // 1 = Fill, 2 = X
+      let mistakes = 0;
+      let isMouseDown = false;
+      let dragMode = null;
+      let gameWon = false;
+
+      // Safe local storage helper
+      function setStorage(key, val) {
+        try { localStorage.setItem(key, val); } catch(e) {}
+      }
+
+      function generateRandomPattern() {
+        let pattern = Array(GRID_SIZE).fill(0).map(() => Array(GRID_SIZE).fill(0));
+        // Generate symmetric or semi-clustered pattern for fun look
+        for (let r = 0; r < GRID_SIZE; r++) {
+          for (let c = 0; c < Math.ceil(GRID_SIZE / 2); c++) {
+            let val = Math.random() < 0.55 ? 1 : 0;
+            pattern[r][c] = val;
+            pattern[r][GRID_SIZE - 1 - c] = val; // Mirror symmetry
+          }
+        }
+        return pattern;
+      }
+
+      function computeClues(grid) {
+        let rClues = [];
+        let cClues = [];
+
+        for (let r = 0; r < GRID_SIZE; r++) {
+          let clues = [];
+          let count = 0;
+          for (let c = 0; c < GRID_SIZE; c++) {
+            if (grid[r][c] === 1) {
+              count++;
+            } else if (count > 0) {
+              clues.push(count);
+              count = 0;
+            }
+          }
+          if (count > 0) clues.push(count);
+          if (clues.length === 0) clues.push(0);
+          rClues.push(clues);
+        }
+
+        for (let c = 0; c < GRID_SIZE; c++) {
+          let clues = [];
+          let count = 0;
+          for (let r = 0; r < GRID_SIZE; r++) {
+            if (grid[r][c] === 1) {
+              count++;
+            } else if (count > 0) {
+              clues.push(count);
+              count = 0;
+            }
+          }
+          if (count > 0) clues.push(count);
+          if (clues.length === 0) clues.push(0);
+          cClues.push(clues);
+        }
+
+        return { rClues, cClues };
+      }
+
+      function initGame() {
+        const presetKey = document.getElementById('preset-select').value;
+        if (presetKey === 'random') {
+          solution = generateRandomPattern();
+        } else {
+          solution = PRESETS[presetKey] || PRESETS.heart;
+        }
+
+        userGrid = Array(GRID_SIZE).fill(0).map(() => Array(GRID_SIZE).fill(0));
+        const clues = computeClues(solution);
+        rowClues = clues.rClues;
+        colClues = clues.cClues;
+
+        mistakes = 0;
+        gameWon = false;
+        document.getElementById('mistake-count').textContent = mistakes;
+        document.getElementById('status-text').textContent = '';
+        document.getElementById('status-text').className = 'status-msg';
+
+        renderBoard();
+        updateProgress();
+      }
+
+      function renderBoard() {
+        const table = document.getElementById('board-table');
+        table.innerHTML = '';
+
+        // Header Row for Column Clues
+        const topTr = document.createElement('tr');
+        const cornerTd = document.createElement('td');
+        cornerTd.className = 'clue-cell corner-cell';
+        topTr.appendChild(cornerTd);
+
+        for (let c = 0; c < GRID_SIZE; c++) {
+          const td = document.createElement('td');
+          td.className = 'clue-cell col-clue';
+          td.innerHTML = colClues[c].join('<br>');
+          topTr.appendChild(td);
+        }
+        table.appendChild(topTr);
+
+        // Grid Rows
+        for (let r = 0; r < GRID_SIZE; r++) {
+          const tr = document.createElement('tr');
+          
+          // Row Clue Cell
+          const clueTd = document.createElement('td');
+          clueTd.className = 'clue-cell row-clue';
+          clueTd.textContent = rowClues[r].join(' ');
+          tr.appendChild(clueTd);
+
+          // Grid Cells
+          for (let c = 0; c < GRID_SIZE; c++) {
+            const cellTd = document.createElement('td');
+            cellTd.className = 'cell';
+            cellTd.dataset.r = r;
+            cellTd.dataset.c = c;
+
+            if (c % 5 === 4 && c < GRID_SIZE - 1) cellTd.classList.add('border-right-thick');
+            if (r % 5 === 4 && r < GRID_SIZE - 1) cellTd.classList.add('border-bottom-thick');
+
+            tr.appendChild(cellTd);
+          }
+          table.appendChild(tr);
+        }
+
+        attachEvents();
+      }
+
+      function updateCellUI(r, c) {
+        const cell = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+        if (!cell) return;
+        cell.classList.remove('filled', 'x-marked', 'error');
+        const state = userGrid[r][c];
+        if (state === 1) cell.classList.add('filled');
+        else if (state === 2) cell.classList.add('x-marked');
+      }
+
+      function handleCellAction(r, c, isRightClick = false) {
+        if (gameWon) return;
+
+        let targetState;
+        if (isRightClick) {
+          targetState = (userGrid[r][c] === 2) ? 0 : 2;
+        } else {
+          if (currentTool === 1) { // Fill tool
+            targetState = (userGrid[r][c] === 1) ? 0 : 1;
+          } else { // X tool
+            targetState = (userGrid[r][c] === 2) ? 0 : 2;
+          }
+        }
+
+        userGrid[r][c] = targetState;
+        updateCellUI(r, c);
+        updateProgress();
+        checkAutoWin();
+      }
+
+      function attachEvents() {
+        const table = document.getElementById('board-table');
+
+        table.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        table.addEventListener('mousedown', (e) => {
+          const cell = e.target.closest('.cell');
+          if (!cell) return;
+          isMouseDown = true;
+          const r = parseInt(cell.dataset.r);
+          const c = parseInt(cell.dataset.c);
+          const isRight = (e.button === 2);
+          handleCellAction(r, c, isRight);
+        });
+
+        table.addEventListener('mouseover', (e) => {
+          if (!isMouseDown) return;
+          const cell = e.target.closest('.cell');
+          if (!cell) return;
+          const r = parseInt(cell.dataset.r);
+          const c = parseInt(cell.dataset.c);
+          
+          if (currentTool === 1) userGrid[r][c] = 1;
+          else userGrid[r][c] = 2;
+          updateCellUI(r, c);
+          updateProgress();
+          checkAutoWin();
+        });
+
+        window.addEventListener('mouseup', () => { isMouseDown = false; });
+
+        // Touch support
+        table.addEventListener('touchstart', (e) => {
+          const touch = e.touches[0];
+          const cell = document.elementFromPoint(touch.clientX, touch.clientY)?.closest('.cell');
+          if (!cell) return;
+          e.preventDefault();
+          const r = parseInt(cell.dataset.r);
+          const c = parseInt(cell.dataset.c);
+          handleCellAction(r, c, false);
+        }, { passive: false });
+      }
+
+      function updateProgress() {
+        let totalFilledNeeded = 0;
+        let correctFilled = 0;
+
+        for (let r = 0; r < GRID_SIZE; r++) {
+          for (let c = 0; c < GRID_SIZE; c++) {
+            if (solution[r][c] === 1) totalFilledNeeded++;
+            if (solution[r][c] === 1 && userGrid[r][c] === 1) correctFilled++;
+          }
+        }
+
+        const pct = totalFilledNeeded > 0 ? Math.floor((correctFilled / totalFilledNeeded) * 100) : 0;
+        document.getElementById('progress-percent').textContent = pct + '%';
+      }
+
+      function checkAutoWin() {
+        let isWin = true;
+        for (let r = 0; r < GRID_SIZE; r++) {
+          for (let c = 0; c < GRID_SIZE; c++) {
+            if (solution[r][c] === 1 && userGrid[r][c] !== 1) isWin = false;
+            if (solution[r][c] === 0 && userGrid[r][c] === 1) isWin = false;
+          }
+        }
+
+        if (isWin) {
+          gameWon = true;
+          const status = document.getElementById('status-text');
+          status.textContent = '🎉 Puzzle Solved! Perfect Job!';
+          status.className = 'status-msg win';
+        }
+      }
+
+      function checkSolution() {
+        if (gameWon) return;
+        let errors = 0;
+        for (let r = 0; r < GRID_SIZE; r++) {
+          for (let c = 0; c < GRID_SIZE; c++) {
+            const cell = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+            if (userGrid[r][c] === 1 && solution[r][c] === 0) {
+              errors++;
+              if (cell) cell.classList.add('error');
+            } else if (userGrid[r][c] === 2 && solution[r][c] === 1) {
+              errors++;
+              if (cell) cell.classList.add('error');
+            }
+          }
+        }
+
+        mistakes += errors;
+        document.getElementById('mistake-count').textContent = mistakes;
+
+        const status = document.getElementById('status-text');
+        if (errors === 0) {
+          status.textContent = '✨ No mistakes found so far!';
+          status.className = 'status-msg info';
+        } else {
+          status.textContent = `⚠️ Found ${errors} mistake(s). Clear highlighted cells!`;
+          status.className = 'status-msg';
+        }
+
+        setTimeout(() => {
+          document.querySelectorAll('.cell.error').forEach(el => el.classList.remove('error'));
+        }, 1800);
+      }
+
+      function resetBoard() {
+        userGrid = Array(GRID_SIZE).fill(0).map(() => Array(GRID_SIZE).fill(0));
+        gameWon = false;
+        document.getElementById('status-text').textContent = '';
+        document.getElementById('status-text').className = 'status-msg';
+        for (let r = 0; r < GRID_SIZE; r++) {
+          for (let c = 0; c < GRID_SIZE; c++) {
+            updateCellUI(r, c);
+          }
+        }
+        updateProgress();
+      }
+
+      // Button Event Listeners
+      document.getElementById('btn-new').addEventListener('click', initGame);
+      document.getElementById('preset-select').addEventListener('change', initGame);
+      document.getElementById('btn-reset').addEventListener('click', resetBoard);
+      document.getElementById('btn-check').addEventListener('click', checkSolution);
+
+      const btnMode = document.getElementById('btn-mode');
+      btnMode.addEventListener('click', () => {
+        if (currentTool === 1) {
+          currentTool = 2;
+          btnMode.textContent = 'Tool: MARK X (✕)';
+          btnMode.classList.remove('active-mode');
+        } else {
+          currentTool = 1;
+          btnMode.textContent = 'Tool: FILL (■)';
+          btnMode.classList.add('active-mode');
+        }
+      });
+
+      // Start game
+      initGame();
+    })();
+  </script>
+</body>
+</html>

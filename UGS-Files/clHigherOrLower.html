@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Higher or Lower</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background-color: #111116;
+      color: #e2e8f0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 540px;
+      background: #1e1e26;
+      border: 1px solid #2d2d3a;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      position: relative;
+    }
+
+    header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #2d2d3a;
+      padding-bottom: 14px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+
+    .btn-new {
+      background: #334155;
+      color: #f8fafc;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn-new:hover {
+      background: #475569;
+    }
+
+    .btn-new:active {
+      transform: scale(0.96);
+    }
+
+    .stats-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      background: #14141a;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #282834;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .stat-value {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-top: 2px;
+    }
+
+    .card-area {
+      perspective: 1000px;
+      margin: 10px 0;
+    }
+
+    .card {
+      width: 170px;
+      height: 240px;
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px 14px;
+      position: relative;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card.red {
+      color: #dc2626;
+    }
+
+    .card.black {
+      color: #1e293b;
+    }
+
+    .card-corner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1;
+    }
+
+    .card-corner.top-left {
+      align-self: flex-start;
+    }
+
+    .card-corner.bottom-right {
+      align-self: flex-end;
+      transform: rotate(180deg);
+    }
+
+    .card-rank {
+      font-size: 1.4rem;
+      font-weight: 800;
+    }
+
+    .card-suit {
+      font-size: 1.2rem;
+    }
+
+    .card-center-suit {
+      font-size: 4rem;
+      align-self: center;
+    }
+
+    .controls {
+      width: 100%;
+      display: flex;
+      gap: 14px;
+    }
+
+    .btn-choice {
+      flex: 1;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: transform 0.15s ease, filter 0.2s ease, opacity 0.2s;
+    }
+
+    .btn-choice:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-choice:not(:disabled):hover {
+      filter: brightness(1.15);
+    }
+
+    .btn-choice:not(:disabled):active {
+      transform: scale(0.97);
+    }
+
+    .btn-higher {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+    }
+
+    .btn-lower {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #ffffff;
+    }
+
+    .key-hint {
+      font-size: 0.75rem;
+      opacity: 0.8;
+      font-weight: 500;
+    }
+
+    .status-msg {
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-align: center;
+      min-height: 24px;
+      color: #cbd5e1;
+    }
+
+    .status-msg.win { color: #34d399; }
+    .status-msg.push { color: #fbbf24; }
+    .status-msg.lose { color: #f87171; }
+
+    .history-section {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .history-title {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .history-strip {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .mini-card {
+      min-width: 44px;
+      height: 60px;
+      background: #ffffff;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      flex-shrink: 0;
+    }
+
+    .mini-card.red { color: #dc2626; }
+    .mini-card.black { color: #1e293b; }
+
+    /* Modal */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 15, 20, 0.85);
+      backdrop-filter: blur(4px);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 10;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #ef4444;
+      margin-bottom: 10px;
+    }
+
+    .modal-stats {
+      font-size: 1.1rem;
+      color: #e2e8f0;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .btn-modal {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #ffffff;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+      transition: transform 0.15s, filter 0.2s;
+    }
+
+    .btn-modal:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-modal:active {
+      transform: scale(0.96);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Higher or Lower</h1>
+      <button class="btn-new" id="btn-new">New Game</button>
+    </header>
+
+    <div class="stats-bar">
+      <div class="stat-item">
+        <span class="stat-label">Current Streak</span>
+        <span class="stat-value" id="val-streak">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Best Streak</span>
+        <span class="stat-value" id="val-best">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Bankroll / Score</span>
+        <span class="stat-value" id="val-score">$100</span>
+      </div>
+    </div>
+
+    <div class="status-msg" id="status-msg">Will the next card be higher or lower?</div>
+
+    <div class="card-area">
+      <div class="card" id="card-el">
+        <div class="card-corner top-left">
+          <span class="card-rank" id="card-rank-top">A</span>
+          <span class="card-suit" id="card-suit-top">♠</span>
+        </div>
+        <div class="card-center-suit" id="card-suit-center">♠</div>
+        <div class="card-corner bottom-right">
+          <span class="card-rank" id="card-rank-bot">A</span>
+          <span class="card-suit" id="card-suit-bot">♠</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-choice btn-higher" id="btn-higher">
+        <span>▲ HIGHER</span>
+        <span class="key-hint">[Up / Right Arrow]</span>
+      </button>
+      <button class="btn-choice btn-lower" id="btn-lower">
+        <span>▼ LOWER</span>
+        <span class="key-hint">[Down / Left Arrow]</span>
+      </button>
+    </div>
+
+    <div class="history-section">
+      <div class="history-title">Card History (Last 8)</div>
+      <div class="history-strip" id="history-strip"></div>
+    </div>
+
+    <div class="modal-overlay" id="modal-gameover">
+      <div class="modal-title">Game Over!</div>
+      <div class="modal-stats" id="modal-stats">
+        Final Streak: 0<br>
+        Score Earned: $0
+      </div>
+      <button class="btn-modal" id="btn-restart">Play Again</button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const SUITS = [
+        { name: 'spades', char: '♠', color: 'black' },
+        { name: 'hearts', char: '♥', color: 'red' },
+        { name: 'diamonds', char: '♦', color: 'red' },
+        { name: 'clubs', char: '♣', color: 'black' }
+      ];
+
+      const RANKS = [
+        { str: '2', val: 2 },
+        { str: '3', val: 3 },
+        { str: '4', val: 4 },
+        { str: '5', val: 5 },
+        { str: '6', val: 6 },
+        { str: '7', val: 7 },
+        { str: '8', val: 8 },
+        { str: '9', val: 9 },
+        { str: '10', val: 10 },
+        { str: 'J', val: 11 },
+        { str: 'Q', val: 12 },
+        { str: 'K', val: 13 },
+        { str: 'A', val: 14 }
+      ];
+
+      let deck = [];
+      let currentCard = null;
+      let streak = 0;
+      let bestStreak = 0;
+      let bankroll = 100;
+      let history = [];
+      let isGameOver = false;
+
+      // Load best streak from localStorage safely
+      try {
+        const saved = localStorage.getItem('hl_best_streak');
+        if (saved !== null) {
+          bestStreak = parseInt(saved, 10) || 0;
+        }
+      } catch (e) {
+        bestStreak = 0;
+      }
+
+      const cardEl = document.getElementById('card-el');
+      const rankTop = document.getElementById('card-rank-top');
+      const suitTop = document.getElementById('card-suit-top');
+      const suitCenter = document.getElementById('card-suit-center');
+      const rankBot = document.getElementById('card-rank-bot');
+      const suitBot = document.getElementById('card-suit-bot');
+
+      const valStreak = document.getElementById('val-streak');
+      const valBest = document.getElementById('val-best');
+      const valScore = document.getElementById('val-score');
+      const statusMsg = document.getElementById('status-msg');
+      const historyStrip = document.getElementById('history-strip');
+
+      const btnHigher = document.getElementById('btn-higher');
+      const btnLower = document.getElementById('btn-lower');
+      const btnNew = document.getElementById('btn-new');
+      const modalGameOver = document.getElementById('modal-gameover');
+      const modalStats = document.getElementById('modal-stats');
+      const btnRestart = document.getElementById('btn-restart');
+
+      function buildDeck() {
+        deck = [];
+        for (const s of SUITS) {
+          for (const r of RANKS) {
+            deck.push({ rankStr: r.str, rankVal: r.val, suitChar: s.char, suitColor: s.color });
+          }
+        }
+        // Shuffle
+        for (let i = deck.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+      }
+
+      function drawCard() {
+        if (deck.length === 0) {
+          buildDeck();
+        }
+        return deck.pop();
+      }
+
+      function renderCard(card) {
+        cardEl.className = 'card ' + card.suitColor;
+        rankTop.textContent = card.rankStr;
+        suitTop.textContent = card.suitChar;
+        suitCenter.textContent = card.suitChar;
+        rankBot.textContent = card.rankStr;
+        suitBot.textContent = card.suitChar;
+      }
+
+      function renderHistory() {
+        historyStrip.innerHTML = '';
+        const recent = history.slice(-8);
+        recent.forEach(card => {
+          const mini = document.createElement('div');
+          mini.className = 'mini-card ' + card.suitColor;
+          mini.innerHTML = `<div>${card.rankStr}</div><div>${card.suitChar}</div>`;
+          historyStrip.appendChild(mini);
+        });
+      }
+
+      function updateStats() {
+        valStreak.textContent = streak;
+        valBest.textContent = bestStreak;
+        valScore.textContent = '$' + bankroll;
+      }
+
+      function initGame() {
+        buildDeck();
+        streak = 0;
+        bankroll = 100;
+        history = [];
+        isGameOver = false;
+
+        currentCard = drawCard();
+        history.push(currentCard);
+
+        renderCard(currentCard);
+        renderHistory();
+        updateStats();
+
+        statusMsg.textContent = 'Will the next card be higher or lower?';
+        statusMsg.className = 'status-msg';
+
+        btnHigher.disabled = false;
+        btnLower.disabled = false;
+        modalGameOver.classList.remove('active');
+      }
+
+      function handleGuess(guess) {
+        if (isGameOver) return;
+
+        const nextCard = drawCard();
+        const curVal = currentCard.rankVal;
+        const nextVal = nextCard.rankVal;
+
+        let outcome = 'correct';
+
+        if (nextVal === curVal) {
+          outcome = 'push';
+        } else if ((guess === 'higher' && nextVal > curVal) || (guess === 'lower' && nextVal < curVal)) {
+          outcome = 'correct';
+        } else {
+          outcome = 'wrong';
+        }
+
+        // Animate card flip or update
+        currentCard = nextCard;
+        history.push(currentCard);
+        renderCard(currentCard);
+        renderHistory();
+
+        if (outcome === 'correct') {
+          streak++;
+          const gain = 10 * streak;
+          bankroll += gain;
+          if (streak > bestStreak) {
+            bestStreak = streak;
+            try {
+              localStorage.setItem('hl_best_streak', bestStreak.toString());
+            } catch (e) {}
+          }
+          statusMsg.textContent = `Correct! Next card was ${nextCard.rankStr}${nextCard.suitChar}. (+ $${gain})`;
+          statusMsg.className = 'status-msg win';
+        } else if (outcome === 'push') {
+          statusMsg.textContent = `Equal rank (${nextCard.rankStr})! Push — streak maintained.`;
+          statusMsg.className = 'status-msg push';
+        } else {
+          // Wrong
+          isGameOver = true;
+          btnHigher.disabled = true;
+          btnLower.disabled = true;
+          statusMsg.textContent = `Wrong! Next card was ${nextCard.rankStr}${nextCard.suitChar}.`;
+          statusMsg.className = 'status-msg lose';
+
+          setTimeout(() => {
+            modalStats.innerHTML = `Final Streak: <strong>${streak}</strong><br>Best Streak: <strong>${bestStreak}</strong><br>Bankroll: <strong>$${bankroll}</strong>`;
+            modalGameOver.classList.add('active');
+          }, 700);
+        }
+
+        updateStats();
+      }
+
+      btnHigher.addEventListener('click', () => handleGuess('higher'));
+      btnLower.addEventListener('click', () => handleGuess('lower'));
+      btnNew.addEventListener('click', initGame);
+      btnRestart.addEventListener('click', initGame);
+
+      document.addEventListener('keydown', (e) => {
+        if (isGameOver) return;
+        if (e.key === 'ArrowUp' || e.key === 'ArrowRight') {
+          e.preventDefault();
+          handleGuess('higher');
+        } else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          handleGuess('lower');
+        }
+      });
+
+      initGame();
+    })();
+  </script>
+</body>
+</html>

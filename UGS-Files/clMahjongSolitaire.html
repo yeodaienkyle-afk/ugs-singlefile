@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mahjong Solitaire</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 16px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 0.95rem;
+      color: #94a3b8;
+      margin-bottom: 12px;
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .btn {
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn:hover {
+      background: #334155;
+      border-color: #475569;
+    }
+    .btn-primary {
+      background: #0284c7;
+      border-color: #0369a1;
+    }
+    .btn-primary:hover {
+      background: #0369a1;
+    }
+    .stats {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #f59e0b;
+      background: #1e293b;
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+    }
+    .board-container {
+      position: relative;
+      width: 560px;
+      height: 480px;
+      background: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+      margin: 0 auto;
+    }
+    .tile {
+      position: absolute;
+      width: 48px;
+      height: 62px;
+      background: linear-gradient(135deg, #fef08a 0%, #fef9c3 60%, #eab308 100%);
+      color: #0f172a;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: -3px 3px 0 #15803d, -5px 5px 8px rgba(0,0,0,0.6);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      border: 2px solid #fef08a;
+    }
+    .tile .icon {
+      font-size: 1.25rem;
+      line-height: 1.1;
+    }
+    .tile .label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+    .tile.blocked {
+      opacity: 0.75;
+      cursor: not-allowed;
+      filter: brightness(0.85);
+    }
+    .tile.selected {
+      border: 3px solid #2563eb;
+      box-shadow: 0 0 12px #3b82f6, -3px 3px 0 #15803d;
+      transform: translateY(-4px);
+    }
+    .tile.hinted {
+      border: 3px solid #ec4899;
+      box-shadow: 0 0 16px #ec4899, -3px 3px 0 #15803d;
+      animation: pulse 0.8s infinite alternate;
+    }
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.08); }
+    }
+    .status-msg {
+      margin-top: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #38bdf8;
+      min-height: 28px;
+      text-align: center;
+    }
+    .win-modal {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.9);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      border-radius: 14px;
+    }
+    .win-modal h2 {
+      font-size: 2rem;
+      color: #4ade80;
+      margin-bottom: 12px;
+    }
+    .win-modal p {
+      color: #cbd5e1;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Mahjong Solitaire</h1>
+    <p class="subtitle">Match identical free tiles (unblocked on top and left or right) to clear the board!</p>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-primary" id="newGameBtn">New Game</button>
+    <button class="btn" id="hintBtn">Hint</button>
+    <button class="btn" id="shuffleBtn">Shuffle</button>
+    <div class="stats" id="tileCountDisplay">Tiles: 72</div>
+  </div>
+
+  <div class="board-container" id="board">
+    <div class="win-modal" id="winModal">
+      <h2>🎉 You Cleared the Board!</h2>
+      <p>Great job! All tiles matched.</p>
+      <button class="btn btn-primary" onclick="initGame()">Play Again</button>
+    </div>
+  </div>
+
+  <div class="status-msg" id="statusMsg"></div>
+
+  <script>
+    (function() {
+      // Safe localStorage wrapper
+      function setStorage(k, v) { try { localStorage.setItem(k, v); } catch(e){} }
+      function getStorage(k) { try { return localStorage.getItem(k); } catch(e){ return null; } }
+
+      // Tile Types (18 types x 4 copies = 72 tiles)
+      const TILE_TYPES = [
+        { id: 'd1', icon: '🔴', label: '1 Dot', color: '#dc2626' },
+        { id: 'd2', icon: '🔴', label: '2 Dot', color: '#dc2626' },
+        { id: 'd3', icon: '🔴', label: '3 Dot', color: '#dc2626' },
+        { id: 'd4', icon: '🔵', label: '4 Dot', color: '#2563eb' },
+        { id: 'd5', icon: '🟡', label: '5 Dot', color: '#d97706' },
+        { id: 'd6', icon: '🟢', label: '6 Dot', color: '#16a34a' },
+        { id: 'b1', icon: '🎋', label: '1 Bam', color: '#16a34a' },
+        { id: 'b2', icon: '🎋', label: '2 Bam', color: '#16a34a' },
+        { id: 'b3', icon: '🎋', label: '3 Bam', color: '#16a34a' },
+        { id: 'b4', icon: '🎍', label: '4 Bam', color: '#15803d' },
+        { id: 'b5', icon: '🎍', label: '5 Bam', color: '#15803d' },
+        { id: 'b6', icon: '🎍', label: '6 Bam', color: '#15803d' },
+        { id: 'w1', icon: '萬', label: '1 Wan', color: '#b91c1c' },
+        { id: 'w2', icon: '萬', label: '2 Wan', color: '#b91c1c' },
+        { id: 'w3', icon: '萬', label: '3 Wan', color: '#b91c1c' },
+        { id: 'dr', icon: '中', label: 'Red', color: '#dc2626' },
+        { id: 'dg', icon: '發', label: 'Green', color: '#16a34a' },
+        { id: 'dw', icon: '白', label: 'White', color: '#2563eb' }
+      ];
+
+      // Standard 72 tile layout (r, c, z)
+      function generateLayout() {
+        const layout = [];
+        // Layer 0 (44 tiles)
+        const L0 = [
+          [0,4],[0,6],[0,8],[0,10],
+          [2,2],[2,4],[2,6],[2,8],[2,10],[2,12],
+          [4,0],[4,2],[4,4],[4,6],[4,8],[4,10],[4,12],[4,14],
+          [6,0],[6,2],[6,4],[6,6],[6,8],[6,10],[6,12],[6,14],
+          [8,0],[8,2],[8,4],[8,6],[8,8],[8,10],[8,12],[8,14],
+          [10,2],[10,4],[10,6],[10,8],[10,10],[10,12],
+          [12,4],[12,6],[12,8],[12,10]
+        ];
+        L0.forEach(pos => layout.push({ r: pos[0], c: pos[1], z: 0 }));
+
+        // Layer 1 (20 tiles)
+        const L1 = [
+          [3,3],[3,5],[3,7],[3,9],[3,11],
+          [5,3],[5,5],[5,7],[5,9],[5,11],
+          [7,3],[7,5],[7,7],[7,9],[7,11],
+          [9,3],[9,5],[9,7],[9,9],[9,11]
+        ];
+        L1.forEach(pos => layout.push({ r: pos[0], c: pos[1], z: 1 }));
+
+        // Layer 2 (6 tiles)
+        const L2 = [
+          [4,4],[4,6],[4,8],
+          [8,4],[8,6],[8,8]
+        ];
+        L2.forEach(pos => layout.push({ r: pos[0], c: pos[1], z: 2 }));
+
+        // Layer 3 (2 tiles)
+        const L3 = [
+          [6,5],[6,7]
+        ];
+        L3.forEach(pos => layout.push({ r: pos[0], c: pos[1], z: 3 }));
+
+        return layout;
+      }
+
+      let tiles = []; // array of tile objects: { id, r, c, z, type, element }
+      let selectedTile = null;
+
+      function createDeck() {
+        let deck = [];
+        TILE_TYPES.forEach(t => {
+          for (let i = 0; i < 4; i++) {
+            deck.push(t);
+          }
+        });
+        // Fisher-Yates shuffle
+        for (let i = deck.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+        return deck;
+      }
+
+      function isFree(tile, currentTiles) {
+        // 1. Is blocked from top?
+        const blockedTop = currentTiles.some(t => {
+          if (t.z <= tile.z) return false;
+          return Math.abs(t.r - tile.r) < 2 && Math.abs(t.c - tile.c) < 2;
+        });
+        if (blockedTop) return false;
+
+        // 2. Is blocked on left?
+        const blockedLeft = currentTiles.some(t => {
+          if (t.z !== tile.z) return false;
+          return Math.abs(t.r - tile.r) < 2 && t.c === tile.c - 2;
+        });
+
+        // 3. Is blocked on right?
+        const blockedRight = currentTiles.some(t => {
+          if (t.z !== tile.z) return false;
+          return Math.abs(t.r - tile.r) < 2 && t.c === tile.c + 2;
+        });
+
+        return !blockedLeft || !blockedRight;
+      }
+
+      function initGame() {
+        const board = document.getElementById('board');
+        const winModal = document.getElementById('winModal');
+        winModal.style.display = 'none';
+
+        // Clear existing tile elements
+        const existing = board.querySelectorAll('.tile');
+        existing.forEach(el => el.remove());
+
+        selectedTile = null;
+        document.getElementById('statusMsg').textContent = '';
+
+        const layout = generateLayout();
+        const deck = createDeck();
+
+        tiles = layout.map((pos, idx) => ({
+          id: idx,
+          r: pos.r,
+          c: pos.c,
+          z: pos.z,
+          type: deck[idx],
+          element: null
+        }));
+
+        renderBoard();
+        updateTileCount();
+      }
+
+      function renderBoard() {
+        const board = document.getElementById('board');
+
+        tiles.forEach(tile => {
+          if (!tile.element) {
+            const el = document.createElement('div');
+            el.className = 'tile';
+            el.dataset.id = tile.id;
+
+            const iconSpan = document.createElement('span');
+            iconSpan.className = 'icon';
+            iconSpan.style.color = tile.type.color;
+            iconSpan.textContent = tile.type.icon;
+
+            const labelSpan = document.createElement('span');
+            labelSpan.className = 'label';
+            labelSpan.textContent = tile.type.label;
+
+            el.appendChild(iconSpan);
+            el.appendChild(labelSpan);
+
+            el.addEventListener('click', () => onTileClick(tile));
+            board.appendChild(el);
+            tile.element = el;
+          }
+
+          // Positioning offset for grid
+          const leftPx = 50 + tile.c * 27 + tile.z * 5;
+          const topPx = 24 + tile.r * 28 - tile.z * 5;
+
+          tile.element.style.left = leftPx + 'px';
+          tile.element.style.top = topPx + 'px';
+          tile.element.style.zIndex = tile.z * 50 + tile.r;
+
+          const free = isFree(tile, tiles);
+          if (free) {
+            tile.element.classList.remove('blocked');
+          } else {
+            tile.element.classList.add('blocked');
+          }
+        });
+      }
+
+      function onTileClick(tile) {
+        clearHints();
+        if (!isFree(tile, tiles)) {
+          showStatus('Tile is blocked! Remove top or side blocking tiles first.', '#ef4444');
+          return;
+        }
+
+        if (!selectedTile) {
+          selectedTile = tile;
+          tile.element.classList.add('selected');
+          showStatus(`Selected ${tile.type.label}`, '#38bdf8');
+        } else if (selectedTile.id === tile.id) {
+          selectedTile.element.classList.remove('selected');
+          selectedTile = null;
+          showStatus('', '#38bdf8');
+        } else if (selectedTile.type.id === tile.type.id) {
+          // Matched!
+          const tile1 = selectedTile;
+          const tile2 = tile;
+
+          tile1.element.remove();
+          tile2.element.remove();
+
+          tiles = tiles.filter(t => t.id !== tile1.id && t.id !== tile2.id);
+          selectedTile = null;
+
+          showStatus(`Matched ${tile.type.label}!`, '#4ade80');
+          renderBoard();
+          updateTileCount();
+
+          if (tiles.length === 0) {
+            document.getElementById('winModal').style.display = 'flex';
+            showStatus('Victory! Board cleared!', '#4ade80');
+          } else {
+            checkAvailableMoves();
+          }
+        } else {
+          // Different type selected
+          selectedTile.element.classList.remove('selected');
+          selectedTile = tile;
+          tile.element.classList.add('selected');
+          showStatus(`Selected ${tile.type.label}`, '#38bdf8');
+        }
+      }
+
+      function updateTileCount() {
+        document.getElementById('tileCountDisplay').textContent = `Tiles: ${tiles.length}`;
+      }
+
+      function showStatus(msg, color = '#38bdf8') {
+        const el = document.getElementById('statusMsg');
+        el.textContent = msg;
+        el.style.color = color;
+      }
+
+      function clearHints() {
+        tiles.forEach(t => {
+          if (t.element) t.element.classList.remove('hinted');
+        });
+      }
+
+      function findMatch() {
+        const freeTiles = tiles.filter(t => isFree(t, tiles));
+        for (let i = 0; i < freeTiles.length; i++) {
+          for (let j = i + 1; j < freeTiles.length; j++) {
+            if (freeTiles[i].type.id === freeTiles[j].type.id) {
+              return [freeTiles[i], freeTiles[j]];
+            }
+          }
+        }
+        return null;
+      }
+
+      function checkAvailableMoves() {
+        const match = findMatch();
+        if (!match && tiles.length > 0) {
+          showStatus('No free matches available! Click Shuffle.', '#f59e0b');
+        }
+      }
+
+      function giveHint() {
+        clearHints();
+        const match = findMatch();
+        if (match) {
+          match[0].element.classList.add('hinted');
+          match[1].element.classList.add('hinted');
+          showStatus(`Hint: Match the ${match[0].type.label} tiles!`, '#ec4899');
+        } else {
+          showStatus('No free matches available! Click Shuffle.', '#f59e0b');
+        }
+      }
+
+      function shuffleRemaining() {
+        clearHints();
+        if (selectedTile) {
+          selectedTile.element.classList.remove('selected');
+          selectedTile = null;
+        }
+        if (tiles.length === 0) return;
+
+        // Extract remaining types and shuffle them
+        const types = tiles.map(t => t.type);
+        for (let i = types.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [types[i], types[j]] = [types[j], types[i]];
+        }
+        tiles.forEach((t, idx) => {
+          t.type = types[idx];
+          if (t.element) {
+            const iconSpan = t.element.querySelector('.icon');
+            const labelSpan = t.element.querySelector('.label');
+            iconSpan.style.color = t.type.color;
+            iconSpan.textContent = t.type.icon;
+            labelSpan.textContent = t.type.label;
+          }
+        });
+        renderBoard();
+        showStatus('Board shuffled!', '#38bdf8');
+        checkAvailableMoves();
+      }
+
+      document.getElementById('newGameBtn').addEventListener('click', initGame);
+      document.getElementById('hintBtn').addEventListener('click', giveHint);
+      document.getElementById('shuffleBtn').addEventListener('click', shuffleRemaining);
+
+      window.initGame = initGame;
+      initGame();
+    })();
+  </script>
+</body>
+</html>

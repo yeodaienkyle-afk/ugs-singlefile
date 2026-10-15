@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spelling Bee</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background-color: #111827;
+      color: #f9fafb;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 1rem;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    header {
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #f59e0b, #eab308, #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 2px;
+      margin-bottom: 0.2rem;
+    }
+
+    .how-to-play {
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    .top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #1f2937;
+      padding: 0.75rem 1.25rem;
+      border-radius: 12px;
+      border: 1px solid #374151;
+    }
+
+    .rank-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .rank-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #f59e0b;
+    }
+
+    .rank-progress {
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
+    .score-box {
+      text-align: right;
+    }
+
+    .score-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #10b981;
+    }
+
+    .btn {
+      background: #374151;
+      color: #f3f4f6;
+      border: none;
+      padding: 0.6rem 1rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn:hover {
+      background: #4b5563;
+    }
+
+    .btn-action {
+      background: #f59e0b;
+      color: #111827;
+      font-weight: 700;
+    }
+
+    .btn-action:hover {
+      background: #d97706;
+    }
+
+    /* Hexagon Hive Layout */
+    .hive-container {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      margin: 1rem 0;
+    }
+
+    .hex {
+      position: absolute;
+      width: 80px;
+      height: 92px;
+      background: #374151;
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #ffffff;
+      cursor: pointer;
+      transition: transform 0.15s ease, background-color 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    .hex:active {
+      transform: scale(0.92);
+    }
+
+    .hex.center {
+      background: #f59e0b;
+      color: #111827;
+    }
+
+    /* Hexagon positions */
+    .hex-0 { top: 94px; left: 100px; } /* Center */
+    .hex-1 { top: 18px; left: 100px; } /* Top */
+    .hex-2 { top: 56px; left: 166px; } /* Top-Right */
+    .hex-3 { top: 132px; left: 166px; } /* Bottom-Right */
+    .hex-4 { top: 170px; left: 100px; } /* Bottom */
+    .hex-5 { top: 132px; left: 34px; }  /* Bottom-Left */
+    .hex-6 { top: 56px; left: 34px; }   /* Top-Left */
+
+    .input-display {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f3f4f6;
+      text-transform: uppercase;
+    }
+
+    .input-display .center-letter {
+      color: #f59e0b;
+    }
+
+    .controls-row {
+      display: flex;
+      gap: 0.75rem;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .status-msg {
+      min-height: 24px;
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .status-success { color: #10b981; }
+    .status-error { color: #ef4444; }
+    .status-pangram { color: #f59e0b; font-size: 1.2rem; animation: pulse 0.5s infinite alternate; }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.05); }
+    }
+
+    .found-section {
+      width: 100%;
+      background: #1f2937;
+      border-radius: 12px;
+      border: 1px solid #374151;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .found-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #9ca3af;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .found-words-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+
+    .word-badge {
+      background: #111827;
+      border: 1px solid #374151;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .word-badge.is-pangram {
+      border-color: #f59e0b;
+      background: #78350f;
+      color: #fbbf24;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>SPELLING BEE</h1>
+      <p class="how-to-play">Make words of 4+ letters using the hive. Must include center letter!</p>
+    </header>
+
+    <div class="top-bar">
+      <div class="rank-box">
+        <span class="rank-title" id="rank-title">Beginner</span>
+        <span class="rank-progress" id="rank-progress">0 pts to next rank</span>
+      </div>
+      <div class="score-box">
+        <span class="score-value" id="score-val">0</span>
+      </div>
+      <button class="btn" id="new-puzzle-btn">Cycle Set</button>
+    </div>
+
+    <div class="input-display" id="input-display"></div>
+    <div class="status-msg" id="status-msg"></div>
+
+    <div class="hive-container" id="hive">
+      <div class="hex center hex-0" id="hex-center"></div>
+      <div class="hex hex-1" id="hex-1"></div>
+      <div class="hex hex-2" id="hex-2"></div>
+      <div class="hex hex-3" id="hex-3"></div>
+      <div class="hex hex-4" id="hex-4"></div>
+      <div class="hex hex-5" id="hex-5"></div>
+      <div class="hex hex-6" id="hex-6"></div>
+    </div>
+
+    <div class="controls-row">
+      <button class="btn" id="delete-btn">Delete</button>
+      <button class="btn" id="shuffle-btn">Shuffle</button>
+      <button class="btn btn-action" id="enter-btn">Enter</button>
+    </div>
+
+    <div class="found-section">
+      <div class="found-header">
+        <span>Found Words (<span id="found-count">0</span> / <span id="total-words-count">0</span>)</span>
+        <span>Pangrams (<span id="pangram-count">0</span>)</span>
+      </div>
+      <div class="found-words-list" id="found-words-list"></div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const DATASETS = [{"center": "N", "outer": ["A", "C", "E", "I", "P", "T"], "words": ["ACCENT", "ACCEPTANCE", "ACNE", "ANCIENT", "ANNA", "ANNE", "ANNIE", "ANTENNA", "ANTI", "APNIC", "CANIN", "CANT", "CAPTAIN", "CENT", "CINCINNATI", "CNET", "INTENT", "NCAA", "NICE", "NINE", "PAIN", "PAINT", "PANIC", "PATENT", "PATIENCE", "PATIENT", "PENN", "PICNIC", "PINE", "TEEN", "TENANT", "TENT", "TITTEN"], "pangrams": ["PATIENCE"]}, {"center": "R", "outer": ["A", "E", "I", "M", "N", "T"], "words": ["AREA", "ARENA", "ARMENIA", "EARN", "ENTER", "ENTERTAINMENT", "ENTIRE", "INNER", "INTER", "INTERIM", "INTERNET", "INTRANET", "IRAN", "MANNER", "MARIA", "MARIE", "MARINA", "MARINE", "MARITIME", "MART", "MARTIAN", "MARTIN", "MATTER", "MERE", "MERIT", "METER", "MRNA", "NEAR", "RAIN", "RARE", "RATE", "REAR", "REMAIN", "RENT", "RETAIN", "RETIREMENT", "RETRAIN", "RETREAT", "TEAR", "TERM", "TERMINATE", "TERRAIN", "TIER", "TIMER", "TIRE", "TRAIN", "TRAINER", "TREAT", "TREATMENT", "TREE", "TRIM"], "pangrams": ["ENTERTAINMENT", "TERMINATE"]}, {"center": "G", "outer": ["A", "E", "I", "N", "R", "T"], "words": ["AGAIN", "AGENT", "AGGREGATE", "AGING", "AGREE", "ANGER", "ARGENTINA", "ARRANGE", "EARNING", "EATING", "ENGAGE", "ENGAGING", "ENGINE", "ENGINEER", "ENGINEERING", "ENTERING", "ENTERTAINING", "GAGE", "GAIN", "GANG", "GARAGE", "GARNET", "GATE", "GEAR", "GENE", "GENERATE", "GENERATING", "GENRE", "GETTING", "GIANT", "GRAIN", "GRANT", "GREAT", "GREATER", "GREEN", "GREENE", "GREETING", "GREG", "INTEGER", "INTEGRATE", "INTEGRATING", "NIAGARA", "NIGER", "NIGERIA", "RAGE", "RANGE", "RANGER", "RANGING", "RATING", "REGGAE", "REINTEGRATE", "RING", "TARGET", "TEENAGE", "TIGER", "TRAINING", "TREATING", "TRIGGER"], "pangrams": ["ARGENTINA", "ENTERTAINING", "GENERATING", "INTEGRATE", "INTEGRATING", "REINTEGRATE", "TREATING"]}, {"center": "E", "outer": ["A", "C", "H", "L", "O", "T"], "words": ["ATHLETE", "CACHE", "CATTLE", "CELL", "CHEAT", "CHOCOLATE", "COLE", "COLLECT", "EACH", "ECHO", "ELECT", "HATE", "HEALTH", "HEAT", "HEATH", "HEEL", "HELL", "HELLO", "HOLE", "HOTEL", "LACE", "LATE", "LOCALE", "LOCATE", "TAHOE", "TALE", "TEACH", "TECH", "TEETH", "TELL", "THEE", "THETA"], "pangrams": ["CHOCOLATE"]}];
+
+      const RANKS = [
+        { name: 'Beginner', pct: 0 },
+        { name: 'Good Start', pct: 0.02 },
+        { name: 'Moving Up', pct: 0.05 },
+        { name: 'Good', pct: 0.08 },
+        { name: 'Solid', pct: 0.15 },
+        { name: 'Nice', pct: 0.25 },
+        { name: 'Great', pct: 0.40 },
+        { name: 'Amazing', pct: 0.60 },
+        { name: 'Genius', pct: 0.80 }
+      ];
+
+      let setIndex = 0;
+      let currentSet = null;
+      let currentOuter = [];
+      let currentInput = '';
+      let foundWords = new Set();
+      let score = 0;
+      let maxScore = 0;
+
+      const rankTitleEl = document.getElementById('rank-title');
+      const rankProgressEl = document.getElementById('rank-progress');
+      const scoreValEl = document.getElementById('score-val');
+      const inputDisplayEl = document.getElementById('input-display');
+      const statusMsgEl = document.getElementById('status-msg');
+      const foundCountEl = document.getElementById('found-count');
+      const totalWordsCountEl = document.getElementById('total-words-count');
+      const pangramCountEl = document.getElementById('pangram-count');
+      const foundWordsListEl = document.getElementById('found-words-list');
+
+      const hexCenterEl = document.getElementById('hex-center');
+      const outerHexEls = [
+        document.getElementById('hex-1'),
+        document.getElementById('hex-2'),
+        document.getElementById('hex-3'),
+        document.getElementById('hex-4'),
+        document.getElementById('hex-5'),
+        document.getElementById('hex-6')
+      ];
+
+      const deleteBtn = document.getElementById('delete-btn');
+      const shuffleBtn = document.getElementById('shuffle-btn');
+      const enterBtn = document.getElementById('enter-btn');
+      const newPuzzleBtn = document.getElementById('new-puzzle-btn');
+
+      function calculateWordScore(word, isPangram) {
+        let pts = (word.length === 4) ? 1 : word.length;
+        if (isPangram) pts += 7;
+        return pts;
+      }
+
+      function loadSet(idx) {
+        setIndex = idx % DATASETS.length;
+        currentSet = DATASETS[setIndex];
+        currentOuter = [...currentSet.outer];
+        currentInput = '';
+        foundWords.clear();
+        score = 0;
+
+        // Calculate max score
+        maxScore = 0;
+        currentSet.words.forEach(w => {
+          const isP = currentSet.pangrams.includes(w);
+          maxScore += calculateWordScore(w, isP);
+        });
+
+        foundWordsListEl.innerHTML = '';
+        statusMsgEl.textContent = '';
+
+        renderHive();
+        updateDisplay();
+      }
+
+      function renderHive() {
+        hexCenterEl.textContent = currentSet.center;
+        outerHexEls.forEach((hex, i) => {
+          hex.textContent = currentOuter[i];
+        });
+      }
+
+      function updateDisplay() {
+        // Update input text with highlighted center letter
+        inputDisplayEl.innerHTML = '';
+        for (let char of currentInput) {
+          const span = document.createElement('span');
+          span.textContent = char;
+          if (char === currentSet.center) {
+            span.className = 'center-letter';
+          }
+          inputDisplayEl.appendChild(span);
+        }
+
+        scoreValEl.textContent = score;
+        foundCountEl.textContent = foundWords.size;
+        totalWordsCountEl.textContent = currentSet.words.length;
+
+        // Update rank
+        let currentRank = RANKS[0];
+        let nextRank = RANKS[1];
+
+        for (let i = 0; i < RANKS.length; i++) {
+          if (score >= Math.round(RANKS[i].pct * maxScore)) {
+            currentRank = RANKS[i];
+            nextRank = RANKS[i + 1] || null;
+          }
+        }
+
+        rankTitleEl.textContent = currentRank.name;
+        if (nextRank) {
+          const ptsNeeded = Math.round(nextRank.pct * maxScore) - score;
+          rankProgressEl.textContent = ptsNeeded + " pts to " + nextRank.name;
+        } else {
+          rankProgressEl.textContent = 'Maximum Rank Reached!';
+        }
+      }
+
+      function handleAddLetter(char) {
+        currentInput += char.toUpperCase();
+        updateDisplay();
+      }
+
+      function handleDelete() {
+        if (currentInput.length > 0) {
+          currentInput = currentInput.slice(0, -1);
+          updateDisplay();
+        }
+      }
+
+      function handleShuffle() {
+        currentOuter.sort(() => Math.random() - 0.5);
+        renderHive();
+      }
+
+      function handleEnter() {
+        const word = currentInput.trim().toUpperCase();
+        currentInput = '';
+        updateDisplay();
+
+        if (word.length < 4) {
+          showStatus('Too short (min 4 letters)', 'error');
+          return;
+        }
+
+        if (!word.includes(currentSet.center)) {
+          showStatus("Must include center letter '" + currentSet.center + "'", 'error');
+          return;
+        }
+
+        if (foundWords.has(word)) {
+          showStatus('"' + word + '" already found', 'error');
+          return;
+        }
+
+        if (!currentSet.words.includes(word)) {
+          showStatus('"' + word + '" not in word list', 'error');
+          return;
+        }
+
+        // Valid word found!
+        const isPangram = currentSet.pangrams.includes(word);
+        const pts = calculateWordScore(word, isPangram);
+
+        foundWords.add(word);
+        score += pts;
+
+        const badge = document.createElement('div');
+        badge.className = 'word-badge' + (isPangram ? ' is-pangram' : '');
+        badge.textContent = word + " (+" + pts + ")";
+        foundWordsListEl.prepend(badge);
+
+        let pCount = 0;
+        foundWords.forEach(w => {
+          if (currentSet.pangrams.includes(w)) pCount++;
+        });
+        pangramCountEl.textContent = pCount;
+
+        if (isPangram) {
+          showStatus("PANGRAM! +" + pts + " pts!", 'pangram');
+        } else {
+          showStatus("Awesome! +" + pts + " pts", 'success');
+        }
+
+        updateDisplay();
+      }
+
+      function showStatus(msg, type) {
+        statusMsgEl.textContent = msg;
+        statusMsgEl.className = "status-msg status-" + type;
+      }
+
+      // Click event for hexes
+      hexCenterEl.addEventListener('click', () => handleAddLetter(currentSet.center));
+      outerHexEls.forEach((hex, i) => {
+        hex.addEventListener('click', () => handleAddLetter(currentOuter[i]));
+      });
+
+      // Buttons
+      deleteBtn.addEventListener('click', handleDelete);
+      shuffleBtn.addEventListener('click', handleShuffle);
+      enterBtn.addEventListener('click', handleEnter);
+      newPuzzleBtn.addEventListener('click', () => loadSet(setIndex + 1));
+
+      // Physical keyboard typing
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace') {
+          handleDelete();
+        } else if (e.key === 'Enter') {
+          handleEnter();
+        } else if (/^[a-zA-Z]$/.test(e.key)) {
+          const upper = e.key.toUpperCase();
+          if (upper === currentSet.center || currentOuter.includes(upper)) {
+            handleAddLetter(upper);
+          }
+        }
+      });
+
+      loadSet(0);
+    })();
+  </script>
+</body>
+</html>

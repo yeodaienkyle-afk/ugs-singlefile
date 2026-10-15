@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sokoban</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      background-color: #121216;
+      color: #e2e8f0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .game-container {
+      background-color: #1e1e24;
+      border: 1px solid #2d2d38;
+      border-radius: 16px;
+      padding: 24px;
+      max-width: 520px;
+      width: 100%;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #38bdf8;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 16px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .level-select {
+      background: #2a2a36;
+      color: #f1f5f9;
+      border: 1px solid #3f3f50;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+    }
+    .stat-badge {
+      background: #2a2a36;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .stat-badge span {
+      color: #f8fafc;
+    }
+    .canvas-wrapper {
+      position: relative;
+      margin: 8px 0;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #0f0f13;
+      border: 2px solid #2d2d38;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    canvas {
+      display: block;
+    }
+    .controls-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      width: 100%;
+      justify-content: center;
+    }
+    .btn {
+      background-color: #3b82f6;
+      color: #ffffff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background-color 0.15s ease, transform 0.1s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn:hover { background-color: #2563eb; }
+    .btn:active { transform: scale(0.96); }
+    .btn-secondary { background-color: #334155; }
+    .btn-secondary:hover { background-color: #475569; }
+    .dpad {
+      display: grid;
+      grid-template-columns: repeat(3, 52px);
+      grid-template-rows: repeat(3, 52px);
+      gap: 6px;
+      margin-top: 16px;
+      justify-content: center;
+    }
+    .dbtn {
+      background: #2a2a38;
+      border: 1px solid #3f3f52;
+      color: #f8fafc;
+      font-size: 1.3rem;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .dbtn:active {
+      background: #3b82f6;
+    }
+    .dbtn-empty { visibility: hidden; }
+    .status-msg {
+      margin-top: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #4ade80;
+      min-height: 24px;
+      text-align: center;
+    }
+    .instructions {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-container">
+    <h1>Sokoban</h1>
+
+    <div class="top-bar">
+      <select id="levelSelect" class="level-select"></select>
+      <div class="stat-badge">Moves: <span id="moveCount">0</span></div>
+      <div class="stat-badge">Pushes: <span id="pushCount">0</span></div>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <div class="status-msg" id="statusMsg"></div>
+
+    <div class="controls-row">
+      <button class="btn btn-secondary" id="undoBtn">Undo</button>
+      <button class="btn btn-secondary" id="restartBtn">Restart</button>
+      <button class="btn" id="nextLevelBtn">Next Level</button>
+    </div>
+
+    <div class="dpad">
+      <div class="dbtn dbtn-empty"></div>
+      <button class="dbtn" id="btnUp">▲</button>
+      <div class="dbtn dbtn-empty"></div>
+      <button class="dbtn" id="btnLeft">◀</button>
+      <button class="dbtn" id="btnDown">▼</button>
+      <button class="dbtn" id="btnRight">▶</button>
+    </div>
+
+    <p class="instructions">Push all yellow boxes onto green goals using Arrow keys/WASD or D-Pad.</p>
+  </div>
+
+  <script>
+    const LEVELS = [
+      ["#####",
+       "#@  #",
+       "# $ #",
+       "# . #",
+       "#####"],
+
+      ["######",
+       "# @  #",
+       "# $$ #",
+       "# .. #",
+       "######"],
+
+      ["#######",
+       "#  @  #",
+       "# $ $ #",
+       "# . . #",
+       "#######"],
+
+      ["#######",
+       "#     #",
+       "# .$. #",
+       "#  $  #",
+       "#  @  #",
+       "#######"],
+
+      ["#######",
+       "#  .  #",
+       "#  $  #",
+       "#. $ @#",
+       "#  $  #",
+       "#  .  #",
+       "#######"],
+
+      ["#######",
+       "# @ . #",
+       "# $$$ #",
+       "#  .. #",
+       "#######"],
+
+      ["########",
+       "# @    #",
+       "#  $$$ #",
+       "#  ... #",
+       "########"],
+
+      ["#########",
+       "#  @    #",
+       "# $$$$  #",
+       "# ....  #",
+       "#########"],
+
+      ["######",
+       "#  . #",
+       "# #$ #",
+       "# $ @#",
+       "# .$ #",
+       "#.   #",
+       "######"],
+
+      ["#######",
+       "# . . #",
+       "# $ $ #",
+       "#  @  #",
+       "# $ $ #",
+       "# . . #",
+       "#######"]
+    ];
+
+    let currentLevelIndex = 0;
+    let grid = [];
+    let playerPos = { r: 0, c: 0 };
+    let moveCount = 0;
+    let pushCount = 0;
+    let historyStack = [];
+    let isWon = false;
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const levelSelect = document.getElementById('levelSelect');
+    const moveCountEl = document.getElementById('moveCount');
+    const pushCountEl = document.getElementById('pushCount');
+    const statusMsgEl = document.getElementById('statusMsg');
+
+    // Setup level select options
+    LEVELS.forEach((_, idx) => {
+      const opt = document.createElement('option');
+      opt.value = idx;
+      opt.textContent = `Level ${idx + 1}`;
+      levelSelect.appendChild(opt);
+    });
+
+    levelSelect.addEventListener('change', (e) => {
+      currentLevelIndex = parseInt(e.target.value, 10);
+      loadLevel(currentLevelIndex);
+    });
+
+    function loadLevel(idx) {
+      currentLevelIndex = idx;
+      levelSelect.value = idx;
+      const raw = LEVELS[idx];
+      grid = raw.map(row => row.split(''));
+      moveCount = 0;
+      pushCount = 0;
+      historyStack = [];
+      isWon = false;
+      statusMsgEl.textContent = '';
+
+      // Find player position
+      for (let r = 0; r < grid.length; r++) {
+        for (let c = 0; c < grid[r].length; c++) {
+          if (grid[r][c] === '@' || grid[r][c] === '+') {
+            playerPos = { r, c };
+          }
+        }
+      }
+
+      updateStats();
+      render();
+    }
+
+    function updateStats() {
+      moveCountEl.textContent = moveCount;
+      pushCountEl.textContent = pushCount;
+    }
+
+    function cloneGrid(g) {
+      return g.map(row => [...row]);
+    }
+
+    function render() {
+      const rows = grid.length;
+      let cols = 0;
+      grid.forEach(r => { if (r.length > cols) cols = r.length; });
+
+      const tileSize = Math.min(Math.floor(360 / Math.max(rows, cols)), 48);
+      canvas.width = cols * tileSize;
+      canvas.height = rows * tileSize;
+
+      ctx.fillStyle = '#0f0f13';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < grid[r].length; c++) {
+          const char = grid[r][c];
+          const x = c * tileSize;
+          const y = r * tileSize;
+
+          // Floor background
+          ctx.fillStyle = '#1c1c24';
+          ctx.fillRect(x, y, tileSize, tileSize);
+
+          if (char === '#') {
+            // Wall
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(x + 1, y + 1, tileSize - 2, tileSize - 2);
+            ctx.fillStyle = '#475569';
+            ctx.fillRect(x + 3, y + 3, tileSize - 6, tileSize - 6);
+          } else if (char === '.' || char === '+' || char === '*') {
+            // Goal dot
+            ctx.fillStyle = '#22c55e';
+            ctx.beginPath();
+            ctx.arc(x + tileSize / 2, y + tileSize / 2, tileSize * 0.18, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          if (char === '$') {
+            // Box
+            ctx.fillStyle = '#eab308';
+            ctx.fillRect(x + 4, y + 4, tileSize - 8, tileSize - 8);
+            ctx.strokeStyle = '#ca8a04';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x + 4, y + 4, tileSize - 8, tileSize - 8);
+          } else if (char === '*') {
+            // Box on goal
+            ctx.fillStyle = '#10b981';
+            ctx.fillRect(x + 4, y + 4, tileSize - 8, tileSize - 8);
+            ctx.strokeStyle = '#059669';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x + 4, y + 4, tileSize - 8, tileSize - 8);
+            // Inner check star dot
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(x + tileSize / 2, y + tileSize / 2, tileSize * 0.15, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          if (char === '@' || char === '+') {
+            // Player
+            ctx.fillStyle = '#38bdf8';
+            ctx.beginPath();
+            ctx.arc(x + tileSize / 2, y + tileSize / 2, tileSize * 0.35, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#0284c7';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    function movePlayer(dr, dc) {
+      if (isWon) return;
+
+      const nr = playerPos.r + dr;
+      const nc = playerPos.c + dc;
+
+      if (nr < 0 || nr >= grid.length || nc < 0 || nc >= grid[nr].length) return;
+      const targetCell = grid[nr][nc];
+
+      if (targetCell === '#') return; // Hit wall
+
+      let pushedBox = false;
+
+      if (targetCell === '$' || targetCell === '*') {
+        // Trying to push box
+        const nnr = nr + dr;
+        const nnc = nc + dc;
+
+        if (nnr < 0 || nnr >= grid.length || nnc < 0 || nnc >= grid[nnr].length) return;
+        const farCell = grid[nnr][nnc];
+
+        if (farCell === '#' || farCell === '$' || farCell === '*') return; // Blocked
+
+        // Save history before modifying
+        historyStack.push({
+          grid: cloneGrid(grid),
+          playerPos: { ...playerPos },
+          moveCount,
+          pushCount
+        });
+
+        // Move box
+        grid[nnr][nnc] = (farCell === '.') ? '*' : '$';
+        pushedBox = true;
+        pushCount++;
+      } else {
+        // Save history for normal step
+        historyStack.push({
+          grid: cloneGrid(grid),
+          playerPos: { ...playerPos },
+          moveCount,
+          pushCount
+        });
+      }
+
+      // Clear old player tile
+      const currChar = grid[playerPos.r][playerPos.c];
+      grid[playerPos.r][playerPos.c] = (currChar === '+') ? '.' : ' ';
+
+      // Place player in new tile
+      const newChar = grid[nr][nc];
+      grid[nr][nc] = (newChar === '.' || newChar === '*') ? '+' : '@';
+      playerPos = { r: nr, c: nc };
+      moveCount++;
+
+      updateStats();
+      render();
+      checkWin();
+    }
+
+    function checkWin() {
+      let remainingBoxes = 0;
+      for (let r = 0; r < grid.length; r++) {
+        for (let c = 0; c < grid[r].length; c++) {
+          if (grid[r][c] === '$') remainingBoxes++;
+        }
+      }
+
+      if (remainingBoxes === 0) {
+        isWon = true;
+        if (currentLevelIndex < LEVELS.length - 1) {
+          statusMsgEl.textContent = '★ Level Cleared! Loading next...';
+          setTimeout(() => {
+            loadLevel(currentLevelIndex + 1);
+          }, 1200);
+        } else {
+          statusMsgEl.textContent = '🎉 Congratulations! You completed all levels!';
+        }
+      }
+    }
+
+    function undo() {
+      if (historyStack.length === 0 || isWon) return;
+      const prev = historyStack.pop();
+      grid = prev.grid;
+      playerPos = prev.playerPos;
+      moveCount = prev.moveCount;
+      pushCount = prev.pushCount;
+      statusMsgEl.textContent = '';
+      updateStats();
+      render();
+    }
+
+    // Keyboard controls
+    window.addEventListener('keydown', (e) => {
+      switch (e.key) {
+        case 'ArrowUp':
+        case 'w':
+        case 'W':
+          e.preventDefault();
+          movePlayer(-1, 0);
+          break;
+        case 'ArrowDown':
+        case 's':
+        case 'S':
+          e.preventDefault();
+          movePlayer(1, 0);
+          break;
+        case 'ArrowLeft':
+        case 'a':
+        case 'A':
+          e.preventDefault();
+          movePlayer(0, -1);
+          break;
+        case 'ArrowRight':
+        case 'd':
+        case 'D':
+          e.preventDefault();
+          movePlayer(0, 1);
+          break;
+        case 'z':
+        case 'Z':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            undo();
+          }
+          break;
+      }
+    });
+
+    // D-pad controls
+    document.getElementById('btnUp').addEventListener('click', () => movePlayer(-1, 0));
+    document.getElementById('btnDown').addEventListener('click', () => movePlayer(1, 0));
+    document.getElementById('btnLeft').addEventListener('click', () => movePlayer(0, -1));
+    document.getElementById('btnRight').addEventListener('click', () => movePlayer(0, 1));
+
+    document.getElementById('undoBtn').addEventListener('click', undo);
+    document.getElementById('restartBtn').addEventListener('click', () => loadLevel(currentLevelIndex));
+    document.getElementById('nextLevelBtn').addEventListener('click', () => {
+      loadLevel((currentLevelIndex + 1) % LEVELS.length);
+    });
+
+    // Initial load
+    loadLevel(0);
+  </script>
+</body>
+</html>

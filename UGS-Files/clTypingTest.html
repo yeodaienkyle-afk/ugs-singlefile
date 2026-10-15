@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Typing Test</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background-color: #111827;
+      color: #f9fafb;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 1rem;
+    }
+
+    .container {
+      max-width: 600px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    header {
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #10b981, #06b6d4, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 2px;
+      margin-bottom: 0.2rem;
+    }
+
+    .how-to-play {
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    .top-bar {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      background: #1f2937;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      border: 1px solid #374151;
+      text-align: center;
+    }
+
+    .stat-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stat-value {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+
+    .display-card {
+      width: 100%;
+      background: #1f2937;
+      border-radius: 16px;
+      border: 2px solid #374151;
+      padding: 1.5rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .text-display {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1.35rem;
+      line-height: 1.8;
+      min-height: 100px;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+      background: #111827;
+      padding: 1rem;
+      border-radius: 10px;
+      border: 1px solid #374151;
+    }
+
+    .char {
+      position: relative;
+      transition: all 0.1s ease;
+    }
+
+    .char-correct {
+      color: #10b981;
+      background-color: rgba(16, 185, 129, 0.15);
+      border-radius: 2px;
+    }
+
+    .char-wrong {
+      color: #ef4444;
+      background-color: rgba(239, 68, 68, 0.25);
+      border-radius: 2px;
+    }
+
+    .char-untyped {
+      color: #6b7280;
+    }
+
+    .char-cursor {
+      border-bottom: 3px solid #f59e0b;
+      animation: blink 1s infinite;
+      color: #f9fafb;
+    }
+
+    @keyframes blink {
+      0%, 100% { border-color: #f59e0b; }
+      50% { border-color: transparent; }
+    }
+
+    .input-box {
+      width: 100%;
+      background: #111827;
+      border: 2px solid #374151;
+      border-radius: 10px;
+      color: #f3f4f6;
+      font-size: 1.2rem;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 0.75rem 1rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+      resize: none;
+    }
+
+    .input-box:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+    }
+
+    .btn {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-height: 48px;
+      width: 100%;
+    }
+
+    .btn:hover {
+      background: #2563eb;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal {
+      background: #1f2937;
+      border: 2px solid #374151;
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+    }
+
+    .modal h2 {
+      font-size: 2rem;
+      color: #10b981;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      background: #111827;
+      padding: 1rem;
+      border-radius: 10px;
+    }
+
+    .res-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .res-label {
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
+    .res-val {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>TYPING TEST</h1>
+      <p class="how-to-play">Type the sentence below as fast and accurately as you can. Timer starts on first key!</p>
+    </header>
+
+    <div class="top-bar">
+      <div class="stat-box">
+        <span class="stat-label">Time</span>
+        <span class="stat-value" id="time-val">60s</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">WPM</span>
+        <span class="stat-value" id="wpm-val">0</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Accuracy</span>
+        <span class="stat-value" id="acc-val">100%</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Errors</span>
+        <span class="stat-value" id="err-val" style="color: #ef4444;">0</span>
+      </div>
+    </div>
+
+    <div class="display-card">
+      <div class="text-display" id="text-display"></div>
+      <textarea
+        id="typing-input"
+        class="input-box"
+        rows="2"
+        placeholder="Start typing here to begin test..."
+        onpaste="return false;"
+        oncopy="return false;"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+      ></textarea>
+      <button class="btn" id="restart-btn">Restart Test</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="result-modal">
+    <div class="modal">
+      <h2>TEST COMPLETE!</h2>
+      <div class="results-grid">
+        <div class="res-item">
+          <span class="res-label">Speed</span>
+          <span class="res-val" id="final-wpm">0 WPM</span>
+        </div>
+        <div class="res-item">
+          <span class="res-label">Accuracy</span>
+          <span class="res-val" id="final-acc">100%</span>
+        </div>
+        <div class="res-item">
+          <span class="res-label">Errors</span>
+          <span class="res-val" id="final-err" style="color: #ef4444;">0</span>
+        </div>
+        <div class="res-item">
+          <span class="res-label">Characters</span>
+          <span class="res-val" id="final-chars">0</span>
+        </div>
+      </div>
+      <button class="btn" id="modal-restart-btn">Try Again</button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const SENTENCES = [
+        "The quick brown fox jumps over the lazy dog near the riverbank.",
+        "Programming is the art of telling a computer what to do step by step.",
+        "Practice makes perfect when learning any new skill or language.",
+        "A journey of a thousand miles begins with a single step forward.",
+        "Bright sunshine illuminated the colorful flowers in the spring garden.",
+        "Speed and accuracy are both essential factors for typing mastery.",
+        "Technology continues to transform the way we communicate every day.",
+        "Keep your eyes on the screen and your fingers light on the keyboard.",
+        "Curiosity and passion drive discovery across science and technology.",
+        "Success comes to those who persevere with patience and dedication."
+      ];
+
+      let currentSentenceIndex = 0;
+      let targetText = "";
+      let timer = 60;
+      let timerInterval = null;
+      let timerStarted = false;
+
+      let totalCorrectChars = 0;
+      let totalTypedChars = 0;
+      let totalErrors = 0;
+
+      let sentenceCorrectChars = 0;
+      let sentenceTypedChars = 0;
+
+      const timeValEl = document.getElementById('time-val');
+      const wpmValEl = document.getElementById('wpm-val');
+      const accValEl = document.getElementById('acc-val');
+      const errValEl = document.getElementById('err-val');
+
+      const textDisplayEl = document.getElementById('text-display');
+      const typingInputEl = document.getElementById('typing-input');
+      const restartBtn = document.getElementById('restart-btn');
+
+      const resultModal = document.getElementById('result-modal');
+      const finalWpmEl = document.getElementById('final-wpm');
+      const finalAccEl = document.getElementById('final-acc');
+      const finalErrEl = document.getElementById('final-err');
+      const finalCharsEl = document.getElementById('final-chars');
+      const modalRestartBtn = document.getElementById('modal-restart-btn');
+
+      function initTest() {
+        if (timerInterval) clearInterval(timerInterval);
+        
+        // Shuffle sentences
+        SENTENCES.sort(() => Math.random() - 0.5);
+
+        currentSentenceIndex = 0;
+        targetText = SENTENCES[currentSentenceIndex];
+        timer = 60;
+        timerStarted = false;
+
+        totalCorrectChars = 0;
+        totalTypedChars = 0;
+        totalErrors = 0;
+
+        timeValEl.textContent = '60s';
+        wpmValEl.textContent = '0';
+        accValEl.textContent = '100%';
+        errValEl.textContent = '0';
+
+        typingInputEl.value = '';
+        typingInputEl.disabled = false;
+        typingInputEl.focus();
+
+        resultModal.classList.add('hidden');
+
+        renderDisplay('');
+      }
+
+      function startTimer() {
+        timerStarted = true;
+        timerInterval = setInterval(() => {
+          timer--;
+          timeValEl.textContent = `${timer}s`;
+          updateLiveStats();
+
+          if (timer <= 0) {
+            endTest();
+          }
+        }, 1000);
+      }
+
+      function renderDisplay(typed) {
+        textDisplayEl.innerHTML = '';
+        const targetLen = targetText.length;
+        const typedLen = typed.length;
+
+        for (let i = 0; i < targetLen; i++) {
+          const charSpan = document.createElement('span');
+          charSpan.className = 'char';
+          charSpan.textContent = targetText[i];
+
+          if (i < typedLen) {
+            if (typed[i] === targetText[i]) {
+              charSpan.classList.add('char-correct');
+            } else {
+              charSpan.classList.add('char-wrong');
+            }
+          } else if (i === typedLen) {
+            charSpan.classList.add('char-cursor');
+          } else {
+            charSpan.classList.add('char-untyped');
+          }
+
+          textDisplayEl.appendChild(charSpan);
+        }
+      }
+
+      function updateLiveStats() {
+        const elapsed = 60 - timer;
+        const elapsedMins = elapsed / 60;
+
+        let currentWpm = 0;
+        if (elapsed > 0) {
+          currentWpm = Math.round((totalCorrectChars / 5) / elapsedMins);
+        }
+
+        let accuracy = 100;
+        if (totalTypedChars > 0) {
+          accuracy = Math.round((totalCorrectChars / totalTypedChars) * 100);
+        }
+
+        wpmValEl.textContent = currentWpm;
+        accValEl.textContent = `${accuracy}%`;
+        errValEl.textContent = totalErrors;
+      }
+
+      typingInputEl.addEventListener('input', () => {
+        if (!timerStarted && typingInputEl.value.length > 0) {
+          startTimer();
+        }
+
+        const typed = typingInputEl.value;
+
+        // Calculate stats for current input state
+        let correctCount = 0;
+        let errorCount = 0;
+
+        for (let i = 0; i < typed.length; i++) {
+          if (i < targetText.length) {
+            if (typed[i] === targetText[i]) {
+              correctCount++;
+            } else {
+              errorCount++;
+            }
+          }
+        }
+
+        renderDisplay(typed);
+
+        // Check if sentence complete
+        if (typed.length >= targetText.length) {
+          totalCorrectChars += correctCount;
+          totalTypedChars += typed.length;
+          totalErrors += errorCount;
+
+          // Load next sentence
+          currentSentenceIndex = (currentSentenceIndex + 1) % SENTENCES.length;
+          targetText = SENTENCES[currentSentenceIndex];
+          typingInputEl.value = '';
+          renderDisplay('');
+        }
+
+        // Live update stats based on cumulative + current sentence
+        const curCorrect = totalCorrectChars + correctCount;
+        const curTyped = totalTypedChars + typed.length;
+        const curErrors = totalErrors + errorCount;
+
+        const elapsed = Math.max(1, 60 - timer);
+        const wpm = Math.round((curCorrect / 5) / (elapsed / 60));
+        const acc = curTyped > 0 ? Math.round((curCorrect / curTyped) * 100) : 100;
+
+        wpmValEl.textContent = wpm;
+        accValEl.textContent = `${acc}%`;
+        errValEl.textContent = curErrors;
+      });
+
+      function endTest() {
+        if (timerInterval) clearInterval(timerInterval);
+        typingInputEl.disabled = true;
+
+        const typed = typingInputEl.value;
+        let finalCorrect = totalCorrectChars;
+        let finalTyped = totalTypedChars + typed.length;
+        let finalErr = totalErrors;
+
+        for (let i = 0; i < typed.length; i++) {
+          if (i < targetText.length) {
+            if (typed[i] === targetText[i]) {
+              finalCorrect++;
+            } else {
+              finalErr++;
+            }
+          }
+        }
+
+        const wpm = Math.round((finalCorrect / 5) / 1); // 1 minute
+        const acc = finalTyped > 0 ? Math.round((finalCorrect / finalTyped) * 100) : 100;
+
+        finalWpmEl.textContent = `${wpm} WPM`;
+        finalAccEl.textContent = `${acc}%`;
+        finalErrEl.textContent = finalErr;
+        finalCharsEl.textContent = finalTyped;
+
+        resultModal.classList.remove('hidden');
+      }
+
+      restartBtn.addEventListener('click', initTest);
+      modalRestartBtn.addEventListener('click', initTest);
+
+      initTest();
+    })();
+  </script>
+</body>
+</html>

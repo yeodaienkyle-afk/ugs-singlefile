@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bingo</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background-color: #111116;
+      color: #e2e8f0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 800px;
+      background: #1e1e26;
+      border: 1px solid #2d2d3a;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #2d2d3a;
+      padding-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      background: #334155;
+      color: #f8fafc;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn:hover { background: #475569; }
+    .btn:active { transform: scale(0.96); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #ffffff;
+    }
+    .btn-primary:hover { filter: brightness(1.1); }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #ffffff;
+    }
+
+    /* Main Grid Layout */
+    .game-layout {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 20px;
+    }
+
+    @media (max-width: 720px) {
+      .game-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Card Styling */
+    .card-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bingo-card {
+      width: 100%;
+      max-width: 360px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      background: #14141a;
+      padding: 10px;
+      border-radius: 12px;
+      border: 2px solid #2d2d3e;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .col-header {
+      font-size: 1.3rem;
+      font-weight: 900;
+      text-align: center;
+      padding: 8px 0;
+      border-radius: 6px;
+      color: #ffffff;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .col-header.b { background: #ef4444; }
+    .col-header.i { background: #3b82f6; }
+    .col-header.n { background: #10b981; }
+    .col-header.g { background: #f59e0b; }
+    .col-header.o { background: #8b5cf6; }
+
+    .bingo-cell {
+      aspect-ratio: 1;
+      background: #262632;
+      border: 1px solid #3a3a4c;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #f1f5f9;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s, transform 0.1s, border-color 0.2s;
+    }
+
+    .bingo-cell:hover:not(.daubed):not(.free) {
+      background: #323242;
+      border-color: #6366f1;
+    }
+
+    .bingo-cell.free {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: #ffffff;
+      font-size: 0.85rem;
+      cursor: default;
+    }
+
+    .bingo-cell.daubed {
+      background: linear-gradient(135deg, #6366f1, #4338ca);
+      color: #ffffff;
+      border-color: #818cf8;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .bingo-cell.daubed::after {
+      content: '✓';
+      position: absolute;
+      top: 2px;
+      right: 4px;
+      font-size: 0.75rem;
+      color: #a7f3d0;
+    }
+
+    .bingo-cell.winning-line {
+      animation: winGlow 1s infinite alternate ease-in-out;
+      border-color: #f59e0b;
+      z-index: 2;
+    }
+
+    @keyframes winGlow {
+      from { box-shadow: 0 0 8px #f59e0b, inset 0 0 12px #fbbf24; }
+      to { box-shadow: 0 0 20px #f59e0b, inset 0 0 20px #f59e0b; }
+    }
+
+    /* Side Panel / Caller Display */
+    .caller-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: #14141a;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #282834;
+    }
+
+    .caller-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .caller-title {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 700;
+    }
+
+    .ball-count {
+      font-size: 0.85rem;
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    .current-ball-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      background: #1e1e28;
+      border-radius: 10px;
+      border: 1px dashed #3a3a4e;
+    }
+
+    .ball {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #ffffff;
+      box-shadow: inset -4px -4px 8px rgba(0,0,0,0.5), 0 6px 14px rgba(0,0,0,0.4);
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .ball.b { background: radial-gradient(circle at 35% 35%, #f87171, #dc2626); }
+    .ball.i { background: radial-gradient(circle at 35% 35%, #60a5fa, #2563eb); }
+    .ball.n { background: radial-gradient(circle at 35% 35%, #34d399, #059669); }
+    .ball.g { background: radial-gradient(circle at 35% 35%, #fbbf24, #d97706); }
+    .ball.o { background: radial-gradient(circle at 35% 35%, #c084fc, #7c3aed); }
+    .ball.none { background: #334155; color: #94a3b8; font-size: 1rem; }
+
+    .ball-history {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .mini-ball {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #ffffff;
+      flex-shrink: 0;
+    }
+
+    .caller-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .status-banner {
+      font-size: 0.85rem;
+      text-align: center;
+      color: #cbd5e1;
+      min-height: 20px;
+      font-weight: 600;
+    }
+
+    .matrix-section {
+      width: 100%;
+      background: #14141a;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #282834;
+    }
+
+    .matrix-title {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+    }
+
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(15, 1fr);
+      gap: 3px;
+    }
+
+    .matrix-num {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      background: #22222d;
+      color: #475569;
+      border-radius: 3px;
+    }
+
+    .matrix-num.called {
+      background: #38bdf8;
+      color: #0f172a;
+      font-weight: 900;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 15, 20, 0.88);
+      backdrop-filter: blur(4px);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 10;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-title {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: #f59e0b;
+      margin-bottom: 8px;
+      text-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    }
+
+    .modal-sub {
+      font-size: 1.1rem;
+      color: #e2e8f0;
+      margin-bottom: 24px;
+    }
+
+    .modal-btn {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+      transition: transform 0.15s;
+    }
+
+    .modal-btn:hover { filter: brightness(1.1); }
+    .modal-btn:active { transform: scale(0.96); }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <header>
+      <h1>Bingo</h1>
+      <div class="top-actions">
+        <button class="btn btn-warning" id="btn-new-card">New Card</button>
+      </div>
+    </header>
+
+    <div class="game-layout">
+      <!-- Bingo Card -->
+      <div class="card-container">
+        <div class="bingo-card" id="bingo-card">
+          <div class="col-header b">B</div>
+          <div class="col-header i">I</div>
+          <div class="col-header n">N</div>
+          <div class="col-header g">G</div>
+          <div class="col-header o">O</div>
+
+          <!-- Cells populated by JS -->
+        </div>
+      </div>
+
+      <!-- Caller Side Panel -->
+      <div class="caller-panel">
+        <div class="caller-header">
+          <span class="caller-title">Auto Caller</span>
+          <span class="ball-count" id="val-balls-count">0 / 75</span>
+        </div>
+
+        <div class="current-ball-container">
+          <div class="ball none" id="current-ball">--</div>
+        </div>
+
+        <div class="caller-title">Recent Balls</div>
+        <div class="ball-history" id="ball-history"></div>
+
+        <div class="caller-controls">
+          <button class="btn btn-primary" id="btn-toggle-caller">Pause Caller</button>
+          <button class="btn" id="btn-draw-ball">Draw Next Ball</button>
+        </div>
+
+        <div class="status-banner" id="status-banner">Game started! Marking matching numbers...</div>
+      </div>
+    </div>
+
+    <!-- Called Numbers Matrix -->
+    <div class="matrix-section">
+      <div class="matrix-title">All Called Numbers (1 - 75)</div>
+      <div class="matrix-grid" id="matrix-grid"></div>
+    </div>
+
+    <!-- Bingo Victory Modal -->
+    <div class="modal-overlay" id="modal-win">
+      <div class="modal-title">BINGO!</div>
+      <div class="modal-sub" id="modal-details">You hit a line in 18 balls!</div>
+      <button class="modal-btn" id="btn-win-restart">Play Next Round</button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const RANGES = {
+        B: [1, 15],
+        I: [16, 30],
+        N: [31, 45],
+        G: [46, 60],
+        O: [61, 75]
+      };
+
+      const COLS = ['B', 'I', 'N', 'G', 'O'];
+
+      let cardGrid = []; // 5x5 matrix
+      let daubedGrid = []; // 5x5 boolean
+      let callPool = []; // 1..75
+      let calledNumbers = new Set();
+      let callHistory = [];
+      let callerInterval = null;
+      let isCallerRunning = false;
+      let isGameWon = false;
+
+      const bingoCardEl = document.getElementById('bingo-card');
+      const currentBallEl = document.getElementById('current-ball');
+      const ballHistoryEl = document.getElementById('ball-history');
+      const valBallsCount = document.getElementById('val-balls-count');
+      const matrixGridEl = document.getElementById('matrix-grid');
+      const statusBanner = document.getElementById('status-banner');
+      const btnToggleCaller = document.getElementById('btn-toggle-caller');
+      const btnDrawBall = document.getElementById('btn-draw-ball');
+      const btnNewCard = document.getElementById('btn-new-card');
+      const modalWin = document.getElementById('modal-win');
+      const modalDetails = document.getElementById('modal-details');
+      const btnWinRestart = document.getElementById('btn-win-restart');
+
+      function getColLetter(num) {
+        if (num <= 15) return 'b';
+        if (num <= 30) return 'i';
+        if (num <= 45) return 'n';
+        if (num <= 60) return 'g';
+        return 'o';
+      }
+
+      function generateCardData() {
+        const grid = Array.from({ length: 5 }, () => Array(5).fill(0));
+        COLS.forEach((col, colIdx) => {
+          const [min, max] = RANGES[col];
+          const nums = [];
+          for (let i = min; i <= max; i++) nums.push(i);
+
+          // Shuffle column pool
+          for (let i = nums.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [nums[i], nums[j]] = [nums[j], nums[i]];
+          }
+
+          for (let rowIdx = 0; rowIdx < 5; rowIdx++) {
+            grid[rowIdx][colIdx] = nums[rowIdx];
+          }
+        });
+
+        // Center is FREE
+        grid[2][2] = 'FREE';
+        return grid;
+      }
+
+      function initMatrix() {
+        matrixGridEl.innerHTML = '';
+        for (let i = 1; i <= 75; i++) {
+          const div = document.createElement('div');
+          div.className = 'matrix-num';
+          div.id = `matrix-${i}`;
+          div.textContent = i;
+          matrixGridEl.appendChild(div);
+        }
+      }
+
+      function renderCard() {
+        // Remove existing cell elements (keep headers)
+        const cells = bingoCardEl.querySelectorAll('.bingo-cell');
+        cells.forEach(c => c.remove());
+
+        for (let r = 0; r < 5; r++) {
+          for (let c = 0; c < 5; c++) {
+            const val = cardGrid[r][c];
+            const cellDiv = document.createElement('div');
+            cellDiv.className = 'bingo-cell';
+            cellDiv.dataset.row = r;
+            cellDiv.dataset.col = c;
+
+            if (r === 2 && c === 2) {
+              cellDiv.classList.add('free', 'daubed');
+              cellDiv.textContent = 'FREE ★';
+            } else {
+              cellDiv.textContent = val;
+              if (daubedGrid[r][c]) {
+                cellDiv.classList.add('daubed');
+              }
+            }
+
+            cellDiv.addEventListener('click', () => handleCellClick(r, c, cellDiv));
+            bingoCardEl.appendChild(cellDiv);
+          }
+        }
+      }
+
+      function handleCellClick(r, c, cellDiv) {
+        if (isGameWon) return;
+        if (r === 2 && c === 2) return; // Free cell already daubed
+
+        const num = cardGrid[r][c];
+        if (calledNumbers.has(num)) {
+          if (!daubedGrid[r][c]) {
+            daubedGrid[r][c] = true;
+            cellDiv.classList.add('daubed');
+            statusBanner.textContent = `Daubed ${COLS[c]}-${num}!`;
+            checkWin();
+          }
+        } else {
+          statusBanner.textContent = `${COLS[c]}-${num} has not been called yet!`;
+        }
+      }
+
+      function drawBall() {
+        if (callPool.length === 0 || isGameWon) {
+          stopCaller();
+          if (callPool.length === 0) statusBanner.textContent = 'All 75 balls called!';
+          return;
+        }
+
+        const randomIndex = Math.floor(Math.random() * callPool.length);
+        const ballNum = callPool.splice(randomIndex, 1)[0];
+
+        calledNumbers.add(ballNum);
+        callHistory.push(ballNum);
+
+        const colLetter = getColLetter(ballNum);
+        currentBallEl.className = `ball ${colLetter}`;
+        currentBallEl.textContent = `${colLetter.toUpperCase()}-${ballNum}`;
+
+        // Update Matrix
+        const matEl = document.getElementById(`matrix-${ballNum}`);
+        if (matEl) matEl.classList.add('called');
+
+        // Update History Strip
+        renderHistory();
+
+        valBallsCount.textContent = `${calledNumbers.size} / 75`;
+        statusBanner.textContent = `Called: ${colLetter.toUpperCase()}-${ballNum}`;
+      }
+
+      function renderHistory() {
+        ballHistoryEl.innerHTML = '';
+        const recent = callHistory.slice(-6).reverse();
+        recent.forEach(num => {
+          const colLetter = getColLetter(num);
+          const mini = document.createElement('div');
+          mini.className = `mini-ball ball ${colLetter}`;
+          mini.textContent = num;
+          ballHistoryEl.appendChild(mini);
+        });
+      }
+
+      function checkWin() {
+        let winningCells = [];
+
+        // Check rows
+        for (let r = 0; r < 5; r++) {
+          let rowWin = true;
+          for (let c = 0; c < 5; c++) {
+            if (!daubedGrid[r][c]) { rowWin = false; break; }
+          }
+          if (rowWin) {
+            for (let c = 0; c < 5; c++) winningCells.push([r, c]);
+          }
+        }
+
+        // Check columns
+        for (let c = 0; c < 5; c++) {
+          let colWin = true;
+          for (let r = 0; r < 5; r++) {
+            if (!daubedGrid[r][c]) { colWin = false; break; }
+          }
+          if (colWin) {
+            for (let r = 0; r < 5; r++) winningCells.push([r, c]);
+          }
+        }
+
+        // Check diagonal TL-BR
+        let diag1Win = true;
+        for (let i = 0; i < 5; i++) {
+          if (!daubedGrid[i][i]) { diag1Win = false; break; }
+        }
+        if (diag1Win) {
+          for (let i = 0; i < 5; i++) winningCells.push([i, i]);
+        }
+
+        // Check diagonal TR-BL
+        let diag2Win = true;
+        for (let i = 0; i < 5; i++) {
+          if (!daubedGrid[i][4 - i]) { diag2Win = false; break; }
+        }
+        if (diag2Win) {
+          for (let i = 0; i < 5; i++) winningCells.push([i, 4 - i]);
+        }
+
+        if (winningCells.length > 0) {
+          isGameWon = true;
+          stopCaller();
+
+          // Highlight winning cells
+          const cells = bingoCardEl.querySelectorAll('.bingo-cell');
+          cells.forEach(cell => {
+            const r = parseInt(cell.dataset.row, 10);
+            const c = parseInt(cell.dataset.col, 10);
+            if (winningCells.some(([wr, wc]) => wr === r && wc === c)) {
+              cell.classList.add('winning-line');
+            }
+          });
+
+          setTimeout(() => {
+            modalDetails.textContent = `Bingo line complete in ${calledNumbers.size} balls called!`;
+            modalWin.classList.add('active');
+          }, 800);
+        }
+      }
+
+      function startCaller() {
+        if (isCallerRunning || isGameWon) return;
+        isCallerRunning = true;
+        btnToggleCaller.textContent = 'Pause Caller';
+        btnToggleCaller.className = 'btn btn-primary';
+        callerInterval = setInterval(() => {
+          drawBall();
+        }, 2000);
+      }
+
+      function stopCaller() {
+        isCallerRunning = false;
+        clearInterval(callerInterval);
+        btnToggleCaller.textContent = 'Resume Caller';
+        btnToggleCaller.className = 'btn btn-warning';
+      }
+
+      function toggleCaller() {
+        if (isCallerRunning) {
+          stopCaller();
+        } else {
+          startCaller();
+        }
+      }
+
+      function startNewGame() {
+        stopCaller();
+        isGameWon = false;
+        callPool = Array.from({ length: 75 }, (_, i) => i + 1);
+        calledNumbers.clear();
+        callHistory = [];
+
+        cardGrid = generateCardData();
+        daubedGrid = Array.from({ length: 5 }, () => Array(5).fill(false));
+        daubedGrid[2][2] = true; // Free space
+
+        currentBallEl.className = 'ball none';
+        currentBallEl.textContent = '--';
+        ballHistoryEl.innerHTML = '';
+        valBallsCount.textContent = '0 / 75';
+
+        initMatrix();
+        renderCard();
+
+        modalWin.classList.remove('active');
+        statusBanner.textContent = 'Game started! Matching numbers can be daubed.';
+
+        startCaller();
+      }
+
+      btnToggleCaller.addEventListener('click', toggleCaller);
+      btnDrawBall.addEventListener('click', () => {
+        stopCaller();
+        drawBall();
+      });
+      btnNewCard.addEventListener('click', startNewGame);
+      btnWinRestart.addEventListener('click', startNewGame);
+
+      startNewGame();
+    })();
+  </script>
+</body>
+</html>

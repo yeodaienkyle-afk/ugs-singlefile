@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kakuro - Cross Sums</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body {
+      margin: 0;
+      padding: 16px;
+      background-color: #111218;
+      color: #e2e8f0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 550px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      margin: 0 0 6px 0;
+      font-size: 1.8rem;
+      color: #fbbf24;
+      text-align: center;
+      text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+    }
+    .instructions {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid #334155;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-height: 40px;
+    }
+    button:hover {
+      background: #334155;
+      border-color: #fbbf24;
+    }
+    .puzzle-title {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #f59e0b;
+      margin-bottom: 8px;
+    }
+    .run-info {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .run-badge {
+      background: #1e293b;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+    }
+    .run-badge.valid { color: #4ade80; border-color: #22c55e; }
+    .run-badge.invalid { color: #f87171; border-color: #ef4444; }
+
+    .board-wrapper {
+      background: #181824;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #2e3248;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+    .grid-table {
+      border-collapse: collapse;
+    }
+    .cell {
+      width: 50px;
+      height: 50px;
+      text-align: center;
+      vertical-align: middle;
+      position: relative;
+      border: 1px solid #2d3245;
+    }
+    .cell-wall {
+      background: #0f111a;
+    }
+    .cell-clue {
+      background: #181c2b;
+      position: relative;
+    }
+    .cell-clue svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .clue-text {
+      position: absolute;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #38bdf8;
+    }
+    .clue-v {
+      bottom: 3px;
+      left: 4px;
+    }
+    .clue-h {
+      top: 3px;
+      right: 4px;
+    }
+    .cell-playable {
+      background: #232738;
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #f8fafc;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .cell-playable:hover {
+      background: #2d334a;
+    }
+    .cell-playable.selected {
+      background: #3b82f6 !important;
+      color: #ffffff;
+      outline: 2px solid #60a5fa;
+      z-index: 2;
+    }
+    .cell-playable.in-run {
+      background: #1e3a5f;
+    }
+    .cell-playable.invalid {
+      background: #7f1d1d !important;
+      color: #fca5a5;
+    }
+    .cell-playable.given-hint {
+      color: #4ade80;
+    }
+
+    /* Keypad */
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      max-width: 320px;
+      width: 100%;
+      margin-bottom: 12px;
+    }
+    .key-btn {
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      font-size: 1.2rem;
+      font-weight: bold;
+      height: 44px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .key-btn:hover {
+      background: #334155;
+      border-color: #fbbf24;
+    }
+    .key-btn.btn-clear {
+      background: #7f1d1d;
+      color: #fca5a5;
+      border-color: #991b1b;
+      font-size: 0.85rem;
+    }
+    .key-btn.btn-clear:hover {
+      background: #991b1b;
+    }
+
+    .status-msg {
+      min-height: 28px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      text-align: center;
+    }
+    .status-msg.win {
+      color: #4ade80;
+      text-shadow: 0 0 10px rgba(74, 222, 128, 0.4);
+    }
+
+    @media (max-width: 480px) {
+      .cell {
+        width: 42px;
+        height: 42px;
+      }
+      .cell-playable { font-size: 1.2rem; }
+      .clue-text { font-size: 0.65rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Kakuro</h1>
+    <div class="instructions">Fill blanks with 1-9 so each line adds up to its clue without repeating digits!</div>
+
+    <div class="controls">
+      <button id="btn-next">Next Puzzle</button>
+      <button id="btn-reset">Reset Puzzle</button>
+      <button id="btn-hint">Hint</button>
+    </div>
+
+    <div class="puzzle-title" id="puzzle-title">Puzzle 1 of 3</div>
+
+    <div class="run-info">
+      <div class="run-badge" id="badge-h">Row: -</div>
+      <div class="run-badge" id="badge-v">Col: -</div>
+    </div>
+
+    <div class="board-wrapper">
+      <table class="grid-table" id="board-table"></table>
+    </div>
+
+    <div class="keypad">
+      <button class="key-btn" data-val="1">1</button>
+      <button class="key-btn" data-val="2">2</button>
+      <button class="key-btn" data-val="3">3</button>
+      <button class="key-btn" data-val="4">4</button>
+      <button class="key-btn" data-val="5">5</button>
+      <button class="key-btn" data-val="6">6</button>
+      <button class="key-btn" data-val="7">7</button>
+      <button class="key-btn" data-val="8">8</button>
+      <button class="key-btn" data-val="9">9</button>
+      <button class="key-btn btn-clear" data-val="0">Erase</button>
+    </div>
+
+    <div class="status-msg" id="status-text"></div>
+  </div>
+
+  <script>
+    (function() {
+      const PUZZLES = [
+        // Puzzle 1 (5x5)
+        [
+          [{"type":"wall"}, {"type":"clue","v":3}, {"type":"clue","v":6}, {"type":"wall"}, {"type":"wall"}],
+          [{"type":"clue","h":3}, {"type":"cell","val":1}, {"type":"cell","val":2}, {"type":"clue","v":16}, {"type":"clue","v":18}],
+          [{"type":"clue","h":21}, {"type":"cell","val":2}, {"type":"cell","val":3}, {"type":"cell","val":7}, {"type":"cell","val":9}],
+          [{"type":"wall"}, {"type":"clue","h":16}, {"type":"cell","val":1}, {"type":"cell","val":8}, {"type":"cell","val":7}],
+          [{"type":"wall"}, {"type":"wall"}, {"type":"clue","h":3}, {"type":"cell","val":1}, {"type":"cell","val":2}]
+        ],
+        // Puzzle 2 (5x5 Cross)
+        [
+          [{"type":"wall"}, {"type":"clue","v":12}, {"type":"clue","v":13}, {"type":"wall"}, {"type":"wall"}],
+          [{"type":"clue","h":11}, {"type":"cell","val":3}, {"type":"cell","val":8}, {"type":"clue","v":18}, {"type":"clue","v":12}],
+          [{"type":"clue","h":23}, {"type":"cell","val":4}, {"type":"cell","val":2}, {"type":"cell","val":8}, {"type":"cell","val":9}],
+          [{"type":"clue","h":18}, {"type":"cell","val":5}, {"type":"cell","val":3}, {"type":"cell","val":9}, {"type":"cell","val":1}],
+          [{"type":"wall"}, {"type":"wall"}, {"type":"clue","h":3}, {"type":"cell","val":1}, {"type":"cell","val":2}]
+        ],
+        // Puzzle 3 (6x6 Classic)
+        [
+          [{"type":"wall"}, {"type":"clue","v":7}, {"type":"clue","v":10}, {"type":"clue","v":16}, {"type":"wall"}, {"type":"wall"}],
+          [{"type":"clue","h":11}, {"type":"cell","val":1}, {"type":"cell","val":2}, {"type":"cell","val":8}, {"type":"clue","v":19}, {"type":"clue","v":20}],
+          [{"type":"clue","h":27}, {"type":"cell","val":6}, {"type":"cell","val":3}, {"type":"cell","val":1}, {"type":"cell","val":8}, {"type":"cell","val":9}],
+          [{"type":"wall"}, {"type":"clue","h":18}, {"type":"cell","val":5}, {"type":"cell","val":7}, {"type":"cell","val":2}, {"type":"cell","val":4}],
+          [{"type":"wall"}, {"type":"wall"}, {"type":"clue","h":14}, {"type":"cell","val":3}, {"type":"cell","val":5}, {"type":"cell","val":6}],
+          [{"type":"wall"}, {"type":"wall"}, {"type":"wall"}, {"type":"clue","h":11}, {"type":"cell","val":4}, {"type":"cell","val":7}]
+        ]
+      ];
+
+      let currentPuzzleIdx = 0;
+      let gridDef = [];
+      let userVals = [];
+      let selectedR = -1;
+      let selectedC = -1;
+      let gameWon = false;
+
+      function loadPuzzle(idx) {
+        currentPuzzleIdx = idx;
+        const raw = PUZZLES[currentPuzzleIdx];
+        const R = raw.length;
+        const C = raw[0].length;
+
+        gridDef = JSON.parse(JSON.stringify(raw));
+        userVals = Array(R).fill(0).map(() => Array(C).fill(0));
+
+        selectedR = -1;
+        selectedC = -1;
+        gameWon = false;
+
+        document.getElementById('puzzle-title').textContent = `Puzzle ${currentPuzzleIdx + 1} of ${PUZZLES.length}`;
+        document.getElementById('status-text').textContent = '';
+        document.getElementById('status-text').className = 'status-msg';
+
+        renderBoard();
+        updateRunInfo();
+      }
+
+      function renderBoard() {
+        const table = document.getElementById('board-table');
+        table.innerHTML = '';
+        const R = gridDef.length;
+        const C = gridDef[0].length;
+
+        for (let r = 0; r < R; r++) {
+          const tr = document.createElement('tr');
+          for (let c = 0; c < C; c++) {
+            const td = document.createElement('td');
+            td.className = 'cell';
+            td.dataset.r = r;
+            td.dataset.c = c;
+
+            const item = gridDef[r][c];
+            if (item.type === 'wall') {
+              td.classList.add('cell-wall');
+            } else if (item.type === 'clue') {
+              td.classList.add('cell-clue');
+              td.innerHTML = `
+                <svg viewBox="0 0 50 50">
+                  <line x1="0" y1="0" x2="50" y2="50" stroke="#334155" stroke-width="1.5"/>
+                </svg>
+              `;
+              if (item.v) {
+                const spanV = document.createElement('span');
+                spanV.className = 'clue-text clue-v';
+                spanV.textContent = item.v;
+                td.appendChild(spanV);
+              }
+              if (item.h) {
+                const spanH = document.createElement('span');
+                spanH.className = 'clue-text clue-h';
+                spanH.textContent = item.h;
+                td.appendChild(spanH);
+              }
+            } else if (item.type === 'cell') {
+              td.classList.add('cell-playable');
+              if (userVals[r][c] > 0) {
+                td.textContent = userVals[r][c];
+              }
+              td.addEventListener('click', () => selectCell(r, c));
+            }
+            tr.appendChild(td);
+          }
+          table.appendChild(tr);
+        }
+      }
+
+      function selectCell(r, c) {
+        if (gameWon) return;
+        if (gridDef[r][c].type !== 'cell') return;
+
+        selectedR = r;
+        selectedC = c;
+
+        highlightCells();
+        updateRunInfo();
+      }
+
+      function highlightCells() {
+        const R = gridDef.length;
+        const C = gridDef[0].length;
+
+        for (let r = 0; r < R; r++) {
+          for (let c = 0; c < C; c++) {
+            const td = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+            if (td) {
+              td.classList.remove('selected', 'in-run', 'invalid');
+            }
+          }
+        }
+
+        if (selectedR < 0 || selectedC < 0) return;
+
+        const selTd = document.querySelector(`.cell[data-r="${selectedR}"][data-c="${selectedC}"]`);
+        if (selTd) selTd.classList.add('selected');
+
+        const hRun = getRunCells(selectedR, selectedC, 'h');
+        const vRun = getRunCells(selectedR, selectedC, 'v');
+
+        hRun.cells.concat(vRun.cells).forEach(pos => {
+          if (pos.r === selectedR && pos.c === selectedC) return;
+          const td = document.querySelector(`.cell[data-r="${pos.r}"][data-c="${pos.c}"]`);
+          if (td) td.classList.add('in-run');
+        });
+
+        checkErrorsAndHighlight();
+      }
+
+      function getRunCells(r, c, dir) {
+        const R = gridDef.length;
+        const C = gridDef[0].length;
+        let clueVal = 0;
+        let cells = [];
+
+        if (dir === 'h') {
+          let c2 = c;
+          while (c2 >= 0 && gridDef[r][c2].type === 'cell') c2--;
+          if (c2 >= 0 && gridDef[r][c2].type === 'clue') clueVal = gridDef[r][c2].h || 0;
+          c2++;
+          while (c2 < C && gridDef[r][c2].type === 'cell') {
+            cells.push({ r: r, c: c2 });
+            c2++;
+          }
+        } else {
+          let r2 = r;
+          while (r2 >= 0 && gridDef[r2][c].type === 'cell') r2--;
+          if (r2 >= 0 && gridDef[r2][c].type === 'clue') clueVal = gridDef[r2][c].v || 0;
+          r2++;
+          while (r2 < R && gridDef[r2][c].type === 'cell') {
+            cells.push({ r: r2, c: c });
+            r2++;
+          }
+        }
+
+        return { clue: clueVal, cells: cells };
+      }
+
+      function updateRunInfo() {
+        const badgeH = document.getElementById('badge-h');
+        const badgeV = document.getElementById('badge-v');
+
+        if (selectedR < 0 || selectedC < 0) {
+          badgeH.textContent = 'Row: -';
+          badgeH.className = 'run-badge';
+          badgeV.textContent = 'Col: -';
+          badgeV.className = 'run-badge';
+          return;
+        }
+
+        const hRun = getRunCells(selectedR, selectedC, 'h');
+        const vRun = getRunCells(selectedR, selectedC, 'v');
+
+        function formatBadge(badge, run, label) {
+          if (!run.clue) {
+            badge.textContent = `${label}: -`;
+            badge.className = 'run-badge';
+            return;
+          }
+          const vals = run.cells.map(p => userVals[p.r][p.c]).filter(v => v > 0);
+          const currentSum = vals.reduce((a, b) => a + b, 0);
+          const hasDup = new Set(vals).size !== vals.length;
+          const isFull = vals.length === run.cells.length;
+
+          badge.textContent = `${label}: ${currentSum}/${run.clue}`;
+          if (currentSum > run.clue || hasDup) {
+            badge.className = 'run-badge invalid';
+          } else if (isFull && currentSum === run.clue) {
+            badge.className = 'run-badge valid';
+          } else {
+            badge.className = 'run-badge';
+          }
+        }
+
+        formatBadge(badgeH, hRun, 'Row');
+        formatBadge(badgeV, vRun, 'Col');
+      }
+
+      function enterDigit(val) {
+        if (gameWon) return;
+        if (selectedR < 0 || selectedC < 0) return;
+
+        userVals[selectedR][selectedC] = val;
+        const td = document.querySelector(`.cell[data-r="${selectedR}"][data-c="${selectedC}"]`);
+        if (td) td.textContent = val > 0 ? val : '';
+
+        highlightCells();
+        updateRunInfo();
+        checkWin();
+      }
+
+      function checkErrorsAndHighlight() {
+        const R = gridDef.length;
+        const C = gridDef[0].length;
+
+        for (let r = 0; r < R; r++) {
+          for (let c = 0; c < C; c++) {
+            if (gridDef[r][c].type === 'clue') {
+              if (gridDef[r][c].h) {
+                const run = getRunCells(r, c + 1, 'h');
+                validateRun(run);
+              }
+              if (gridDef[r][c].v) {
+                const run = getRunCells(r + 1, c, 'v');
+                validateRun(run);
+              }
+            }
+          }
+        }
+      }
+
+      function validateRun(run) {
+        const vals = run.cells.map(p => userVals[p.r][p.c]).filter(v => v > 0);
+        const sum = vals.reduce((a, b) => a + b, 0);
+        const hasDup = new Set(vals).size !== vals.length;
+
+        if (sum > run.clue || hasDup) {
+          run.cells.forEach(p => {
+            const td = document.querySelector(`.cell[data-r="${p.r}"][data-c="${p.c}"]`);
+            if (td) td.classList.add('invalid');
+          });
+        }
+      }
+
+      function checkWin() {
+        const R = gridDef.length;
+        const C = gridDef[0].length;
+
+        for (let r = 0; r < R; r++) {
+          for (let c = 0; c < C; c++) {
+            if (gridDef[r][c].type === 'cell') {
+              if (userVals[r][c] !== gridDef[r][c].val) {
+                return;
+              }
+            }
+          }
+        }
+
+        gameWon = true;
+        const status = document.getElementById('status-text');
+        status.textContent = '🎉 Kakuro Puzzle Cleared! Outstanding!';
+        status.className = 'status-msg win';
+      }
+
+      function giveHint() {
+        if (gameWon) return;
+        const R = gridDef.length;
+        const C = gridDef[0].length;
+        let emptyCells = [];
+
+        for (let r = 0; r < R; r++) {
+          for (let c = 0; c < C; c++) {
+            if (gridDef[r][c].type === 'cell' && userVals[r][c] !== gridDef[r][c].val) {
+              emptyCells.push({ r, c, val: gridDef[r][c].val });
+            }
+          }
+        }
+
+        if (emptyCells.length === 0) return;
+        const pick = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        userVals[pick.r][pick.c] = pick.val;
+
+        const td = document.querySelector(`.cell[data-r="${pick.r}"][data-c="${pick.c}"]`);
+        if (td) {
+          td.textContent = pick.val;
+          td.classList.add('given-hint');
+        }
+
+        selectCell(pick.r, pick.c);
+        checkWin();
+      }
+
+      function resetPuzzle() {
+        loadPuzzle(currentPuzzleIdx);
+      }
+
+      function nextPuzzle() {
+        const nextIdx = (currentPuzzleIdx + 1) % PUZZLES.length;
+        loadPuzzle(nextIdx);
+      }
+
+      // Event Listeners
+      document.querySelectorAll('.key-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = parseInt(btn.dataset.val);
+          enterDigit(val);
+        });
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key >= '1' && e.key <= '9') {
+          enterDigit(parseInt(e.key));
+        } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
+          enterDigit(0);
+        } else if (selectedR >= 0 && selectedC >= 0) {
+          const R = gridDef.length;
+          const C = gridDef[0].length;
+          if (e.key === 'ArrowUp' && selectedR > 0) selectCell(selectedR - 1, selectedC);
+          if (e.key === 'ArrowDown' && selectedR < R - 1) selectCell(selectedR + 1, selectedC);
+          if (e.key === 'ArrowLeft' && selectedC > 0) selectCell(selectedR, selectedC - 1);
+          if (e.key === 'ArrowRight' && selectedC < C - 1) selectCell(selectedR, selectedC + 1);
+        }
+      });
+
+      document.getElementById('btn-next').addEventListener('click', nextPuzzle);
+      document.getElementById('btn-reset').addEventListener('click', resetPuzzle);
+      document.getElementById('btn-hint').addEventListener('click', giveHint);
+
+      // Start game
+      loadPuzzle(0);
+    })();
+  </script>
+</body>
+</html>

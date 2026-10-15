@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reversi</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .container {
+      background-color: #1e293b;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 580px;
+      width: 100%;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: #38bdf8;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+    select, button {
+      background-color: #334155;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    select:hover, button:hover {
+      background-color: #475569;
+      border-color: #64748b;
+    }
+    button.primary {
+      background-color: #2563eb;
+      border-color: #3b82f6;
+    }
+    button.primary:hover {
+      background-color: #1d4ed8;
+    }
+    .score-board {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      margin-bottom: 12px;
+      background-color: #0f172a;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+    .score-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .disc-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .disc-black { background-color: #020617; border: 1px solid #64748b; }
+    .disc-white { background-color: #f8fafc; border: 1px solid #cbd5e1; }
+    .status {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      min-height: 1.6em;
+      text-align: center;
+      color: #facc15;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 4px;
+      background-color: #0f172a;
+      padding: 8px;
+      border-radius: 12px;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+    }
+    .cell {
+      width: min(10vw, 56px);
+      height: min(10vw, 56px);
+      background-color: #166534;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+    }
+    .cell.valid {
+      cursor: pointer;
+    }
+    .cell.valid::after {
+      content: '';
+      width: 14px;
+      height: 14px;
+      background-color: rgba(250, 204, 21, 0.6);
+      border-radius: 50%;
+      box-shadow: 0 0 6px rgba(250, 204, 21, 0.8);
+    }
+    .disc {
+      width: 82%;
+      height: 82%;
+      border-radius: 50%;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+    }
+    .disc.black {
+      background-color: #020617;
+      border: 1px solid #334155;
+    }
+    .disc.white {
+      background-color: #f8fafc;
+      border: 1px solid #cbd5e1;
+    }
+    .how-to-play {
+      margin-top: 20px;
+      font-size: 0.88rem;
+      color: #94a3b8;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Reversi</h1>
+    <div class="controls">
+      <select id="mode-select">
+        <option value="ai-black">VS AI (You First / Black)</option>
+        <option value="ai-white">VS AI (AI First / Black)</option>
+        <option value="pvp">2 Player (Local)</option>
+      </select>
+      <button class="primary" id="restart-btn">New Game</button>
+    </div>
+    <div class="score-board">
+      <div class="score-item"><span class="disc-icon disc-black"></span> Black: <span id="black-score">2</span></div>
+      <div class="score-item"><span class="disc-icon disc-white"></span> White: <span id="white-score">2</span></div>
+    </div>
+    <div class="status" id="status">Black's Turn</div>
+    <div class="board" id="board"></div>
+    <p class="how-to-play">Click a glowing spot to trap opponent discs between yours. Control the most discs when no moves remain!</p>
+  </div>
+
+  <script>
+    (function() {
+      const SIZE = 8;
+      const EMPTY = 0;
+      const BLACK = 1;
+      const WHITE = 2;
+
+      const DIRS = [
+        [-1, -1], [-1, 0], [-1, 1],
+        [0, -1],           [0, 1],
+        [1, -1],  [1, 0],  [1, 1]
+      ];
+
+      // Evaluation positional matrix for Reversi AI
+      const WEIGHTS = [
+        [120, -20,  20,   5,   5,  20, -20, 120],
+        [-20, -40,  -5,  -5,  -5,  -5, -40, -20],
+        [ 20,  -5,  15,   3,   3,  15,  -5,  20],
+        [  5,  -5,   3,   3,   3,   3,  -5,   5],
+        [  5,  -5,   3,   3,   3,   3,  -5,   5],
+        [ 20,  -5,  15,   3,   3,  15,  -5,  20],
+        [-20, -40,  -5,  -5,  -5,  -5, -40, -20],
+        [120, -20,  20,   5,   5,  20, -20, 120]
+      ];
+
+      let board = [];
+      let currentPlayer = BLACK;
+      let gameOver = false;
+      let gameMode = 'ai-black';
+
+      const boardEl = document.getElementById('board');
+      const statusEl = document.getElementById('status');
+      const blackScoreEl = document.getElementById('black-score');
+      const whiteScoreEl = document.getElementById('white-score');
+      const restartBtn = document.getElementById('restart-btn');
+      const modeSelect = document.getElementById('mode-select');
+
+      function initGame() {
+        board = Array.from({ length: SIZE }, () => Array(SIZE).fill(EMPTY));
+        board[3][3] = WHITE;
+        board[3][4] = BLACK;
+        board[4][3] = BLACK;
+        board[4][4] = WHITE;
+
+        currentPlayer = BLACK;
+        gameOver = false;
+        gameMode = modeSelect.value;
+
+        renderBoard();
+        checkTurnAndMoves();
+
+        if (gameMode === 'ai-white' && currentPlayer === BLACK) {
+          // AI plays as Black
+          setTimeout(makeAIMove, 400);
+        }
+      }
+
+      function getFlips(b, r, c, player) {
+        if (b[r][c] !== EMPTY) return [];
+        const opp = player === BLACK ? WHITE : BLACK;
+        let totalFlips = [];
+
+        for (let [dr, dc] of DIRS) {
+          let nr = r + dr;
+          let nc = c + dc;
+          let path = [];
+
+          while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && b[nr][nc] === opp) {
+            path.push({ r: nr, c: nc });
+            nr += dr;
+            nc += dc;
+          }
+
+          if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && b[nr][nc] === player && path.length > 0) {
+            totalFlips.push(...path);
+          }
+        }
+        return totalFlips;
+      }
+
+      function getValidMoves(b, player) {
+        const moves = [];
+        for (let r = 0; r < SIZE; r++) {
+          for (let c = 0; c < SIZE; c++) {
+            const flips = getFlips(b, r, c, player);
+            if (flips.length > 0) {
+              moves.push({ r, c, flips });
+            }
+          }
+        }
+        return moves;
+      }
+
+      function renderBoard() {
+        boardEl.innerHTML = '';
+        const validMoves = getValidMoves(board, currentPlayer);
+
+        let blackCount = 0;
+        let whiteCount = 0;
+
+        for (let r = 0; r < SIZE; r++) {
+          for (let c = 0; c < SIZE; c++) {
+            const val = board[r][c];
+            if (val === BLACK) blackCount++;
+            if (val === WHITE) whiteCount++;
+
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+
+            if (val !== EMPTY) {
+              const disc = document.createElement('div');
+              disc.className = `disc ${val === BLACK ? 'black' : 'white'}`;
+              cell.appendChild(disc);
+            } else if (!gameOver && isHumanTurn()) {
+              const isValid = validMoves.some(m => m.r === r && m.c === c);
+              if (isValid) {
+                cell.classList.add('valid');
+                cell.addEventListener('click', () => handleCellClick(r, c));
+              }
+            }
+
+            boardEl.appendChild(cell);
+          }
+        }
+
+        blackScoreEl.textContent = blackCount;
+        whiteScoreEl.textContent = whiteCount;
+      }
+
+      function isHumanTurn() {
+        if (gameMode === 'pvp') return true;
+        if (gameMode === 'ai-black' && currentPlayer === BLACK) return true;
+        if (gameMode === 'ai-white' && currentPlayer === WHITE) return true;
+        return false;
+      }
+
+      function handleCellClick(r, c) {
+        if (gameOver) return;
+        executeMove(r, c);
+      }
+
+      function executeMove(r, c) {
+        const flips = getFlips(board, r, c, currentPlayer);
+        if (flips.length === 0) return false;
+
+        board[r][c] = currentPlayer;
+        for (let f of flips) {
+          board[f.r][f.c] = currentPlayer;
+        }
+
+        currentPlayer = currentPlayer === BLACK ? WHITE : BLACK;
+        renderBoard();
+        checkTurnAndMoves();
+        return true;
+      }
+
+      function checkTurnAndMoves() {
+        if (gameOver) return;
+
+        const currentMoves = getValidMoves(board, currentPlayer);
+        if (currentMoves.length === 0) {
+          const opp = currentPlayer === BLACK ? WHITE : BLACK;
+          const oppMoves = getValidMoves(board, opp);
+
+          if (oppMoves.length === 0) {
+            // Both passed -> game over
+            endGame();
+            return;
+          } else {
+            // Current player passes
+            const passedName = currentPlayer === BLACK ? 'Black' : 'White';
+            statusEl.textContent = `${passedName} has no moves! Passing turn...`;
+            currentPlayer = opp;
+            setTimeout(() => {
+              renderBoard();
+              checkTurnAndMoves();
+            }, 1200);
+            return;
+          }
+        }
+
+        updateStatusText();
+
+        if (!isHumanTurn()) {
+          setTimeout(makeAIMove, 450);
+        }
+      }
+
+      function updateStatusText() {
+        const name = currentPlayer === BLACK ? 'Black' : 'White';
+        if (isHumanTurn()) {
+          statusEl.textContent = `${name}'s Turn`;
+        } else {
+          statusEl.textContent = `AI (${name}) is thinking...`;
+        }
+      }
+
+      function endGame() {
+        gameOver = true;
+        let b = 0, w = 0;
+        for (let r = 0; r < SIZE; r++) {
+          for (let c = 0; c < SIZE; c++) {
+            if (board[r][c] === BLACK) b++;
+            if (board[r][c] === WHITE) w++;
+          }
+        }
+
+        if (b > w) {
+          statusEl.textContent = `Black Wins (${b} - ${w})!`;
+        } else if (w > b) {
+          statusEl.textContent = `White Wins (${w} - ${b})!`;
+        } else {
+          statusEl.textContent = `It's a Tie (${b} - ${w})!`;
+        }
+      }
+
+      function evaluateBoard(b, player) {
+        const opp = player === BLACK ? WHITE : BLACK;
+        let score = 0;
+
+        for (let r = 0; r < SIZE; r++) {
+          for (let c = 0; c < SIZE; c++) {
+            if (b[r][c] === player) score += WEIGHTS[r][c];
+            else if (b[r][c] === opp) score -= WEIGHTS[r][c];
+          }
+        }
+
+        const myMobility = getValidMoves(b, player).length;
+        const oppMobility = getValidMoves(b, opp).length;
+        score += (myMobility - oppMobility) * 10;
+
+        return score;
+      }
+
+      function minimax(b, depth, alpha, beta, maximizingPlayer, aiPlayer) {
+        const oppPlayer = aiPlayer === BLACK ? WHITE : BLACK;
+        const player = maximizingPlayer ? aiPlayer : oppPlayer;
+        const moves = getValidMoves(b, player);
+
+        if (depth === 0 || moves.length === 0) {
+          return { score: evaluateBoard(b, aiPlayer) };
+        }
+
+        if (maximizingPlayer) {
+          let maxEval = -Infinity;
+          let bestMove = moves[0];
+          for (let m of moves) {
+            let nb = b.map(row => [...row]);
+            nb[m.r][m.c] = aiPlayer;
+            for (let f of m.flips) nb[f.r][f.c] = aiPlayer;
+
+            let evalScore = minimax(nb, depth - 1, alpha, beta, false, aiPlayer).score;
+            if (evalScore > maxEval) {
+              maxEval = evalScore;
+              bestMove = m;
+            }
+            alpha = Math.max(alpha, evalScore);
+            if (beta <= alpha) break;
+          }
+          return { move: bestMove, score: maxEval };
+        } else {
+          let minEval = Infinity;
+          let bestMove = moves[0];
+          for (let m of moves) {
+            let nb = b.map(row => [...row]);
+            nb[m.r][m.c] = oppPlayer;
+            for (let f of m.flips) nb[f.r][f.c] = oppPlayer;
+
+            let evalScore = minimax(nb, depth - 1, alpha, beta, true, aiPlayer).score;
+            if (evalScore < minEval) {
+              minEval = evalScore;
+              bestMove = m;
+            }
+            beta = Math.min(beta, evalScore);
+            if (beta <= alpha) break;
+          }
+          return { move: bestMove, score: minEval };
+        }
+      }
+
+      function makeAIMove() {
+        if (gameOver) return;
+        const validMoves = getValidMoves(board, currentPlayer);
+        if (validMoves.length === 0) return;
+
+        const result = minimax(board, 3, -Infinity, Infinity, true, currentPlayer);
+        const choice = result.move || validMoves[0];
+        executeMove(choice.r, choice.c);
+      }
+
+      restartBtn.addEventListener('click', initGame);
+      modeSelect.addEventListener('change', initGame);
+
+      initGame();
+    })();
+  </script>
+</body>
+</html>

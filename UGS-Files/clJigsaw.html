@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jigsaw Puzzle</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 16px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 0.95rem;
+      color: #94a3b8;
+      margin-bottom: 12px;
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .btn {
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn:hover {
+      background: #334155;
+      border-color: #475569;
+    }
+    .btn-primary {
+      background: #0284c7;
+      border-color: #0369a1;
+    }
+    .btn-primary:hover {
+      background: #0369a1;
+    }
+    .btn.active {
+      background: #38bdf8;
+      color: #0f172a;
+      border-color: #0284c7;
+    }
+    .stat-badge {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #f59e0b;
+      background: #1e293b;
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+    }
+    .game-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      max-width: 640px;
+      width: 100%;
+    }
+    .board-wrapper {
+      position: relative;
+      width: 600px;
+      height: 450px;
+      background: #1e293b;
+      border: 2px dashed #475569;
+      border-radius: 12px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+      overflow: hidden;
+    }
+    .grid-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      display: grid;
+    }
+    .grid-cell {
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      box-sizing: border-box;
+    }
+    .tray-wrapper {
+      position: relative;
+      width: 600px;
+      min-height: 180px;
+      background: #0f172a;
+      border: 2px solid #334155;
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 4px 12px rgba(0,0,0,0.6);
+    }
+    .puzzle-piece {
+      position: absolute;
+      cursor: grab;
+      touch-action: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      border-radius: 4px;
+      transition: box-shadow 0.1s ease;
+    }
+    .puzzle-piece:active {
+      cursor: grabbing;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.7);
+      z-index: 999 !important;
+    }
+    .puzzle-piece.locked {
+      cursor: default;
+      box-shadow: none;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .preview-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.85);
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .preview-modal canvas {
+      border: 2px solid #38bdf8;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    }
+    .win-modal {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.95);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1500;
+      border-radius: 12px;
+    }
+    .win-modal h2 {
+      font-size: 2.2rem;
+      color: #4ade80;
+      margin-bottom: 8px;
+    }
+    .win-modal p {
+      color: #cbd5e1;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Jigsaw Puzzle</h1>
+    <p class="subtitle">Drag and drop scattered pieces onto the board grid to complete the picture!</p>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-primary" id="newGameBtn">New Game</button>
+    <button class="btn" id="previewBtn">Preview Image</button>
+    <div style="display: flex; gap: 4px;">
+      <button class="btn grid-btn" data-grid="3">3x3</button>
+      <button class="btn grid-btn active" data-grid="4">4x4</button>
+      <button class="btn grid-btn" data-grid="5">5x5</button>
+    </div>
+    <div class="stat-badge" id="timerDisplay">Time: 00:00</div>
+    <div class="stat-badge" id="movesDisplay">Moves: 0</div>
+  </div>
+
+  <div class="game-area">
+    <div class="board-wrapper" id="board">
+      <div class="grid-overlay" id="gridOverlay"></div>
+      <div class="win-modal" id="winModal">
+        <h2>🎉 Puzzle Completed!</h2>
+        <p id="winStats">Solved in 0 moves and 0s!</p>
+        <button class="btn btn-primary" onclick="initGame()">Play Again</button>
+      </div>
+    </div>
+    <div class="tray-wrapper" id="tray"></div>
+  </div>
+
+  <div class="preview-modal" id="previewModal">
+    <h3 style="color: #38bdf8;">Target Image Preview</h3>
+    <canvas id="previewCanvas" width="400" height="300"></canvas>
+    <button class="btn btn-primary" id="closePreviewBtn">Close Preview</button>
+  </div>
+
+  <script>
+    (function() {
+      const BOARD_W = 600;
+      const BOARD_H = 450;
+      let gridDim = 4; // 3, 4, or 5
+      let moves = 0;
+      let timerSeconds = 0;
+      let timerInterval = null;
+      let pieces = [];
+      let masterCanvas = document.createElement('canvas');
+      masterCanvas.width = BOARD_W;
+      masterCanvas.height = BOARD_H;
+
+      function generateAbstractImage() {
+        const ctx = masterCanvas.getContext('2d');
+        ctx.clearRect(0, 0, BOARD_W, BOARD_H);
+
+        // Gradient background
+        const grad = ctx.createLinearGradient(0, 0, BOARD_W, BOARD_H);
+        grad.addColorStop(0, '#0f172a');
+        grad.addColorStop(0.3, '#7c3aed');
+        grad.addColorStop(0.7, '#0284c7');
+        grad.addColorStop(1, '#059669');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, BOARD_W, BOARD_H);
+
+        // Paint colorful geometric shapes
+        const colors = ['#f43f5e', '#ec4899', '#a855f7', '#3b82f6', '#06b6d4', '#10b981', '#eab308', '#f97316'];
+        for (let i = 0; i < 24; i++) {
+          ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+          ctx.globalAlpha = 0.6 + Math.random() * 0.35;
+          ctx.beginPath();
+          const shapeType = Math.floor(Math.random() * 3);
+          const cx = Math.random() * BOARD_W;
+          const cy = Math.random() * BOARD_H;
+          const r = 30 + Math.random() * 90;
+
+          if (shapeType === 0) {
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          } else if (shapeType === 1) {
+            ctx.rect(cx - r, cy - r, r * 2, r * 1.5);
+          } else {
+            ctx.moveTo(cx, cy - r);
+            ctx.lineTo(cx + r, cy + r);
+            ctx.lineTo(cx - r, cy + r);
+            ctx.closePath();
+          }
+          ctx.fill();
+        }
+
+        // Add swooshes / decorative curves
+        ctx.globalAlpha = 0.8;
+        for (let i = 0; i < 4; i++) {
+          ctx.strokeStyle = colors[Math.floor(Math.random() * colors.length)];
+          ctx.lineWidth = 12 + Math.random() * 16;
+          ctx.beginPath();
+          ctx.moveTo(Math.random() * BOARD_W, Math.random() * BOARD_H);
+          ctx.bezierCurveTo(
+            Math.random() * BOARD_W, Math.random() * BOARD_H,
+            Math.random() * BOARD_W, Math.random() * BOARD_H,
+            Math.random() * BOARD_W, Math.random() * BOARD_H
+          );
+          ctx.stroke();
+        }
+
+        ctx.globalAlpha = 1.0;
+
+        // Draw preview modal image
+        const prevCtx = document.getElementById('previewCanvas').getContext('2d');
+        prevCtx.drawImage(masterCanvas, 0, 0, 400, 300);
+      }
+
+      function startTimer() {
+        stopTimer();
+        timerSeconds = 0;
+        updateTimerDisplay();
+        timerInterval = setInterval(() => {
+          timerSeconds++;
+          updateTimerDisplay();
+        }, 1000);
+      }
+
+      function stopTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = null;
+      }
+
+      function updateTimerDisplay() {
+        const mins = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+        const secs = String(timerSeconds % 60).padStart(2, '0');
+        document.getElementById('timerDisplay').textContent = `Time: ${mins}:${secs}`;
+      }
+
+      function updateMovesDisplay() {
+        document.getElementById('movesDisplay').textContent = `Moves: ${moves}`;
+      }
+
+      function setupGridOverlay() {
+        const overlay = document.getElementById('gridOverlay');
+        overlay.innerHTML = '';
+        overlay.style.gridTemplateColumns = `repeat(${gridDim}, 1fr)`;
+        overlay.style.gridTemplateRows = `repeat(${gridDim}, 1fr)`;
+        for (let i = 0; i < gridDim * gridDim; i++) {
+          const cell = document.createElement('div');
+          cell.className = 'grid-cell';
+          overlay.appendChild(cell);
+        }
+      }
+
+      function initGame() {
+        moves = 0;
+        updateMovesDisplay();
+        document.getElementById('winModal').style.display = 'none';
+
+        generateAbstractImage();
+        setupGridOverlay();
+        startTimer();
+
+        const board = document.getElementById('board');
+        const tray = document.getElementById('tray');
+
+        // Remove old piece elements
+        const oldPieces = board.querySelectorAll('.puzzle-piece');
+        oldPieces.forEach(p => p.remove());
+
+        pieces = [];
+        const pieceW = BOARD_W / gridDim;
+        const pieceH = BOARD_H / gridDim;
+
+        // Tray dimensions
+        const trayRect = tray.getBoundingClientRect();
+
+        for (let r = 0; r < gridDim; r++) {
+          for (let c = 0; c < gridDim; c++) {
+            const pCanvas = document.createElement('canvas');
+            pCanvas.width = pieceW;
+            pCanvas.height = pieceH;
+            pCanvas.className = 'puzzle-piece';
+
+            const pCtx = pCanvas.getContext('2d');
+            pCtx.drawImage(masterCanvas, c * pieceW, r * pieceH, pieceW, pieceH, 0, 0, pieceW, pieceH);
+
+            // Draw clean piece outline
+            pCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            pCtx.lineWidth = 2;
+            pCtx.strokeRect(1, 1, pieceW - 2, pieceH - 2);
+
+            const pieceObj = {
+              element: pCanvas,
+              targetX: c * pieceW,
+              targetY: r * pieceH,
+              r: r,
+              c: c,
+              isLocked: false
+            };
+
+            // Initial random placement in tray
+            // Scatter coordinates inside board/tray composite area
+            const startX = Math.floor(Math.random() * (BOARD_W - pieceW));
+            const startY = Math.floor(Math.random() * (160 - pieceH));
+
+            // Position piece on board container (below board bounds to appear in tray area initially)
+            // Or absolute positioned on board container
+            pCanvas.style.left = startX + 'px';
+            pCanvas.style.top = (BOARD_H + 20 + startY) + 'px';
+
+            board.appendChild(pCanvas);
+            makeDraggable(pieceObj);
+            pieces.push(pieceObj);
+          }
+        }
+      }
+
+      function makeDraggable(pieceObj) {
+        const el = pieceObj.element;
+
+        let isDragging = false;
+        let startPointerX = 0;
+        let startPointerY = 0;
+        let startElemX = 0;
+        let startElemY = 0;
+
+        function onPointerDown(e) {
+          if (pieceObj.isLocked) return;
+          isDragging = true;
+          el.setPointerCapture(e.pointerId);
+
+          startPointerX = e.clientX;
+          startPointerY = e.clientY;
+          startElemX = parseFloat(el.style.left) || 0;
+          startElemY = parseFloat(el.style.top) || 0;
+
+          // Bring to top
+          pieces.forEach(p => p.element.style.zIndex = 10);
+          el.style.zIndex = 100;
+        }
+
+        function onPointerMove(e) {
+          if (!isDragging || pieceObj.isLocked) return;
+          const dx = e.clientX - startPointerX;
+          const dy = e.clientY - startPointerY;
+          el.style.left = (startElemX + dx) + 'px';
+          el.style.top = (startElemY + dy) + 'px';
+        }
+
+        function onPointerUp(e) {
+          if (!isDragging) return;
+          isDragging = false;
+
+          moves++;
+          updateMovesDisplay();
+
+          const currentX = parseFloat(el.style.left) || 0;
+          const currentY = parseFloat(el.style.top) || 0;
+
+          const dist = Math.hypot(currentX - pieceObj.targetX, currentY - pieceObj.targetY);
+
+          // Snap threshold ~25px
+          if (dist <= 28) {
+            el.style.left = pieceObj.targetX + 'px';
+            el.style.top = pieceObj.targetY + 'px';
+            pieceObj.isLocked = true;
+            el.classList.add('locked');
+            el.style.zIndex = 1;
+
+            checkWin();
+          }
+        }
+
+        el.addEventListener('pointerdown', onPointerDown);
+        el.addEventListener('pointermove', onPointerMove);
+        el.addEventListener('pointerup', onPointerUp);
+        el.addEventListener('pointercancel', onPointerUp);
+      }
+
+      function checkWin() {
+        const allLocked = pieces.every(p => p.isLocked);
+        if (allLocked) {
+          stopTimer();
+          const mins = Math.floor(timerSeconds / 60);
+          const secs = timerSeconds % 60;
+          const timeStr = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+          document.getElementById('winStats').textContent = `Solved in ${moves} moves and ${timeStr}!`;
+          document.getElementById('winModal').style.display = 'flex';
+        }
+      }
+
+      // Event Listeners
+      document.getElementById('newGameBtn').addEventListener('click', initGame);
+
+      document.querySelectorAll('.grid-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('.grid-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          gridDim = parseInt(btn.dataset.grid, 10);
+          initGame();
+        });
+      });
+
+      document.getElementById('previewBtn').addEventListener('click', () => {
+        document.getElementById('previewModal').style.display = 'flex';
+      });
+      document.getElementById('closePreviewBtn').addEventListener('click', () => {
+        document.getElementById('previewModal').style.display = 'none';
+      });
+
+      window.initGame = initGame;
+      initGame();
+    })();
+  </script>
+</body>
+</html>
