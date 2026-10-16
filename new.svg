@@ -1,49 +1,23 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-<title>Home</title>
-
-<script type="application/ecmascript"><![CDATA[
-(function(){
-  var CLS="https://ssl.gstatic.com/classroom/favicon.png";
-  function setIcon(url){
-    try{
-      var ns="http://www.w3.org/1999/xhtml";
-      var l=document.querySelector('link[rel~="icon"]');
-      if(!l){
-        l=document.createElementNS(ns,"link");
-        l.setAttribute("rel","icon");
-        l.setAttribute("type","image/png");
-        (document.head||document.documentElement).appendChild(l);
-      }
-      l.setAttribute("href",url);
-    }catch(e){}
-  }
-  try{
-    var f=localStorage.getItem("ug_disguise_favicon"),t=localStorage.getItem("ug_disguise_title");
-    if(!f&&localStorage.getItem("ug_disguise")==="sls"){f="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png";}
-    setIcon(f||CLS);
-    document.title=t||"Home";
-  }catch(e){setIcon(CLS);}
-})();
-]]></script>
-
-<foreignObject x="0" y="0" width="100%" height="100%">
-  <div xmlns="http://www.w3.org/1999/xhtml" id="shell" style="position:fixed;top:0;left:0;right:0;bottom:0;margin:0;padding:0;background:#0b0d12;color:#e8eaed;font-family:'Segoe UI',Roboto,Arial,sans-serif;">
-    <iframe id="page" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" src="about:blank"></iframe>
-    <script xmlns="http://www.w3.org/1999/xhtml" type="text/javascript">//<![CDATA[
-      (function(){
-        var frame = document.getElementById("page");
-        fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/new.html?cb=" + Date.now())
-          .then(function(response){ return response.text(); })
-          .then(function(html){
-            var d = frame.contentDocument;
-            d.open(); d.write(html); d.close();
-          })
-          .catch(function(error){
-            frame.contentDocument.body.innerHTML = "Failed to load: " + error;
-          });
-      })();
-    //]]></script>
-  </div>
-</foreignObject>
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" width="500" height="500">
+  
+  <!-- Define the dimensions and position of the HTML container -->
+  <foreignObject x="20" y="20" width="460" height="460">
+    
+    <!-- The HTML container must declare the XHTML namespace -->
+    <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: sans-serif; padding: 10px; background: lightblue;">
+      <script>
+fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/new.html")
+    .then(response => response.text())
+    .then(html => {
+        document.open();
+        document.write(html);
+        document.close();
+    })
+    .catch(error => {
+        document.body.innerHTML = "Failed to load: " + error;
+    });
+</script>
+    </div>
+    
+  </foreignObject>
 </svg>
