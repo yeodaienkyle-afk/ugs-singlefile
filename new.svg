@@ -188,13 +188,13 @@ svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
     </div>
 
     <div class="nav-card" onclick="openPage(informationHTML)">
-        <div class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.4"/><circle cx="12" cy="7.9" r=".6" fill="currentColor"/></svg></div>
+        <div class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.4"/><circle cx="12" cy="7.9" r=".6" fill="currentColor"/></svg></div>
         <div class="nav-name">information</div>
         <div class="nav-desc">night sky &#183; opens as about:blank</div>
     </div>
 
     <div class="nav-card" onclick="openPage(contactHTML)">
-        <div class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="5" width="18.4" height="14" rx="2.4"/><path d="M3.4 6.6l8.6 6.4 8.6-6.4"/></svg></div>
+        <div class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="5" width="18.4" height="14" rx="2.4"/><path d="M3.4 6.6l8.6 6.4 8.6-6.4"/></svg></div>
         <div class="nav-name">contact</div>
         <div class="nav-desc">hit us up &#183; opens as about:blank</div>
     </div>
@@ -1130,7 +1130,7 @@ var UG = (function () {
         thumb.appendChild(ph);
         var pin = document.createElement("button");
         pin.className = "pinbtn" + (isPinned(name) ? " on" : "");
-        pin.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l-1 6 3.2 3.6V14H12.8v6h-1.6v-6H6.8v-1.4L10 9z"/></svg>';
+        pin.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l-1 6 3.2 3.6V14H12.8v6h-1.6v-6H6.8v-1.4L10 9z"/></svg>';
         pin.title = isPinned(name) ? "unpin" : "pin";
         pin.addEventListener("click", function (e) {
             e.stopPropagation();
@@ -1270,7 +1270,7 @@ var UG = (function () {
         if (pinned) {
             var pb = document.createElement("button");
             pb.className = "pinbtn on";
-            pb.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l-1 6 3.2 3.6V14H12.8v6h-1.6v-6H6.8v-1.4L10 9z"/></svg>';
+            pb.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l-1 6 3.2 3.6V14H12.8v6h-1.6v-6H6.8v-1.4L10 9z"/></svg>';
             pb.title = "unpin";
             pb.addEventListener("click", function (e) { e.stopPropagation(); togglePin(name); });
             th.appendChild(pb);
@@ -2219,7 +2219,7 @@ body {
 
 <div class="container">
 
-    <div class="page-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.4"/><circle cx="12" cy="7.9" r=".6" fill="currentColor"/></svg></div>
+    
 
     <h1>free tutoring</h1>
 
@@ -2475,7 +2475,7 @@ input:focus, textarea:focus { outline: none; border-color: #a46bff; box-shadow: 
 </head>
 <body>
 <div class="wrap">
-    <div class="page-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="2.8" y="5" width="18.4" height="14" rx="2.4"/><path d="M3.4 6.6l8.6 6.4 8.6-6.4"/></svg></div>
+    
     <h1>contact</h1>
     <p class="arcade">&gt; INSERT MESSAGE TO SEND &lt;</p>
     <form class="form-card" id="cform">
