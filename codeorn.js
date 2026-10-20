@@ -3434,11 +3434,12 @@ const lower = file.toLowerCase();
   const normalized = normalizeFileName(file);
   const encoded = encodeURIComponent(normalized);
 
-  const url = `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/UGS-Files/${encoded}` + `?t=${Date.now()}`;
+  const sources = [
+    `UGS-Files/${encoded}?t=${Date.now()}`,
+    `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/UGS-Files/${encoded}?t=${Date.now()}`,
+  ];
 
-  fetch(url)
-    .then((response) => response.text())
-    .then((text) => {
+  const launchGame = (text) => {
 if (/<head\b[^>]*>/i.test(text)) {
                   text = text.replace(/<head\b[^>]*>/i, (h) => h + SAVE_BAR_TAG);
                 } else if (/<html\b[^>]*>/i.test(text)) {
@@ -3449,7 +3450,22 @@ if (/<head\b[^>]*>/i.test(text)) {
       document.open();
       document.write(text);
       document.close();
-    });
+  };
+
+  (function trySource(i) {
+    if (i >= sources.length) {
+      document.open();
+      document.write("<p>Couldn't load this game from any source. Check your connection and try again.</p>");
+      document.close();
+      return;
+    }
+    const fetchAbort = new AbortController();
+    const fetchTimer = setTimeout(() => fetchAbort.abort(), 8000);
+    fetch(sources[i], { signal: fetchAbort.signal })
+      .then((response) => { if (!response.ok) throw new Error("HTTP " + response.status); return response.text(); })
+      .then((text) => { clearTimeout(fetchTimer); launchGame(text); })
+      .catch(() => { clearTimeout(fetchTimer); trySource(i + 1); });
+  })(0);
 };
         btn.style.width = "100%";
         btn.style.height = "100%";
