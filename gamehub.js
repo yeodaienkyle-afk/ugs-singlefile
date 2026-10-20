@@ -122,7 +122,9 @@
         newWin.document.close();
         return;
       }
-      fetch(sources[i])
+      const fetchAbort = new AbortController();
+      const fetchTimer = setTimeout(function () { fetchAbort.abort(); }, 8000);
+      fetch(sources[i], { signal: fetchAbort.signal })
         .then(function (response) {
           if (!response.ok) throw new Error(response.status);
           return response.text();
