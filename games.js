@@ -3078,13 +3078,23 @@ var __ugTermsCache = null;
 function __ugFetchTerms(cb) {
   if (__ugTermsCache !== null) { cb(__ugTermsCache); return; }
   var t = Date.now();
-  fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/terms.txt?t=" + t)
-    .then(function (r) { return r.ok ? r.text() : null; })
-    .then(function (txt) {
-      __ugTermsCache = txt && txt.trim() ? txt : __UG_TERMS_FALLBACK;
-      cb(__ugTermsCache);
-    })
-    .catch(function () { __ugTermsCache = __UG_TERMS_FALLBACK; cb(__ugTermsCache); });
+  var termsSources = [
+    "terms.txt?t=" + t,
+    "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/terms.txt?t=" + t
+  ];
+  (function tryTerms(i) {
+    if (i >= termsSources.length) { __ugTermsCache = __UG_TERMS_FALLBACK; cb(__ugTermsCache); return; }
+    var abort = new AbortController();
+    var timer = setTimeout(function () { abort.abort(); }, 8000);
+    fetch(termsSources[i], { signal: abort.signal })
+      .then(function (r) { return r.ok ? r.text() : null; })
+      .then(function (txt) {
+        clearTimeout(timer);
+        __ugTermsCache = txt && txt.trim() ? txt : __UG_TERMS_FALLBACK;
+        cb(__ugTermsCache);
+      })
+      .catch(function () { clearTimeout(timer); tryTerms(i + 1); });
+  })(0);
 }
 
 /* mute-audio script: everything stays silent while the gate covers the screen */
