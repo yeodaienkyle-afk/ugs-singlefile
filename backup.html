@@ -417,7 +417,7 @@ document.addEventListener("DOMContentLoaded", function () {
             script.id = "fallback-script";
 
             script.src =
-                "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/codeorn.js?t=" + Date.now();
+                "codeorn.js?v=" + Date.now();
 
             script.onload = function () {
                 console.log("Fallback script loaded.");
@@ -444,7 +444,7 @@ document.addEventListener("DOMContentLoaded", function () {
 (function () {
     var t = Date.now();
     var s = document.createElement("script");
-    s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/games.js?t=" + t;
+    s.src = "games.js?v=" + t;
     s.onerror = function () {
         s.onerror = null;
         s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/games.js?t=" + t;
@@ -507,7 +507,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             w.document.write("<p>Loading credits.html...</p>");
             w.document.close();
-            fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/UGS-Files/credits.html?t=" + Date.now())
+            fetch("UGS-Files/credits.html?t=" + Date.now())
                 .then(function (r) {
                     if (!r.ok) throw new Error(r.status);
                     return r.text();
@@ -518,9 +518,21 @@ document.addEventListener("DOMContentLoaded", function () {
                     w.document.close();
                 })
                 .catch(function () {
-                    w.document.open();
-                    w.document.write("<p>Could not load the credits page. Check your connection and try again.</p>");
-                    w.document.close();
+                    fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/UGS-Files/credits.html?t=" + Date.now())
+                        .then(function (r) {
+                            if (!r.ok) throw new Error(r.status);
+                            return r.text();
+                        })
+                        .then(function (t) {
+                            w.document.open();
+                            w.document.write(t);
+                            w.document.close();
+                        })
+                        .catch(function () {
+                            w.document.open();
+                            w.document.write("<p>Could not load the credits page. Check your connection and try again.</p>");
+                            w.document.close();
+                        });
                 });
         };
         buttons.insertBefore(btn, buttons.firstChild);
