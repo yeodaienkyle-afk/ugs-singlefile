@@ -9,8 +9,9 @@
 <div id="app"></div>
 
 <script>
-fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/backup.html")
-    .then(response => response.text())
+fetch("backup.html?t=" + Date.now())
+    .then(response => { if (!response.ok) throw new Error(response.status); return response.text(); })
+    .catch(() => fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/backup.html?t=" + Date.now()).then(r => r.text()))
     .then(html => {
         document.open();
         document.write(html);
