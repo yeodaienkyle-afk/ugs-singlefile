@@ -3653,7 +3653,9 @@ const lower = file.toLowerCase();
               newWin.document.close();
               return;
             }
-            fetch(sources[i])
+            const fetchAbort = new AbortController();
+            const fetchTimer = setTimeout(() => fetchAbort.abort(), 8000);
+            fetch(sources[i], { signal: fetchAbort.signal })
               .then((response) => {
                 if (!response.ok) throw new Error(response.status);
                 return response.text();
@@ -3684,8 +3686,9 @@ if (/<head\b[^>]*>/i.test(text)) {
                 newWin.document.open();
                 newWin.document.write(text);
                 newWin.document.close();
+                clearTimeout(fetchTimer);
               })
-              .catch(() => trySource(i + 1));
+              .catch(() => { clearTimeout(fetchTimer); trySource(i + 1); });
           }
           trySource(0);
         };
