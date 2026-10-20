@@ -192,14 +192,25 @@ function generateAllSections() {
 
           const normalized = normalizeFileName(file);
           const encoded = encodeURIComponent(normalized);
-          const url = `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/offline/${encoded}`;
+          const sources = [
+            `offline/${encoded}?t=${Date.now()}`,
+            `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/offline/${encoded}?t=${Date.now()}`,
+          ];
 
-          fetch(url)
-            .then((text) => {
-  const blob = new Blob([text], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
-  window.open(url, "_blank");
-});
+          (function trySource(i) {
+            if (i >= sources.length) return;
+            const fetchAbort = new AbortController();
+            const fetchTimer = setTimeout(() => fetchAbort.abort(), 8000);
+            fetch(sources[i], { signal: fetchAbort.signal })
+              .then((response) => { if (!response.ok) throw new Error("HTTP " + response.status); return response.text(); })
+              .then((text) => {
+                clearTimeout(fetchTimer);
+                const blob = new Blob([text], { type: "text/html" });
+                const blobUrl = URL.createObjectURL(blob);
+                window.open(blobUrl, "_blank");
+              })
+              .catch(() => { clearTimeout(fetchTimer); trySource(i + 1); });
+          })(0);
         };
         btn.style.width = "100%";
         btn.style.height = "100%";
