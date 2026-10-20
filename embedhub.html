@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+<title>Home</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Roboto, Arial, sans-serif; background: #f8f9fa; color: #202124; padding: 20px; }
+  h1 { font-size: 22px; font-weight: 400; margin-bottom: 16px; }
+  #searchInput { width: 100%; max-width: 420px; padding: 10px 14px; border: 1px solid #dadce0; border-radius: 8px; font-size: 14px; margin-bottom: 18px; outline: none; }
+  #searchInput:focus { border-color: #1a73e8; }
+  .letter-section { margin-bottom: 18px; }
+  .letter-header { font-size: 13px; font-weight: 500; color: #5f6368; text-transform: uppercase; margin-bottom: 8px; }
+  .buttons-container { display: flex; flex-wrap: wrap; gap: 10px; }
+  .buttons-container input[type=button] { background: #fff; border: 1px solid #dadce0; border-radius: 8px; padding: 26px 18px; width: 170px; font-size: 13px; color: #202124; cursor: pointer; transition: box-shadow .15s, border-color .15s; text-align: left; }
+  .buttons-container input[type=button]:hover { box-shadow: 0 1px 6px rgba(32,33,36,.28); border-color: #dadce0; }
+  #stage { display: none; position: fixed; inset: 0; background: #fff; z-index: 9999; }
+  #stage iframe { width: 100%; height: 100%; border: 0; }
+  #stage .bar { position: fixed; top: 0; right: 0; display: flex; gap: 8px; padding: 8px; z-index: 10000; }
+  #stage .bar button, #stage .bar a { font-size: 12px; padding: 6px 12px; border: 1px solid #dadce0; border-radius: 16px; background: #fff; color: #3c4043; cursor: pointer; text-decoration: none; }
+</style>
+</head>
+<body>
+<h1>UGS Files</h1>
+<input type="text" id="searchInput" placeholder="Search" oninput="filterList(this.value)">
+<div id="sections-container">
+<div class="letter-section" data-letter="#">
+  <div class="letter-header">#</div>
+  <div class="buttons-container">
+<input type="button" value="1v1 Basketball" onclick="play('AKfycbwDVKSBVuNK4axJUnLuqHJHWh7EubO4icUJldVaUPoVqjsalm2SB9mCKg7x6f0rU7O6OA')">
+<input type="button" value="1v1 Hockey" onclick="play('AKfycbyzYs6pQLcgMsjNZ1-YovjUPrruPQtfNcOjaOCMv0KpuRdjd05-u-2owQoardtV62a1')">
+  </div>
+</div>
+<div class="letter-section" data-letter="A">
+  <div class="letter-header">A</div>
+  <div class="buttons-container">
+<input type="button" value="Aquapark Idle" onclick="play('AKfycbyMFmC4rSHnvW_Etgd0io14Q4bD4BnfEk9RHlCue81lueG4LbYq1MmU7ujp1SGvR5HX')">
+  </div>
+</div>
+<div class="letter-section" data-letter="B">
+  <div class="letter-header">B</div>
+  <div class="buttons-container">
+<input type="button" value="Basketball Bros" onclick="play('AKfycbwzYMDDcdDUAvEP7iO6OdRk-5_oUp6vYvDdyEEz8tTOzWi5y4-Qf3vQ6TBoZuc9UYVcLg')">
+<input type="button" value="Big Tall Small" onclick="play('AKfycbz649RZ1PL4DF6cvIR5He95H8xzsHjnAIP14lcS8EDivjYrl_OnxbMlOb2nrW7zdXx-')">
+<input type="button" value="Black Holeio" onclick="play('AKfycbxd7ncrw2DTjo8ATA7n9DnTaPJ0MSQsTlySYpFb2AcX9K_2srQCK3GxU2kV9lMJBZhJ')">
+<input type="button" value="Brawl Ships" onclick="play('AKfycby1ojj07-bMzkztAHz7nJxL0c88gZzRF9HR1fCRxGjfGG13iuAt6S5pXuc15jxdIO3tyA')">
+<input type="button" value="Bricks Breaker" onclick="play('AKfycby2uvwlcywNhyTMzEcHDqHdN_BOR46sSvGkaGiCS74p__OQcEzgq0YweLbZlroTnXs7')">
+  </div>
+</div>
+<div class="letter-section" data-letter="C">
+  <div class="letter-header">C</div>
+  <div class="buttons-container">
+<input type="button" value="Call Of Duty Flash" onclick="play('AKfycbyVPz9wAXi5MOoN-W13DNHZB-mdu-B6MdRdvq6qPpC-cIYGU7RZggTJpPIZFDEA_XShlQ')">
+<input type="button" value="Car Driving" onclick="play('AKfycbzQlpr1tIkhRPz587329iVg2MEKG1JuFGIsqoiaxezladgDxbYHMpwNiIUTn_5T16w6')">
+<input type="button" value="Car Training" onclick="play('AKfycbwHG-nBpdYtwW3DS-0WTVa191rByTmy1hB6Nfnbu8210Qf0GJDlQTws79TL9exSrAA4Rw')">
+<input type="button" value="Cat Burglar" onclick="play('AKfycbwlVecsf8SnAGl198mG_8upeZC90IDgrazqA6ssKdPQTgzA8xkPu1Zicgt2K36Wm-Dq')">
+<input type="button" value="Chess Mania" onclick="play('AKfycbz4gD_zXP65G1-osSge64RPYpvUy5DCxIEW-iNOboPY640a1n-_Ace_bcfoCdVLCQ3b')">
+<input type="button" value="Craft Raft" onclick="play('AKfycbwpQHXN2419GU1OjX9m-MoQwpIeM-ZSq7r2UE3NiqJ_GqPinDaFWAd_FJ_i0HZ_pxU')">
+  </div>
+</div>
+<div class="letter-section" data-letter="D">
+  <div class="letter-header">D</div>
+  <div class="buttons-container">
+<input type="button" value="Dig To Escape The Island" onclick="play('AKfycbz3g4g5OZzdwCllJRXQeiB5WsRS6k83WwxhQJAhf5Y_POwAMD6sKJFlBlgD1jgfZInifg')">
+  </div>
+</div>
+<div class="letter-section" data-letter="E">
+  <div class="letter-header">E</div>
+  <div class="buttons-container">
+<input type="button" value="Eventide" onclick="play('AKfycbxWXGbJgAYG7l9vFEc7abFkx1xLN70eOAaqkfR95BzYWPsWop2AL-Oi1E02yv48yQOS')">
+  </div>
+</div>
+<div class="letter-section" data-letter="F">
+  <div class="letter-header">F</div>
+  <div class="buttons-container">
+<input type="button" value="Fly The Farthest" onclick="play('AKfycbyOP-i1mjNpvwaB-VTpGwOuNw2P00c8TAeXR7_9ZjLhGA9C8wO-q3AYgRyYdlDPIKgX')">
+<input type="button" value="Footballand Legends" onclick="play('AKfycbz-ObfO1VCo7Q0GsJidFGSJlVrUf9KnnMj3xXzqlUy8joA4ULrEUkWpbm0LWBtdaD8Meg')">
+  </div>
+</div>
+<div class="letter-section" data-letter="O">
+  <div class="letter-header">O</div>
+  <div class="buttons-container">
+<input type="button" value="Only Racer" onclick="play('AKfycbxeLEpzZpAIPrMSkB1dCTPkLcn8wcNTVCw0wfN2q_jOfXWQ3GhcrqygfgQq1t2yyK6tCQ')">
+  </div>
+</div>
+<div class="letter-section" data-letter="P">
+  <div class="letter-header">P</div>
+  <div class="buttons-container">
+<input type="button" value="Papas Burgeria" onclick="play('AKfycbyyfjHc-YiNqGOngfUlkjS5Fvx2x0UYfkerogM_Y3-Z1BQTZW2K0AcegLUtVdRjo5nM')">
+  </div>
+</div>
+<div class="letter-section" data-letter="S">
+  <div class="letter-header">S</div>
+  <div class="buttons-container">
+<input type="button" value="Slope Tunnel" onclick="play('AKfycbxCjFm9flkwfKZI7LmxfNvwU5arhB3gveNlY4pFgq5hEVXDHaLG83g1O1KjYdtEfQyN')">
+<input type="button" value="Space Wars" onclick="play('AKfycbwFZ8nVVnzJ7Ok7T596pn-Y0GriUK20c7_rxqCVIdlY-6-Wym3xrJhO-NyQi8NogxqDXw')">
+<input type="button" value="Stickman Parkour" onclick="play('AKfycbwmHiH-ifVw054CFLpPM7qyZfLfwebB1KTGCqKzm0iJopITachomI745g6ttdHt2NZ6')">
+  </div>
+</div>
+<div class="letter-section" data-letter="T">
+  <div class="letter-header">T</div>
+  <div class="buttons-container">
+<input type="button" value="Taxi Drift" onclick="play('AKfycbw5OBrDuUEcIA8zhAOiNU3U800gv3niOBqf44VIjv1ZfndCgav4OxoEPHS1ZLRCwHUnHg')">
+<input type="button" value="Tiny Archers" onclick="play('AKfycbwewqfKyRlPVStl7DY10aR-AbTtoXNZzFxi_TEgtOfJacKP6zplkmCDV5C8Ns7NKowl')">
+  </div>
+</div>
+<div class="letter-section" data-letter="W">
+  <div class="letter-header">W</div>
+  <div class="buttons-container">
+<input type="button" value="Wavy Trip" onclick="play('AKfycbzjhxPi-HfYlTk5M2E054xp3xb8XU_CZueAbN1wDCawZ8p5v3UnrUu8bdnnj_lou-I')">
+<input type="button" value="Winter Flip" onclick="play('AKfycbwjZwVYwDcjN1M5IaOJu6hTOjp9oqqz5xE0-y9F595-RfISslp38zt6ecgyz_KexhG4')">
+  </div>
+</div>
+<div class="letter-section" data-letter="Z">
+  <div class="letter-header">Z</div>
+  <div class="buttons-container">
+<input type="button" value="Zombie Sandbox" onclick="play('AKfycbxutg4sKZIHB5Nu6jyZ1PcIze8YSbsHFDx8xJraC4VHAfJOu4If-Tk7swki5Mia_IGY')">
+  </div>
+</div></div>
+<div id="stage">
+  <div class="bar">
+    <a id="openTab" href="#" target="_blank" style="display:none">open in new tab</a>
+    <button onclick="closeStage()">&#8592; back</button>
+  </div>
+  <iframe id="frame" allow="autoplay; fullscreen; gamepad; clipboard-write" allowfullscreen></iframe>
+</div>
+<script>
+function play(execId) {
+  var url = "https://script.google.com/macros/s/" + execId + "/exec";
+  var stage = document.getElementById('stage');
+  document.getElementById('frame').src = url;
+  var a = document.getElementById('openTab');
+  a.href = url; a.style.display = 'inline-block';
+  stage.style.display = 'block';
+  document.title = 'Home';
+}
+function closeStage() {
+  document.getElementById('stage').style.display = 'none';
+  document.getElementById('frame').src = 'about:blank';
+}
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeStage(); });
+function filterList(q) {
+  q = q.toLowerCase().trim();
+  document.querySelectorAll('.letter-section').forEach(function (sec) {
+    var any = false;
+    sec.querySelectorAll('input[type=button]').forEach(function (b) {
+      var m = !q || b.value.toLowerCase().includes(q);
+      b.style.display = m ? '' : 'none';
+      if (m) any = true;
+    });
+    sec.style.display = any ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>
