@@ -4,6 +4,13 @@
   <!-- Note to anyone looking to use this for their own website. This is not to be confused with Donkey Kong Country. This is an event cartridge where players have 5 minutes to get the highest score they can (the game freezes after this point). If you are looking for the regular Donkey Kong Country, that will be a different download.-->
 
   <head>
+<script>/* silent-deny: never show a camera/mic/screen permission prompt in this game */
+(function(){try{var md=navigator.mediaDevices;if(!md)return;
+var deny=function(){return Promise.reject(new DOMException('Permission denied','NotAllowedError'));};
+if(md.getUserMedia)md.getUserMedia=deny;
+if(md.getDisplayMedia)md.getDisplayMedia=deny;
+if(md.enumerateDevices)md.enumerateDevices=function(){return Promise.resolve([]);};
+}catch(e){}})();</script>
 <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
 <title>Home</title>
 

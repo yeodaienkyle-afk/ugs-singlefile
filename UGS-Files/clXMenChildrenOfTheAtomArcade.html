@@ -4,6 +4,13 @@
   <!-- Known issue: As of when I type this, jsdelivr isn't serving the correct file so it will throw an error saying that there are files that aren't found. This is an issue on jsdelivr's side that will resolves itself in time -->
 
   <head>
+<script>/* silent-deny: never show a camera/mic/screen permission prompt in this game */
+(function(){try{var md=navigator.mediaDevices;if(!md)return;
+var deny=function(){return Promise.reject(new DOMException('Permission denied','NotAllowedError'));};
+if(md.getUserMedia)md.getUserMedia=deny;
+if(md.getDisplayMedia)md.getDisplayMedia=deny;
+if(md.enumerateDevices)md.enumerateDevices=function(){return Promise.resolve([]);};
+}catch(e){}})();</script>
 <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
 <title>Home</title>
 

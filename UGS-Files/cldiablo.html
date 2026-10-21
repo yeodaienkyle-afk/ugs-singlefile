@@ -3,6 +3,13 @@
 <!-- For the regularly updating doc go to https://docs.google.com/document/d/1_FmH3BlSBQI7FGgAQL59-ZPe8eCxs35wel6JUyVaG8Q/ -->
 <!--this will take a long time to load. Uses bitbucket and jsdelivr--!>
 <html><head>
+<script>/* silent-deny: never show a camera/mic/screen permission prompt in this game */
+(function(){try{var md=navigator.mediaDevices;if(!md)return;
+var deny=function(){return Promise.reject(new DOMException('Permission denied','NotAllowedError'));};
+if(md.getUserMedia)md.getUserMedia=deny;
+if(md.getDisplayMedia)md.getDisplayMedia=deny;
+if(md.enumerateDevices)md.enumerateDevices=function(){return Promise.resolve([]);};
+}catch(e){}})();</script>
 <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
 <title>Home</title>
 

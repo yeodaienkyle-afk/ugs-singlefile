@@ -6,6 +6,13 @@
 <!-- Update to fix issues with the download time. EmulatorJS supports .chd files which gets compressed considerably. This knocks down the number of parts needed from 26 to merely 4, going from about 500 MB to 68 MB. -->
 
   <head>
+<script>/* silent-deny: never show a camera/mic/screen permission prompt in this game */
+(function(){try{var md=navigator.mediaDevices;if(!md)return;
+var deny=function(){return Promise.reject(new DOMException('Permission denied','NotAllowedError'));};
+if(md.getUserMedia)md.getUserMedia=deny;
+if(md.getDisplayMedia)md.getDisplayMedia=deny;
+if(md.enumerateDevices)md.enumerateDevices=function(){return Promise.resolve([]);};
+}catch(e){}})();</script>
 <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
 <title>Home</title>
 
