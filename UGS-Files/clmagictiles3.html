@@ -294,43 +294,63 @@ p.footer {
     });
 
     // ---------- background full download for offline play ----------
+    // Deferred until after boot so it never competes with boot-critical
+    // requests (jsDelivr rate-limits aggressive parallel fetching).
     if (HASCS) {
       var bar = document.getElementById('ugdl');
-      var queue = MANIFEST.slice(), done = 0, total = queue.length;
-      bar.style.display = 'block';
-      function tick() {
-        done++;
-        bar.textContent = 'Saving game for offline: ' + done + '/' + total;
-        if (done >= total) {
-          bar.textContent = 'Saved — works offline now';
-          bar.className = 'done';
-          setTimeout(function () { bar.style.display = 'none' }, 4000);
-        }
-      }
-      caches.open(CACHE).then(function (c) {
-        c.keys().then(function (keys) {
-          var have = Object.create(null);
-          keys.forEach(function (r) { have[r.url] = 1 });
-          queue = queue.filter(function (p) { return !have[BASE + p] });
-          total = queue.length; done = 0;
-          if (!total) { bar.textContent = 'Saved — works offline now'; bar.className = 'done'; setTimeout(function () { bar.style.display = 'none' }, 2000); return }
-          bar.textContent = 'Saving game for offline: 0/' + total;
-          var workers = [];
-          for (var w = 0; w < 4; w++) workers.push((function next() {
-            var p = queue.shift();
-            if (!p) return Promise.resolve();
-            var url = BASE + p;
-            return c.match(url).then(function (m) {
-              if (m) return null;
-              return _fetch(url).then(function (r) {
-                if (!r.ok) return null;
-                return c.put(url, r);
+      var queue = MANIFEST.slice(), done = 0, total = queue.length, fails = 0, paused = false;
+      var startDelay = setTimeout(beginDownload, 12000);
+      // also begin once the game canvas actually resized (= booted)
+      var bootWatcher = setInterval(function () {
+        var c = document.getElementById('GameCanvas');
+        if (c && c.width > 300) { clearInterval(bootWatcher); clearTimeout(startDelay); beginDownload(); }
+      }, 500);
+      setTimeout(function(){ clearInterval(bootWatcher); }, 60000);
+      function beginDownload () {
+        if (bar.__started) return;
+        bar.__started = true;
+        bar.style.display = 'block';
+        caches.open(CACHE).then(function (c) {
+          c.keys().then(function (keys) {
+            var have = Object.create(null);
+            keys.forEach(function (r) { have[r.url] = 1 });
+            queue = queue.filter(function (p) { return !have[BASE + p] });
+            total = queue.length; done = 0;
+            if (!total) { markDone(); return }
+            bar.textContent = 'Saving game for offline: 0/' + total;
+            var workers = [];
+            for (var w = 0; w < 3; w++) workers.push((function next() {
+              if (!queue.length || paused) return Promise.resolve();
+              var p = queue.shift();
+              var url = BASE + p;
+              return c.match(url).then(function (m) {
+                if (m) return null;
+                return new Promise(function (res) { setTimeout(res, 250) }).then(function () {
+                  return _fetch(url).then(function (r) {
+                    if (!r.ok) throw 0;
+                    return c.put(url, r);
+                  });
+                });
+              }).then(function () { fails = 0; }, function () { fails++ }).then(function () {
+                if (fails >= 5) { paused = true; setTimeout(function () { paused = false; fails = 0 }, 60000); }
+                tick();
+                return next();
               });
-            }).catch(function () {}).then(function () { tick(); return next() });
-          })());
-          Promise.all(workers);
+            })());
+            Promise.all(workers);
+          });
         });
-      });
+      }
+      function tick () {
+        done++;
+        if (!paused) bar.textContent = 'Saving game for offline: ' + Math.min(done, total) + '/' + total;
+        if (done >= total) markDone();
+      }
+      function markDone () {
+        bar.textContent = 'Saved — works offline now';
+        bar.className = 'done';
+        setTimeout(function () { bar.style.display = 'none' }, 4000);
+      }
     }
   })();
   </script>
