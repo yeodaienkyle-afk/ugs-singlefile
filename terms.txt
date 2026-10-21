@@ -16,6 +16,13 @@ PRIVACY POLICY
 - we do not collect or share any personal data.
 - contact messages are stored privately and read by the owner only.
 
+PERMISSIONS
+
+- no game on this site needs your camera or microphone. nothing here records you, ever.
+- if your browser ever asks for camera or mic access, hit block. every game runs exactly the same with it denied.
+- emulator games have camera and mic requests silently auto-denied, so you should never even see a prompt.
+- if a permission prompt does somehow appear, deny it and report it on the contact page.
+
 CREDITS
 
 - hub, launcher, games list and patches (cc) powerenkyle2 2026. all rights reserved.
