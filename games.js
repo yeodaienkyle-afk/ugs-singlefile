@@ -3636,7 +3636,7 @@ const lower = file.toLowerCase();
           // live mirrors so games always load.
           const sources = [
             `UGS-Files/${encoded}?t=${cacheBust}`,
-            `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@dcca818e13ce841f735795fd90feb572cb78f83c/UGS-Files/${encoded}?t=${cacheBust}`,
+            `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@054e24933a13f907bd98c083861b704b292cbdd7/UGS-Files/${encoded}?t=${cacheBust}`,
             `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/UGS-Files/${encoded}?t=${cacheBust}`,
             `https://cdn.jsdelivr.net/gh/lipama/ugs-singlefile/UGS-Files/${encoded}?t=${cacheBust}`,
           ];
