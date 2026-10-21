@@ -462,6 +462,10 @@ a:active {
   Object.defineProperty(HTMLMediaElement.prototype, 'src', { get: dm.get, set: function(v){ dm.set.call(this, vurl(v)); } });
   var sa = Element.prototype.setAttribute;
   Element.prototype.setAttribute = function(n, v){ if ((n === 'src' || n === 'href') && typeof v === 'string') v = vurl(v); return sa.call(this, n, v); };
+  var OrigAudio = window.Audio;
+  var PatchedAudio = function(u){ return (u === undefined || u === null) ? new OrigAudio() : new OrigAudio(vurl(String(u))); };
+  PatchedAudio.prototype = OrigAudio.prototype;
+  window.Audio = PatchedAudio;
   var _f = window.fetch;
   if (_f) window.fetch = function(input, init){ try { if (typeof input === 'string') { input = vurl(input); } else if (input && input.url) { input = new Request(vurl(input.url), init); } } catch(e){} return _f(input, init); };
 })();
