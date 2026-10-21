@@ -1,39 +1,143 @@
 <!DOCTYPE html>
-
-
-<!-- Ultimate Game Stash file--> 
-<!-- For the regularly updating doc go to https://docs.google.com/document/d/1_FmH3BlSBQI7FGgAQL59-ZPe8eCxs35wel6JUyVaG8Q/ -->
-	
-
-
+<!-- Ultimate Game Stash file-->
 <html lang="en-us">
   <head>
 <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
 <title>Home</title>
-
-  
     <meta charset="utf-8">
-    <base href="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/tempoverdose/">
+    <base href="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@81e9427c2b753d2dc491865870f7afb30d606737/tempoverdose/">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    
-    
-    <link rel="stylesheet" href="TemplateData/style.css">
-    <script src="TemplateData/UnityProgress.js"></script>
-        <script>
+
+<script>
+/* offline cache layer: first load pulls from cdn.jsdelivr and stores everything in
+   browser Cache Storage; every later load serves 100% local (works with CDN blocked) */
+(function () {
+  try {
+    if (!window.caches) return;
+    var BASE = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@81e9427c2b753d2dc491865870f7afb30d606737/tempoverdose/";
+    var CNAME = "tempoverdose-81e9427";
+    var nativeFetch = window.fetch.bind(window);
+    window.fetch = function (input, init) {
+      var url;
+      try {
+        url = new URL(typeof input === "string" ? input : (input && input.url) || String(input), document.baseURI).href;
+      } catch (e) { return nativeFetch(input, init); }
+      var isGet = !init || !init.method || String(init.method).toUpperCase() === "GET";
+      if (!isGet || url.indexOf(BASE) !== 0) return nativeFetch(input, init);
+      return caches.open(CNAME).then(function (c) {
+        return c.match(url).then(function (hit) {
+          if (hit) { console.log("[offline] cache hit", url.split("/").pop()); return hit; }
+          return nativeFetch(input, init).then(function (resp) {
+            if (resp && resp.ok) { try { c.put(url, resp.clone()); } catch (e) {} }
+            return resp;
+          });
+        });
+      }).catch(function () { return nativeFetch(input, init); });
+    };
+    var NativeXHR = window.XMLHttpRequest;
+    window.XMLHttpRequest = function (opts) {
+      var xhr = new NativeXHR(opts);
+      var origOpen = xhr.open.bind(xhr);
+      var origSend = xhr.send.bind(xhr);
+      var url = "";
+      xhr.open = function (m, u) {
+        url = "";
+        try { url = new URL(u, document.baseURI).href; } catch (e) {}
+        return origOpen.apply(xhr, arguments);
+      };
+      xhr.send = function () {
+        var self = this;
+        if (!url || url.indexOf(BASE) !== 0) return origSend.apply(self, arguments);
+        var p = caches.open(CNAME).then(function (c) {
+          return c.match(url).then(function (hit) {
+            if (!hit) {
+              self.addEventListener("load", function () {
+                if (self.status === 200) {
+                  try { c.put(url, new Response(self.response)); } catch (e) {}
+                }
+              });
+              return origSend.apply(self, arguments);
+            }
+            return hit.arrayBuffer().then(function (buf) {
+              function txt() { return new TextDecoder("utf-8").decode(buf); }
+              function resp() {
+                var rt = self.responseType;
+                if (rt === "arraybuffer" || rt === "blob") return buf;
+                if (rt === "json") return JSON.parse(txt());
+                return txt();
+              }
+              Object.defineProperty(self, "status", { value: 200, configurable: true });
+              Object.defineProperty(self, "statusText", { value: "OK", configurable: true });
+              Object.defineProperty(self, "responseURL", { value: url, configurable: true });
+              Object.defineProperty(self, "response", { get: resp, configurable: true });
+              Object.defineProperty(self, "responseText", { get: txt, configurable: true });
+              Object.defineProperty(self, "readyState", { value: 4, configurable: true });
+              console.log("[offline] cache hit (xhr)", url.split("/").pop());
+              setTimeout(function () {
+                if (self.onreadystatechange) self.onreadystatechange();
+                if (self.onload) self.onload({ type: "load", target: self });
+                self.dispatchEvent(new Event("readystatechange"));
+                self.dispatchEvent(new Event("load"));
+                self.dispatchEvent(new ProgressEvent("loadend"));
+              }, 1);
+            });
+          });
+        });
+        p.catch(function () { origSend.apply(self, arguments); });
+      };
+      return xhr;
+    };
+  } catch (e) { console.log("[offline] disabled:", e); }
+})();
+</script>
+
+<script>
       window.fileMergerConfig = {
         files: [
           { name: 'Tempoverdose 0.1.0.data.unityweb', parts: 2 },
         ],
         basePath: 'Build/',
-        debug: true
+        debug: false
       };
-    </script>
+</script>
 
-    <script src="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/merge.js"></script>
-    <script src="Build/UnityLoader.js"></script>
-    <script>
-      var unityInstance = UnityLoader.instantiate("unityContainer", "Build/Tempoverdose 0.1.0.json", {onProgress: UnityProgress});
-    </script>
+<script>
+/* boot: load scripts through the offline layer (Cache Storage), inline them in order */
+(function () {
+  var B = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@81e9427c2b753d2dc491865870f7afb30d606737/tempoverdose/";
+  function txt(u) {
+    return fetch(u).then(function (r) {
+      if (!r.ok) throw new Error(u + " " + r.status);
+      return r.text();
+    });
+  }
+  function css(u) {
+    return txt(u).then(function (t) {
+      var s = document.createElement("style"); s.textContent = t; document.head.appendChild(s);
+    });
+  }
+  function js(u) {
+    return txt(u).then(function (t) {
+      var s = document.createElement("script"); s.textContent = t; document.head.appendChild(s);
+    });
+  }
+  css(B + "TemplateData/style.css");
+  js(B + "TemplateData/UnityProgress.js")
+    .then(function () { return js(B + "merge.js"); })
+    .then(function () { return js(B + "Build/UnityLoader.js"); })
+    .then(function () {
+      var iv = setInterval(function () {
+        try {
+          if (typeof UnityLoader !== "undefined") {
+            clearInterval(iv);
+            window.unityInstance = UnityLoader.instantiate("unityContainer", "Build/Tempoverdose 0.1.0.json", { onProgress: UnityProgress });
+          }
+        } catch (e) {}
+      }, 50);
+    })
+    .catch(function (e) { console.error("[boot]", e); });
+})();
+</script>
   </head>
   <body>
     <div class="webgl-content">
