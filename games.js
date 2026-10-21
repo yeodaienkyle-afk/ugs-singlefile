@@ -3635,7 +3635,7 @@ const lower = file.toLowerCase();
           // live mirrors so games always load.
           const sources = [
             `UGS-Files/${encoded}?t=${cacheBust}`,
-            `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@5a6edf547b5113cc7d84e70416daf0fcad37d4fe/UGS-Files/${encoded}?t=${cacheBust}`,
+            `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@65e4bde0e72772b2292f436ac63c92d55aa9b9e4/UGS-Files/${encoded}?t=${cacheBust}`,
             `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/UGS-Files/${encoded}?t=${cacheBust}`,
             `https://cdn.jsdelivr.net/gh/lipama/ugs-singlefile/UGS-Files/${encoded}?t=${cacheBust}`,
             `https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/${encoded}?t=${cacheBust}`,
@@ -3659,6 +3659,14 @@ const lower = file.toLowerCase();
 
           function trySource(i) {
             if (i >= sources.length) {
+              let saved = null;
+              try { saved = JSON.parse(localStorage.getItem("ugs:game:" + normalized) || "null"); } catch (e) {}
+              if (saved && saved.t) {
+                newWin.document.open();
+                newWin.document.write(saved.t);
+                newWin.document.close();
+                return;
+              }
               newWin.document.open();
               newWin.document.write("<p>Couldn't load this game from any source. Check your connection and try again.</p>");
               newWin.document.close();
@@ -3697,6 +3705,9 @@ if (/<head\b[^>]*>/i.test(text)) {
                 newWin.document.open();
                 newWin.document.write(text);
                 newWin.document.close();
+                try {
+                  localStorage.setItem("ugs:game:" + normalized, JSON.stringify({ u: sources[i], t: text }));
+                } catch (e) {}
                 clearTimeout(fetchTimer);
               })
               .catch(() => { clearTimeout(fetchTimer); trySource(i + 1); });
