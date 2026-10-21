@@ -1415,6 +1415,7 @@ let files = [
   "clmadstuntcars2",
   "clmagetoweridle",
   "clmagictiles3",
+  "clmagictiles3uwp",
   "clmagicwand",
   "clmajorasmask",
   "clmakesureitsclosed",
