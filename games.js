@@ -3633,14 +3633,19 @@ const lower = file.toLowerCase();
           // Try our own copy first (works when self-hosted, or once the
           // GitHub account is publicly visible again), then fall back to
           // live mirrors so games always load.
-          const sources = [
+          // Fast origin-hosted sources tried before CDN mirrors. The original
+          // 8games.net host serves MT3 directly (CORS-open, fast edge).
+          const ORIGIN_FIRST = {
+            "clmagictiles3.html": [
+              "https://st.8games.net/12/8g/igra-volshebnye-plitki-3/index.html?t=" + cacheBust,
+            ],
+          };
+          const sources = (ORIGIN_FIRST[normalized] || []).concat([
             `UGS-Files/${encoded}?t=${cacheBust}`,
-            `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@c49366e0fdb8562af5489c35637947d89c3a977c/UGS-Files/${encoded}?t=${cacheBust}`,
+            `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@{SHA_D}/UGS-Files/${encoded}?t=${cacheBust}`,
             `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/UGS-Files/${encoded}?t=${cacheBust}`,
             `https://cdn.jsdelivr.net/gh/lipama/ugs-singlefile/UGS-Files/${encoded}?t=${cacheBust}`,
-            `https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/${encoded}?t=${cacheBust}`,
-            `https://raw.githubusercontent.com/lipama/ugs-singlefile/main/UGS-Files/${encoded}?t=${cacheBust}`,
-          ];
+          ]);
 
           // Open during the click event. Opening after fetch resolves is blocked
           // by most browsers because the user gesture has already ended.
