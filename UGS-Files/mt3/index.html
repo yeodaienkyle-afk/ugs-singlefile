@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 
-<head>
+<head><meta name="robots" content="noindex,follow">
   <meta charset="utf-8">
 
   <title>PI Playables</title>
 
-  <script src="https://www.youtube.com/game_api/v1" nonce="4eHT7UXCvu0lKrKpiCZYiQ"></script>
+  <!-- <script src="https://www.youtube.com/game_api/v1"></script> -->
 
   <!--http://www.html5rocks.com/en/mobile/mobifying/-->
   <meta name="viewport"
@@ -40,7 +40,7 @@
   <!--<link rel="apple-touch-icon" href=".png" />-->
   <!--<link rel="apple-touch-icon-precomposed" href=".png" />-->
 
-  <link rel="stylesheet" type="text/css" href="style-mobile.css" nonce="4eHT7UXCvu0lKrKpiCZYiQ" />
+  <link rel="stylesheet" type="text/css" href="style-mobile.css" />
   <link rel="icon" href="favicon.ico" />
   <style>
     body,
@@ -81,18 +81,37 @@
       height: 100%;
     }
   </style>
-</head>
+  <script src="/lib/game-loader/logo_helper.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', (e) => {
+      alertLogo("140",{top:"5px",right:"5px"});
+    })
+  </script>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5X9RD0PS50"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag("js", new Date());
+      gtag("config", "G-5X9RD0PS50");
+      gtag("event", "iframe_load", {
+        embed_referrer: document.referrer || "(no referrer)",
+        is_in_iframe: window.self !== window.top,
+        page_path: window.location.pathname
+      });
+    </script>
+    </head>
 
 <body>
   <div id="splash">
     <img id="splash-logo" src="logo_expanded.jpeg" alt="Amanotes Logo">
   </div>
   <canvas id="GameCanvas" oncontextmenu="event.preventDefault()" tabindex="0"></canvas>
-  <script src="src/settings.js" charset="utf-8" nonce="4eHT7UXCvu0lKrKpiCZYiQ"></script>
+  <script src="src/settings.js" charset="utf-8"></script>
   <%=webDebugger%>
-    <script src="main.js" charset="utf-8" nonce="4eHT7UXCvu0lKrKpiCZYiQ"></script>
+    <script src="main.js" charset="utf-8"></script>
 
-    <script type="text/javascript" nonce="4eHT7UXCvu0lKrKpiCZYiQ">
+    <script type="text/javascript">
       (function () {
         // open web debugger console
         if (typeof VConsole !== 'undefined') {
