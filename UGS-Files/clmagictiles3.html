@@ -109,6 +109,79 @@ html, body, #Cocos2dGameContainer, canvas {
   overscroll-behavior: none !important;
 }
 </style>
+<script>
+/* FORCE TOUCH MODE: this build locks keyboard ("laptop") mode on when the
+   engine sees a desktop, because cc.sys.isMobile drives every gameplay branch.
+   1) Spoof a mobile UA + touch capabilities BEFORE the Cocos engine loads,
+      so the game genuinely runs its touch gameplay (tap + working holds).
+   2) Bridge mouse input to synthetic touch events, because the engine skips
+      its mouse listeners in mobile mode (dead input on desktops otherwise). */
+(function () {
+  try {
+    Object.defineProperty(navigator, 'userAgent', {
+      get: function () {
+        return 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36';
+      }, configurable: true
+    });
+  } catch (e) {}
+  try {
+    Object.defineProperty(navigator, 'maxTouchPoints', { get: function () { return 5; }, configurable: true });
+  } catch (e) {}
+
+  var mx = 0, my = 0, held = false, lastRealTouch = 0;
+  document.addEventListener('touchstart', function () { lastRealTouch = Date.now(); }, true);
+
+  function canvas() {
+    return (window.cc && cc.game && cc.game.canvas) || document.getElementById('GameCanvas');
+  }
+  function fire(type) {
+    var cv = canvas();
+    if (!cv) return;
+    var r = cv.getBoundingClientRect();
+    var t;
+    try {
+      t = new Touch({
+        identifier: 901, target: cv,
+        clientX: mx, clientY: my,
+        pageX: mx, pageY: my,
+        screenX: mx + r.left, screenY: my + r.top,
+        radiusX: 4, radiusY: 4, rotationAngle: 0, force: 1
+      });
+    } catch (e) { return; }
+    var ev;
+    try {
+      ev = new TouchEvent(type, {
+        bubbles: true, cancelable: true,
+        touches: type === 'touchend' ? [] : [t],
+        targetTouches: type === 'touchend' ? [] : [t],
+        changedTouches: [t]
+      });
+    } catch (e) { return; }
+    cv.dispatchEvent(ev);
+  }
+  function isRealTouch() { return Date.now() - lastRealTouch < 800; }
+
+  document.addEventListener('mousedown', function (e) {
+    mx = e.clientX; my = e.clientY;
+    if (isRealTouch()) return;
+    held = true;
+    fire('touchstart');
+  }, true);
+  document.addEventListener('mousemove', function (e) {
+    mx = e.clientX; my = e.clientY;
+    if (held && !isRealTouch()) fire('touchmove');
+  }, true);
+  document.addEventListener('mouseup', function (e) {
+    mx = e.clientX; my = e.clientY;
+    if (held && !isRealTouch()) fire('touchend');
+    held = false;
+  }, true);
+  window.addEventListener('blur', function () {
+    if (held) { fire('touchcancel'); held = false; }
+  });
+})();
+</script>
+
 </head>
 
 <body>
