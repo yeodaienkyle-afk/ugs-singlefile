@@ -127,6 +127,8 @@ html, body, #Cocos2dGameContainer, canvas {
   try {
     Object.defineProperty(navigator, 'maxTouchPoints', { get: function () { return 5; }, configurable: true });
   } catch (e) {}
+  /* engine computes capabilities.touches from 'ontouchstart' in window/document */
+  try { window.ontouchstart = null; document.ontouchstart = null; } catch (e) {}
 
   var mx = 0, my = 0, held = false, lastRealTouch = 0;
   document.addEventListener('touchstart', function () { lastRealTouch = Date.now(); }, true);
