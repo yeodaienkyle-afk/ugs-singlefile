@@ -131,7 +131,7 @@ html, body, #Cocos2dGameContainer, canvas {
   try { window.ontouchstart = null; document.ontouchstart = null; } catch (e) {}
 
   var mx = 0, my = 0, held = false, lastRealTouch = 0;
-  document.addEventListener('touchstart', function () { lastRealTouch = Date.now(); }, true);
+  document.addEventListener('touchstart', function (e) { if (e.isTrusted) lastRealTouch = Date.now(); }, true);
 
   function canvas() {
     return (window.cc && cc.game && cc.game.canvas) || document.getElementById('GameCanvas');
