@@ -3550,19 +3550,6 @@ const SAVE_BAR_SCRIPT = `(function () {
     }
 
 })();`;
-/* shell cache version: bump this to invalidate every visitor's locally-saved
-   game copies at once (old "ugs:game:" entries are purged on load) */
-const SHELL_CACHE_VER = "v2026-10-22";
-(function purgeOldShellCache(){
-  try {
-    var dead = [];
-    for (var i = 0; i < localStorage.length; i++) {
-      var k = localStorage.key(i);
-      if (k.indexOf("ugs:game:") === 0 && k.indexOf(":" + SHELL_CACHE_VER + ":") === -1) dead.push(k);
-    }
-    dead.forEach(function(k){ try { localStorage.removeItem(k); } catch (e) {} });
-  } catch (e) {}
-})();
 const SAVE_BAR_TAG = "<script>" + SAVE_BAR_SCRIPT + "<\/script>";
 
 /* ---- tab disguise (sls / google classroom) ---- */
@@ -3649,8 +3636,9 @@ const lower = file.toLowerCase();
           // live mirrors so games always load.
           const sources = [
             `UGS-Files/${encoded}?t=${cacheBust}`,
-            `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@de1b457504ba4f21d7508abd323422710c4401ea/UGS-Files/${encoded}?t=${cacheBust}`,
+            `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@352c902aef580706b08d0337b1b77a0eb12c2c20/UGS-Files/${encoded}?t=${cacheBust}`,
             `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/UGS-Files/${encoded}?t=${cacheBust}`,
+            `https://cdn.jsdelivr.net/gh/lipama/ugs-singlefile/UGS-Files/${encoded}?t=${cacheBust}`,
           ];
 
           // Open during the click event. Opening after fetch resolves is blocked
@@ -3671,7 +3659,7 @@ const lower = file.toLowerCase();
           function trySource(i) {
             if (i >= sources.length) {
               let saved = null;
-              try { saved = JSON.parse(localStorage.getItem("ugs:game:" + SHELL_CACHE_VER + ":" + normalized) || "null"); } catch (e) {}
+              try { saved = JSON.parse(localStorage.getItem("ugs:game:" + normalized) || "null"); } catch (e) {}
               if (saved && saved.t) {
                 newWin.document.open();
                 newWin.document.write(saved.t);
@@ -3717,7 +3705,7 @@ if (/<head\b[^>]*>/i.test(text)) {
                 newWin.document.write(text);
                 newWin.document.close();
                 try {
-                  localStorage.setItem("ugs:game:" + SHELL_CACHE_VER + ":" + normalized, JSON.stringify({ u: sources[i], t: text }));
+                  localStorage.setItem("ugs:game:" + normalized, JSON.stringify({ u: sources[i], t: text }));
                 } catch (e) {}
                 clearTimeout(fetchTimer);
               })
