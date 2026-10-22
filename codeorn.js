@@ -2618,6 +2618,7 @@ let files = [
   "clsupertiltbros",
   "clsupitdept",
   "clsupremeduelist",
+  "clSuperStarCar",
   "clSupremeDuelist2019",
   "clsurvivalracev2",
   "clsurvivorio",
