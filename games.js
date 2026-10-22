@@ -68,6 +68,7 @@ let files = [
   "cladventneon",
   "clAdventureCapatalist",
   "cladventurecapitalist",
+  "clAdventureIslandTemu",
   "claffirmationgenerator",
   "claflac",
   "claftertheweek",
