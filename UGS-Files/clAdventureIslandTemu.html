@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+<title>Adventure Island (TEMU)</title>
+<style>
+  html,body{margin:0;padding:0;overflow:hidden;height:100%;background:#1a1410;font-family:Verdana,Geneva,sans-serif;}
+  #c{display:block;width:100%;height:100%;}
+  #hud{position:fixed;top:10px;left:12px;color:#ffe;text-shadow:0 1px 3px #000;font-size:13px;pointer-events:none;z-index:10;}
+  #obj{color:#ffd24a;font-weight:bold;}
+  #inv{margin-top:4px;color:#bfffcf;}
+  #prompt{position:fixed;left:50%;top:62%;transform:translateX(-50%);color:#fff;background:rgba(0,0,0,.55);padding:6px 14px;border-radius:14px;font-size:14px;display:none;z-index:10;pointer-events:none;}
+  #cross{position:fixed;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fff;opacity:.8;z-index:9;pointer-events:none;box-shadow:0 0 4px #000;}
+  #tm{position:fixed;right:10px;bottom:8px;color:rgba(255,255,255,.35);font-size:11px;z-index:10;pointer-events:none;}
+  #start,#win{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,6,2,.88);color:#ffe;z-index:20;text-align:center;}
+  #start h1,#win h1{margin:0 0 6px;font-size:34px;letter-spacing:1px;}
+  .sub{color:#ffb347;font-size:14px;margin-bottom:18px;}
+  button{font-size:18px;padding:10px 34px;border-radius:22px;border:2px solid #ffb347;background:#42210b;color:#ffe;cursor:pointer;}
+  button:hover{background:#5c2f10;}
+  #keys{color:#9fd8ff;}
+  #win{display:none;}
+  .fin{font-size:12px;color:#aaa;margin-top:14px;}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud"><div id="obj"></div><div id="inv"></div><div id="keys"></div></div>
+<div id="prompt"></div>
+<div id="cross"></div>
+<div id="tm">TEMU EDITION — 90% off, 60% functionality</div>
+<div id="start">
+  <h1>ADVENTURE ISLAND</h1>
+  <div class="sub">(TEMU EDITION) — a totally original autumn island. Any resemblance to real Unity projects is coincidental.</div>
+  <div style="max-width:520px;font-size:13px;color:#cfc3b4;line-height:1.6">
+    WASD / arrows to move, mouse (click to lock, or drag) to look.<br>
+    On touch: drag left side to move, right side to look, tap to interact.<br>
+    Press <b>E</b> (or tap) to interact. Solve the four elements, unlock the portal, escape.
+  </div>
+  <br><button id="go">START ADVENTURE</button>
+</div>
+<div id="win">
+  <h1>YOU ESCAPED!</h1>
+  <div class="sub">The ancient portal hums. Autumn Island is behind you.</div>
+  <div id="wintime" style="font-size:16px;color:#bfffcf"></div>
+  <div class="fin">Temu Quality&trade; guaranteed. No refunds, no warranty, possibly no game.</div>
+</div>
+<script>
+// camera/mic are never needed and should be blocked (PERMISSIONS policy)
+try{
+  if(navigator.mediaDevices){navigator.mediaDevices.getUserMedia=function(){return Promise.reject(new DOMException('Denied','NotAllowedError'));};}
+  if(navigator.getUserMedia){navigator.getUserMedia=function(a,b){b(new DOMException('Denied','NotAllowedError'));};}
+}catch(e){}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+var W=window, doc=document;
+var canvas=doc.getElementById('c');
+var renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
+renderer.setPixelRatio(Math.min(W.devicePixelRatio,2));
+var scene=new THREE.Scene();
+scene.background=new THREE.Color(0xd98a4e);
+scene.fog=new THREE.Fog(0xd98a4e,40,150);
+var cam=new THREE.PerspectiveCamera(70,1,0.1,400);
+
+function resize(){var w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();}
+addEventListener('resize',resize);resize();
+
+// ---------- lights ----------
+scene.add(new THREE.HemisphereLight(0xffd9b3,0x3a2a1a,0.95));
+var sun=new THREE.DirectionalLight(0xffe0b0,0.8);sun.position.set(-30,50,20);scene.add(sun);
+
+// ---------- island ----------
+var island=new THREE.Group();scene.add(island);
+function mat(c){return new THREE.MeshLambertMaterial({color:c});}
+var ground=new THREE.Mesh(new THREE.CircleGeometry(62,64),mat(0x7a8b3a));
+ground.rotation.x=-Math.PI/2;island.add(ground);
+var rim=new THREE.Mesh(new THREE.TorusGeometry(62,3,10,64),mat(0x8a6a4a));
+rim.rotation.x=-Math.PI/2;rim.position.y=-1.6;island.add(rim);
+var water=new THREE.Mesh(new THREE.CircleGeometry(160,48),new THREE.MeshLambertMaterial({color:0x2a6a8a,transparent:true,opacity:0.9}));
+water.rotation.x=-Math.PI/2;water.position.y=-2.2;scene.add(water);
+
+// trees + rocks (avoid the quest strip z>-32..40 near x -6..6 and pond)
+var tcols=[0xd2691e,0xb22222,0xdaa520,0xa0522d];
+function tree(x,z){
+  var g=new THREE.Group();
+  var tr=new THREE.Mesh(new THREE.CylinderGeometry(0.25,0.4,3,6),mat(0x5a3a1a));tr.position.y=1.5;g.add(tr);
+  var cn=new THREE.Mesh(new THREE.ConeGeometry(1.8,4.4,7),mat(tcols[Math.floor(Math.random()*4)]));cn.position.y=5;g.add(cn);
+  g.position.set(x,0,z);island.add(g);
+}
+var i,x0,z0;
+for(i=0;i<46;i++){
+  x0=(Math.random()-0.5)*110;z0=(Math.random()-0.5)*110;
+  if(Math.hypot(x0,z0)>56)continue;
+  if(Math.abs(x0)<9&&z0>-36&&z0<42)continue;          // quest path
+  if(Math.hypot(x0-20,z0+18)<9)continue;               // pond
+  if(Math.hypot(x0+18,z0+22)<12)continue;              // pillar area
+  tree(x0,z0);
+}
+for(i=0;i<24;i++){
+  x0=(Math.random()-0.5)*120;z0=(Math.random()-0.5)*120;
+  if(Math.hypot(x0,z0)>58)continue;
+  if(Math.abs(x0)<9&&z0>-36&&z0<42)continue;
+  var r=new THREE.Mesh(new THREE.DodecahedronGeometry(0.7+Math.random()*0.9),mat(0x7d7d7d));
+  r.position.set(x0,0.4,z0);r.rotation.set(Math.random(),Math.random(),0);island.add(r);
+}
+
+// ---------- helpers ----------
+function box(w,h,d,c,x,y,z){var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.position.set(x,y,z);island.add(m);return m;}
+function cyl(r1,r2,h,c,x,y,z){var m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,10),mat(c));m.position.set(x,y,z);island.add(m);return m;}
+
+// ---------- wind orb pedestal ----------
+cyl(0.9,1.1,1.2,0x8a8a8a,0,0.6,28);
+var windOrb=new THREE.Mesh(new THREE.SphereGeometry(0.55,16,12),new THREE.MeshBasicMaterial({color:0x9fe8ff}));
+windOrb.position.set(0,2,28);island.add(windOrb);
+var windLight=new THREE.PointLight(0x9fe8ff,0.8,10);windLight.position.copy(windOrb.position);island.add(windLight);
+
+// ---------- gate ----------
+var wallL=box(14,5,1.5,0x6b5a4a,-15,2.5,12), wallR=box(14,5,1.5,0x6b5a4a,15,2.5,12);
+cyl(1.1,1.3,6,0x555,-6.6,3,12);cyl(1.1,1.3,6,0x555,6.6,3,12);
+var gateBar=box(11.6,0.9,0.7,0x8a5a2a,0,4.6,12);
+var gateMeshes=[gateBar];
+var gateOpen=false;
+
+// ---------- village ----------
+function hut(x,z){box(5,3.4,5,0xa08050,x,1.7,z);var r=new THREE.Mesh(new THREE.ConeGeometry(4.2,2.6,4),mat(0x8a3a2a));r.position.set(x,4.7,z);r.rotation.y=Math.PI/4;island.add(r);}
+hut(-10,2);hut(7,-2);hut(-2,-8);
+
+// ---------- fire puzzle: lighter stump + cauldron ----------
+cyl(0.5,0.6,1,0x6b4a2a,12,0.5,8);
+var lighter=new THREE.Mesh(new THREE.BoxGeometry(0.28,0.14,0.16),mat(0xcc3333));
+lighter.position.set(12,1.1,8);island.add(lighter);
+var cauldron=new THREE.Mesh(new THREE.CylinderGeometry(1,0.7,1.3,12),mat(0x333333));
+cauldron.position.set(-10,0.65,0);island.add(cauldron);
+var flame=new THREE.Mesh(new THREE.ConeGeometry(0.7,1.6,8),new THREE.MeshBasicMaterial({color:0xff7722,transparent:true,opacity:0.95}));
+flame.position.set(-10,1.8,0);flame.visible=false;island.add(flame);
+var fireKey=new THREE.Mesh(new THREE.TorusGeometry(0.3,0.1,8,20),new THREE.MeshBasicMaterial({color:0xffcc33}));
+fireKey.position.set(-10,2.6,0);fireKey.visible=false;island.add(fireKey);
+var fireGlow=new THREE.PointLight(0xff7722,0,12);fireGlow.position.set(-10,2.4,0);island.add(fireGlow);
+
+// ---------- lightning puzzle: 3 pillars + shrine ----------
+var pillars=[];
+[[-20,-15],[-14,-20],[-18,-24]].forEach(function(p){
+  var pl=cyl(0.55,0.7,3.4,0x556, p[0],1.7,p[1]);
+  pillars.push({m:pl,on:false,p:p});
+});
+var shrine=box(3,0.7,3,0x445, -20,0.35,-30);
+var bolt=new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.35,30,6),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0}));
+bolt.position.set(-20,15,-30);island.add(bolt);
+var litKey=new THREE.Mesh(new THREE.TorusGeometry(0.3,0.1,8,20),new THREE.MeshBasicMaterial({color:0x9fd8ff}));
+litKey.position.set(-20,1.2,-30);litKey.visible=false;island.add(litKey);
+
+// ---------- water: pond sphere + statue ----------
+var pond=new THREE.Mesh(new THREE.CircleGeometry(5,24),new THREE.MeshLambertMaterial({color:0x2f7fae}));
+pond.rotation.x=-Math.PI/2;pond.position.set(20,0.06,-18);island.add(pond);
+var waterOrb=new THREE.Mesh(new THREE.SphereGeometry(0.5,16,12),new THREE.MeshBasicMaterial({color:0x3fbfff}));
+waterOrb.position.set(20,1,-18);island.add(waterOrb);
+var statue=new THREE.Group();
+statue.add(new THREE.Mesh(new THREE.BoxGeometry(1.2,2.6,1.2),mat(0x777)));
+statue.children[0].position.y=1.3;
+var slot=new THREE.Mesh(new THREE.SphereGeometry(0.32,12,10),new THREE.MeshLambertMaterial({color:0x555}));
+slot.position.set(0,2.6,0);statue.add(slot);
+statue.position.set(16,0,-8);island.add(statue);
+var stream=new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.5,20,8),new THREE.MeshLambertMaterial({color:0x3fbfff,transparent:true,opacity:0.7}));
+stream.rotation.z=Math.PI/2;stream.position.set(18,0.3,-18);stream.visible=false;island.add(stream);
+var portalKey=new THREE.Mesh(new THREE.TorusGeometry(0.3,0.1,8,20),new THREE.MeshBasicMaterial({color:0xd49bff}));
+portalKey.position.set(20,1,-28);portalKey.visible=false;island.add(portalKey);
+
+// ---------- portal ----------
+var plat=cyl(5,5.6,0.6,0x666,0,0.3,-45);
+var portal=new THREE.Mesh(new THREE.TorusGeometry(2.4,0.5,14,40),new THREE.MeshLambertMaterial({color:0x8a5adf,emissive:0x301050}));
+portal.position.set(0,3,-45);island.add(portal);
+var portalCore=new THREE.Mesh(new THREE.CircleGeometry(2.1,32),new THREE.MeshBasicMaterial({color:0xd49bff,transparent:true,opacity:0.15,side:THREE.DoubleSide}));
+portalCore.position.set(0,3,-45);island.add(portalCore);
+var portalGlow=new THREE.PointLight(0xd49bff,0,18);portalGlow.position.set(0,3,-44);island.add(portalGlow);
+
+// ---------- leaves particles ----------
+var L=90,lpos=new Float32Array(L*3),lvit=[];
+for(i=0;i<L;i++){lpos[i*3]=(Math.random()-0.5)*90;lpos[i*3+1]=Math.random()*25+2;lpos[i*3+2]=(Math.random()-0.5)*90;lvit.push(0.6+Math.random());}
+var lgeo=new THREE.BufferGeometry();lgeo.setAttribute('position',new THREE.BufferAttribute(lpos,3));
+var leaves=new THREE.Points(lgeo,new THREE.PointsMaterial({color:0xd2691e,size:0.45,transparent:true,opacity:0.85}));scene.add(leaves);
+
+// ---------- state / HUD ----------
+var inv=[],keys=0,step=1,startT=0,won=false,portalOn=false;
+var objEl=doc.getElementById('obj'),invEl=doc.getElementById('inv'),keyEl=doc.getElementById('keys'),prEl=doc.getElementById('prompt');
+function hud(){
+  var t=['','Find the Wind Orb on the path ahead','Use the Wind Orb on the sealed gate','Take the lighter, light the village cauldron','Awaken the three storm pillars','Carry the Water Sphere to the old statue','Activate the portal and step through'][step]||'';
+  objEl.textContent=t?'Objective: '+t:'';
+  invEl.textContent=inv.length?'Carrying: '+inv.join(', '):'';
+  keyEl.textContent=keys?('Keys: '+keys+'/3'):'';
+}
+hud();
+
+// ---------- player ----------
+var pos=new THREE.Vector3(0,1.7,42),yaw=Math.PI,pitch=0;
+var keysDown={};
+addEventListener('keydown',function(e){keysDown[e.code]=true;if(e.code==='KeyE')tryInteract();});
+addEventListener('keyup',function(e){keysDown[e.code]=false;});
+var locked=false,dragging=false,lx=0,ly=0;
+canvas.addEventListener('click',function(){if(!locked&&gameOn){canvas.requestPointerLock&&canvas.requestPointerLock();}});
+doc.addEventListener('pointerlockchange',function(){locked=(doc.pointerLockElement===canvas);});
+canvas.addEventListener('mousedown',function(e){dragging=true;lx=e.clientX;ly=e.clientY;});
+addEventListener('mouseup',function(){dragging=false;});
+addEventListener('mousemove',function(e){
+  if(locked){yaw-=e.movementX*0.0025;pitch-=e.movementY*0.0025;}
+  else if(dragging){yaw-=(e.clientX-lx)*0.005;pitch-=(e.clientY-ly)*0.005;lx=e.clientX;ly=e.clientY;}
+  pitch=Math.max(-1.35,Math.min(1.35,pitch));
+});
+// touch: left half move, right half look, tap interact
+var tmove=null,tlook=null;
+canvas.addEventListener('touchstart',function(e){
+  for(var t=0;t<e.touches.length;t++){var x=e.touches[t].clientX;
+    if(x<innerWidth/2&&!tmove)tmove={id:e.touches[t].identifier,x:e.touches[t].clientX,y:e.touches[t].clientY};
+    else if(!tlook)tlook={id:e.touches[t].identifier,x:e.touches[t].clientX,y:e.touches[t].clientY};}
+  if(e.touches.length===1){var tt=e.touches[0];tstart={x:tt.clientX,y:tt.clientY,t:performance.now()};}
+},{passive:true});
+var tstart=null;
+canvas.addEventListener('touchmove',function(e){
+  for(var t=0;t<e.touches.length;t++){var to=e.touches[t];
+    if(tmove&&to.identifier===tmove.id){tmove.dx=to.clientX-tmove.x;tmove.dy=to.clientY-tmove.y;}
+    if(tlook&&to.identifier===tlook.id){yaw-=(to.clientX-tlook.x)*0.008;pitch-=(to.clientY-tlook.y)*0.008;tlook.x=to.clientX;tlook.y=to.clientY;pitch=Math.max(-1.35,Math.min(1.35,pitch));}}
+},{passive:true});
+canvas.addEventListener('touchend',function(e){
+  if(tstart&&performance.now()-tstart.t<220&&Math.abs((e.changedTouches[0].clientX||0))<99999){
+    var dx=(e.changedTouches[0].clientX-tstart.x),dy=(e.changedTouches[0].clientY-tstart.y);
+    if(Math.hypot(dx,dy)<12)tryInteract();
+  }
+  if(e.changedTouches[0].identifier===tmove.id)tmove=null;
+  if(e.changedTouches[0].identifier===tlook.id)tlook=null;
+  tstart=null;
+},{passive:true});
+
+// ---------- sound ----------
+var AC=null;
+function beep(f,d,type,g){
+  try{
+    AC=AC||new (W.AudioContext||W.webkitAudioContext)();
+    var o=AC.createOscillator(),gn=AC.createGain();
+    o.type=type||'sine';o.frequency.value=f;o.connect(gn);gn.connect(AC.destination);
+    gn.gain.setValueAtTime(g||0.15,AC.currentTime);
+    gn.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+d);
+    o.start();o.stop(AC.currentTime+d);
+  }catch(e){}
+}
+
+// ---------- interactions ----------
+function pickUp(name,mesh,light,sfx){
+  inv.push(name);mesh.visible=false;if(light)light.intensity=0;
+  beep(sfx||600,0.25);hud();
+}
+var interactables=[
+  {pos:function(){return windOrb.position;},r:3.4,
+   show:function(){return step===1;},prompt:'Take the Wind Orb',
+   act:function(){pickUp('Wind Orb',windOrb,windLight,700);step=2;hud();}},
+  {pos:function(){return new THREE.Vector3(0,4.6,12);},r:4.5,
+   show:function(){return step===2&&inv.indexOf('Wind Orb')>=0;},prompt:'Unleash the wind (E)',
+   act:function(){gateOpen=true;step=3;inv.splice(inv.indexOf('Wind Orb'),1);beep(200,0.6,'sawtooth',0.1);hud();}},
+  {pos:function(){return lighter.position;},r:3.2,
+   show:function(){return step===3&&!inv.length;},prompt:'Take the lighter',
+   act:function(){pickUp('Lighter',lighter,null,500);}},
+  {pos:function(){return cauldron.position;},r:3.6,
+   show:function(){return step===3&&inv.indexOf('Lighter')>=0;},prompt:'Light the cauldron',
+   act:function(){inv.splice(inv.indexOf('Lighter'),1);flame.visible=true;fireGlow.intensity=1.2;keys++;step=4;
+     inv.push('Fire Key');beep(300,0.8,'triangle',0.12);hud();}},
+  {pos:function(){return new THREE.Vector3(p[0],1.7,p[1]);},r:3.4,
+   show:function(){var s=this;return step===4&&!pillars.some(function(q){return q.p[0]===s.p[0]&&q.p[1]===s.p[1]&&q.on;});},
+   prompt:'Awaken the pillar',p:null,
+   act:function(){this.p.on=true;this.m.material=mat(0x99eeff);beep(900+pillars.indexOf(this.p)*150,0.3);
+     if(pillars.every(function(q){return q.on;})){
+       bolt.material.opacity=1;litKey.visible=true;inv.push('Lightning Key');keys++;beep(1400,0.9,'square',0.08);
+     }hud();}},
+  {pos:function(){return waterOrb.position;},r:3.4,
+   show:function(){return step===5&&inv.indexOf('Water Sphere')<0&&!statueDone;},prompt:'Take the Water Sphere',
+   act:function(){pickUp('Water Sphere',waterOrb,null,800);}},
+  {pos:function(){return statue.position;},r:3.6,
+   show:function(){return step===5&&inv.indexOf('Water Sphere')>=0;},prompt:'Offer the Water Sphere',
+   act:function(){inv.splice(inv.indexOf('Water Sphere'),1);slot.material=mat(0x3fbfff);stream.visible=true;portalKey.visible=true;inv.push('Portal Key');keys++;beep(500,1,'sine',0.15);hud();}},
+  {pos:function(){return portal.position;},r:5,
+   show:function(){return step===6&&!portalOn;},prompt:'Awaken the ancient portal',
+   act:function(){portalOn=true;portalGlow.intensity=2;portalCore.material.opacity=0.7;beep(220,1.4,'sine',0.2);hud();}}
+];
+var statueDone=false;
+var near=null;
+function findNear(){
+  near=null;var best=99;
+  for(var k=0;k<interactables.length;k++){
+    var it=interactables[k];if(!it.show())continue;
+    var d=pos.distanceTo(it.pos());
+    if(d<it.r&&d<best){best=d;near=it;}
+  }
+}
+function tryInteract(){
+  if(!gameOn||won)return;
+  if(near){near.act();if(step===4&&inv.indexOf('Lightning Key')>=0)step=5;
+    if(step===5&&inv.indexOf('Portal Key')>=0)step=6;hud();}
+}
+doc.addEventListener('keydown',function(e){if(e.code==='Enter'&&won)location.reload();});
+
+// pillar interactables need p refs
+[[-20,-15],[-14,-20],[-18,-24]].forEach(function(p,idx){
+  interactables[4+idx].p=pillars[idx];
+  interactables[4+idx].m=pillars[idx].m;
+});
+
+// ---------- game loop ----------
+var gameOn=false,last=performance.now();
+doc.getElementById('go').addEventListener('click',function(){
+  doc.getElementById('start').style.display='none';
+  gameOn=true;startT=performance.now();
+  beep(440,0.3);beep(660,0.3);
+});
+function loop(now){
+  requestAnimationFrame(loop);
+  var dt=Math.min((now-last)/1000,0.05);last=now;
+  // spinners
+  windOrb.rotation.y+=dt*2;
+  fireKey.rotation.y+=dt*2;litKey.rotation.y+=dt*2;portalKey.rotation.y+=dt*2;
+  portal.rotation.z+=dt*(portalOn?1.4:0.3);
+  if(flame.visible){flame.scale.y=0.9+Math.sin(now*0.02)*0.2;flame.rotation.y+=dt*4;}
+  if(bolt.material.opacity>0)bolt.material.opacity=Math.max(0,bolt.material.opacity-dt*0.8);
+  // leaves fall
+  var a=lgeo.attributes.position;
+  for(var j=0;j<L;j++){
+    a.array[j*3+1]-=lvit[j]*dt;
+    a.array[j*3]+=Math.sin(now*0.001+j)*dt*0.6;
+    if(a.array[j*3+1]<0)a.array[j*3+1]=25;
+  }
+  a.needsUpdate=true;
+  if(gameOn){
+    // move
+    var F=(keysDown.KeyW||keysDown.ArrowUp?1:0)-(keysDown.KeyS||keysDown.ArrowDown?1:0);
+    var R=(keysDown.KeyD||keysDown.ArrowRight?1:0)-(keysDown.KeyA||keysDown.ArrowLeft?1:0);
+    if(tmove){F=-((tmove.dy||0)/60);R=((tmove.dx||0)/60);}
+    var sp=7*(keysDown.ShiftLeft?1.6:1);
+    // forward is -Z at yaw=PI; use camera basis:
+    var fwd=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));
+    var rgt=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));
+    pos.addScaledVector(fwd,F*sp*dt);pos.addScaledVector(rgt,R*sp*dt);
+    // gate blocks
+    if(!gateOpen&&Math.abs(pos.x)<8&&pos.z<13.5&&pos.z>10.5)pos.z=13.5;
+    if(gateOpen){gateBar.rotation.y=Math.min(1.4,gateBar.rotation.y+dt);}
+    // bounds
+    var rr=Math.hypot(pos.x,pos.z);
+    if(rr>59){pos.x*=59/rr;pos.z*=59/rr;}
+    if(pos.z<-52)pos.z=-52;
+    // camera
+    cam.position.copy(pos);
+    var look=new THREE.Vector3(
+      pos.x-Math.sin(yaw)*Math.cos(pitch),
+      pos.y+Math.sin(pitch),
+      pos.z-Math.cos(yaw)*Math.cos(pitch));
+    cam.lookAt(look);
+    findNear();
+    prEl.style.display=near?'block':'none';
+    if(near)prEl.textContent=near.prompt+' [E]';
+    // win
+    if(portalOn&&!won&&pos.distanceTo(new THREE.Vector3(0,1.7,-45))<2.6){
+      won=true;prEl.style.display='none';
+      var secs=Math.floor((performance.now()-startT)/1000);
+      doc.getElementById('wintime').textContent='Escaped in '+Math.floor(secs/60)+'m '+(secs%60)+'s';
+      doc.getElementById('win').style.display='flex';
+      beep(523,0.4);setTimeout(function(){beep(659,0.4);},200);setTimeout(function(){beep(784,0.7);},400);
+    }
+  }
+  renderer.render(scene,cam);
+}
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
