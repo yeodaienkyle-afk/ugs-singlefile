@@ -7,6 +7,155 @@
   
   <meta charset="utf-8">
   <base href="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/youtube-playables@1b8d5d149e9498d3ea95aad1037d1411511d41d3/magic-tiles-3/">
+<script>
+/* UGS_OFFLINE layer: cache everything from our pinned CDN into browser Cache Storage.
+   First (online) load fills the cache; after that the game boots 100% local and works
+   even where cdn.jsdelivr.net /gh/ is blocked (school). Play a song once online to cache it. */
+(function () {
+  var BASE = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/youtube-playables@1b8d5d149e9498d3ea95aad1037d1411511d41d3/magic-tiles-3/";
+  var CNAME = "mt3-1b8d5d14";
+  if (!window.caches) { console.log("[mt3-offline] no Cache Storage"); return; }
+
+  function cachedFetch(url) {
+    return caches.open(CNAME).then(function (c) {
+      return c.match(url).then(function (hit) { return hit || null; });
+    });
+  }
+  function netFetch(url) {
+    return fetch(url).then(function (resp) {
+      if (resp && resp.ok) {
+        caches.open(CNAME).then(function (c) { try { c.put(url, resp.clone()); } catch (e) {} });
+      }
+      return resp;
+    });
+  }
+
+  var nativeFetch = window.fetch.bind(window);
+  window.fetch = function (input, init) {
+    var url = "";
+    try { url = new URL(typeof input === "string" ? input : (input && input.url) || String(input), document.baseURI).href; } catch (e) {}
+    var isGet = !init || !init.method || String(init.method).toUpperCase() === "GET";
+    if (!isGet || url.indexOf(BASE) !== 0) return nativeFetch(input, init);
+    return cachedFetch(url).then(function (hit) {
+      if (hit) return hit;
+      return netFetch(input);
+    }).catch(function () { return nativeFetch(input, init); });
+  };
+
+  var NativeXHR = window.XMLHttpRequest;
+  window.XMLHttpRequest = function (opts) {
+    var xhr = new NativeXHR(opts);
+    var origOpen = xhr.open.bind(xhr);
+    var origSend = xhr.send.bind(xhr);
+    var url = "";
+    xhr.open = function (m, u) {
+      url = "";
+      try { url = new URL(u, document.baseURI).href; } catch (e) {}
+      return origOpen.apply(xhr, arguments);
+    };
+    xhr.send = function () {
+      var self = this;
+      if (!url || url.indexOf(BASE) !== 0) return origSend.apply(self, arguments);
+      cachedFetch(url).then(function (hit) {
+        if (hit) return hit.arrayBuffer().then(function (buf) {
+          function txt() { return new TextDecoder("utf-8").decode(buf); }
+          function resp() {
+            var rt = self.responseType;
+            if (rt === "arraybuffer") return buf;
+            if (rt === "blob") return new Blob([buf]);
+            if (rt === "json") return JSON.parse(txt());
+            return txt();
+          }
+          Object.defineProperty(self, "status", { value: 200, configurable: true });
+          Object.defineProperty(self, "statusText", { value: "OK", configurable: true });
+          Object.defineProperty(self, "responseURL", { value: url, configurable: true });
+          Object.defineProperty(self, "response", { get: resp, configurable: true });
+          Object.defineProperty(self, "responseText", { get: txt, configurable: true });
+          Object.defineProperty(self, "readyState", { value: 4, configurable: true });
+          setTimeout(function () {
+            if (self.onreadystatechange) self.onreadystatechange();
+            if (self.onload) self.onload({ type: "load", target: self });
+            self.dispatchEvent(new Event("readystatechange"));
+            self.dispatchEvent(new Event("load"));
+            self.dispatchEvent(new ProgressEvent("loadend"));
+          }, 1);
+        });
+        self.addEventListener("load", function () {
+          if (self.status === 200) {
+            caches.open(CNAME).then(function (c) { try { c.put(url, new Response(self.response)); } catch (e) {} });
+          }
+        });
+        return origSend.apply(self, arguments);
+      }).catch(function () { origSend.apply(self, arguments); });
+    };
+    return xhr;
+  };
+
+  /* element src redirection: script/img/audio tags pointing into our CDN get served
+     from Cache Storage via blob: URLs (script src tags cannot be intercepted otherwise) */
+  function patchSrc(protoName, tryNetFetch) {
+    var proto = window[protoName] && window[protoName].prototype;
+    if (!proto) return;
+    var desc = Object.getOwnPropertyDescriptor(proto, "src");
+    if (!desc || !desc.set) return;
+    var nativeSet = desc.set, nativeGet = desc.get;
+    Object.defineProperty(proto, "src", {
+      get: function () { return this.__ugRealSrc || nativeGet.call(this); },
+      set: function (v) {
+        var self = this, url = "";
+        try { url = new URL(v, document.baseURI).href; } catch (e) {}
+        if (String(v).indexOf("blob:") === 0 || String(v).indexOf("data:") === 0 || url.indexOf(BASE) !== 0) return nativeSet.call(self, v);
+        self.__ugRealSrc = url;
+        cachedFetch(url).then(function (hit) {
+          if (hit) return hit.blob();
+          if (!tryNetFetch) throw new Error("not cached");
+          return fetch(url).then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); });
+        }).then(function (blob) {
+          nativeSet.call(self, URL.createObjectURL(blob));
+        }).catch(function () { nativeSet.call(self, v); });
+      },
+      configurable: true
+    });
+  }
+  patchSrc("HTMLScriptElement", true);
+  patchSrc("HTMLImageElement", true);
+  patchSrc("HTMLMediaElement", true);
+
+  var nativeSetAttr = Element.prototype.setAttribute;
+  Element.prototype.setAttribute = function (n, v) {
+    var tag = (this.tagName || "").toLowerCase();
+    if ((n === "src") && typeof v === "string" && (tag === "img" || tag === "audio" || tag === "source" || tag === "script")) {
+      try { this.src = v; return; } catch (e) {}
+    }
+    return nativeSetAttr.call(this, n, v);
+  };
+
+  /* boot through the cache layer: settings -> main -> cocos2d -> physics -> window.boot() */
+  window.__ugBootChain = function () {
+    function js(u) {
+      return fetch(u).then(function (r) {
+        if (!r.ok) throw new Error(u + " " + r.status);
+        return r.text();
+      }).then(function (t) {
+        var s = document.createElement("script"); s.textContent = t;
+        document.head.appendChild(s);
+      });
+    }
+    var done = js("src/settings.js")
+      .then(function () { return js("main.js"); })
+      .then(function () { return js("cocos2d-js-min.js"); })
+      .then(function () { return js("physics-min.js"); });
+    done.then(function () {
+      var iv = setInterval(function () {
+        if (window.boot) { clearInterval(iv); window.boot(); }
+      }, 50);
+    }).catch(function (e) {
+      console.log("[mt3-offline] boot failed:", e);
+    });
+  };
+})();
+</script>
+
   <title>Home</title>
   <script></script>
   <meta name="viewport"
@@ -24,7 +173,131 @@
   <meta name="screen-orientation" content="portrait" />
   <meta name="x5-orientation" content="portrait">
   <meta name="x5-page-mode" content="app">
-  <link rel="stylesheet" type="text/css" href="style-mobile.css" nonce="4eHT7UXCvu0lKrKpiCZYiQ" />
+  <style>html {
+  -ms-touch-action: none;
+}
+
+body, canvas, div {
+  display: block;
+  outline: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -khtml-user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+/* Remove spin of input type number */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  /* display: none; <- Crashes Chrome on hover */
+  -webkit-appearance: none;
+  margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+body {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  margin: 0;
+
+  cursor: default;
+  color: #888;
+  background-color: #333;
+
+  text-align: center;
+  font-family: Helvetica, Verdana, Arial, sans-serif;
+
+  display: flex;
+  flex-direction: column;
+  
+  /* fix bug: https://github.com/cocos-creator/2d-tasks/issues/791 */
+  /* overflow cannot be applied in Cocos2dGameContainer, 
+  otherwise child elements will be hidden when Cocos2dGameContainer rotated 90 deg */
+  overflow: hidden;
+}
+
+#Cocos2dGameContainer {
+  position: absolute;
+  margin: 0;
+  left: 0px;
+  top: 0px;
+
+  display: -webkit-box;
+  -webkit-box-orient: horizontal;
+  -webkit-box-align: center;
+  -webkit-box-pack: center;
+}
+
+canvas {
+  background-color: rgba(0, 0, 0, 0);
+}
+
+a:link, a:visited {
+  color: #666;
+}
+
+a:active, a:hover {
+  color: #666;
+}
+
+p.header {
+  font-size: small;
+}
+
+p.footer {
+  font-size: x-small;
+}
+
+#splash {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #171717 url(./splash.png) no-repeat center;
+  background-size: 45%;
+}
+
+.progress-bar {
+    position: absolute;
+    left: 27.5%;
+    top: 80%;
+    height: 3px;
+    padding: 2px;
+    width: 45%;
+    border-radius: 7px;
+    box-shadow: 0 1px 5px #000 inset, 0 1px 0 #444;           
+}
+
+.progress-bar span {
+    display: block;
+    height: 100%;
+    border-radius: 3px;
+    transition: width .4s ease-in-out;
+    background-color: #3dc5de;
+}
+
+.stripes span {
+    background-size: 30px 30px;
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, .15) 25%, transparent 25%,
+                        transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%,
+                        transparent 75%, transparent);            
+    
+    animation: animate-stripes 1s linear infinite;             
+}
+
+@keyframes animate-stripes {
+    0% {background-position: 0 0;} 100% {background-position: 60px 0;}
+}
+</style>
   <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png" />
   <style>
     body,
@@ -188,46 +461,14 @@ html, body, #Cocos2dGameContainer, canvas {
 
 <body>
   <div id="splash">
-    <img id="splash-logo" src="logo_expanded.jpeg" alt="Amanotes Logo">
+    <img id="splash-logo" alt="Amanotes Logo" onerror="this.style.display='none'"><script>document.getElementById("splash-logo").src="logo_expanded.jpeg";<\/script>
   </div>
   <canvas id="GameCanvas" oncontextmenu="event.preventDefault()" tabindex="0"></canvas>
-  <script src="src/settings.js" charset="utf-8" nonce="4eHT7UXCvu0lKrKpiCZYiQ"></script>
   
-    <script src="main.js" charset="utf-8" nonce="4eHT7UXCvu0lKrKpiCZYiQ"></script>
+  
+    
 
-    <script type="text/javascript" nonce="4eHT7UXCvu0lKrKpiCZYiQ">
-      (function () {
-        if (typeof VConsole !== 'undefined') {
-          window.vConsole = new VConsole();
-        }
-
-        var debug = window._CCSettings.debug;
-        var splash = document.getElementById('splash');
-        splash.style.display = 'block';
-
-        function loadScript(moduleName, cb) {
-          function scriptLoaded() {
-            document.body.removeChild(domScript);
-            domScript.removeEventListener('load', scriptLoaded, false);
-            cb && cb();
-          };
-          var domScript = document.createElement('script');
-          domScript.async = true;
-          domScript.src = moduleName;
-          domScript.addEventListener('load', scriptLoaded, false);
-          document.body.appendChild(domScript);
-        }
-
-        loadScript(debug ? 'cocos2d-js.js' : 'cocos2d-js-min.js', function () {
-          if (CC_PHYSICS_BUILTIN || CC_PHYSICS_CANNON) {
-            loadScript(debug ? 'physics.js' : 'physics-min.js', window.boot);
-          }
-          else {
-            window.boot();
-          }
-        });
-      })();
-    </script>
+    <script type="text/javascript">window.__ugBootChain();</script>
 </body>
 
 </html>
