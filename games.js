@@ -3550,6 +3550,19 @@ const SAVE_BAR_SCRIPT = `(function () {
     }
 
 })();`;
+/* shell cache version: bump this to invalidate every visitor's locally-saved
+   game copies at once (old "ugs:game:" entries are purged on load) */
+const SHELL_CACHE_VER = "v2026-10-22";
+(function purgeOldShellCache(){
+  try {
+    var dead = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k.indexOf("ugs:game:") === 0 && k.indexOf(":" + SHELL_CACHE_VER + ":") === -1) dead.push(k);
+    }
+    dead.forEach(function(k){ try { localStorage.removeItem(k); } catch (e) {} });
+  } catch (e) {}
+})();
 const SAVE_BAR_TAG = "<script>" + SAVE_BAR_SCRIPT + "<\/script>";
 
 /* ---- tab disguise (sls / google classroom) ---- */
@@ -3659,7 +3672,7 @@ const lower = file.toLowerCase();
           function trySource(i) {
             if (i >= sources.length) {
               let saved = null;
-              try { saved = JSON.parse(localStorage.getItem("ugs:game:" + normalized) || "null"); } catch (e) {}
+              try { saved = JSON.parse(localStorage.getItem("ugs:game:" + SHELL_CACHE_VER + ":" + normalized) || "null"); } catch (e) {}
               if (saved && saved.t) {
                 newWin.document.open();
                 newWin.document.write(saved.t);
@@ -3705,7 +3718,7 @@ if (/<head\b[^>]*>/i.test(text)) {
                 newWin.document.write(text);
                 newWin.document.close();
                 try {
-                  localStorage.setItem("ugs:game:" + normalized, JSON.stringify({ u: sources[i], t: text }));
+                  localStorage.setItem("ugs:game:" + SHELL_CACHE_VER + ":" + normalized, JSON.stringify({ u: sources[i], t: text }));
                 } catch (e) {}
                 clearTimeout(fetchTimer);
               })
