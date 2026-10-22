@@ -2962,6 +2962,7 @@ let files = [
   "skypack",
   "supremeduelistfix",
   "thiefpuzzle",
+  "clCloverPit",
   "clConnectFour",
   "clReversi",
   "clBattleship",
