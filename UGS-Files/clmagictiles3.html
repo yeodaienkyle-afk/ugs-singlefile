@@ -8,7 +8,58 @@
   <meta charset="utf-8">
   <base href="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/youtube-playables@1b8d5d149e9498d3ea95aad1037d1411511d41d3/magic-tiles-3/">
   <title>Home</title>
-  <script></script>
+  <script>
+      /* UGS_NET_LOCK: this game may ONLY fetch from our own pinned repo on jsDelivr.
+         Everything else (the game's account/leaderboard backend etc.) is rejected
+         instantly so it falls back to offline/guest mode and never loads 3rd-party bytes. */
+      (function () {
+        var ALLOW = "cdn.jsdelivr.net/gh/yeodaienkyle-afk/youtube-playables@1b8d5d149e9498d3ea95aad1037d1411511d41d3/";
+        function allowed(u) {
+          if (!u) return true;
+          if (u.indexOf("data:") === 0 || u.indexOf("blob:") === 0) return true;
+          return u.indexOf(ALLOW) >= 0;
+        }
+        var nativeFetch = window.fetch.bind(window);
+        window.fetch = function (input, init) {
+          var url = "";
+          try { url = new URL(typeof input === "string" ? input : (input && input.url) || String(input), document.baseURI).href; } catch (e) {}
+          if (!allowed(url)) { console.log("[net-lock] blocked fetch:", url); return Promise.reject(new TypeError("Network is locked down")); }
+          return nativeFetch(input, init);
+        };
+        var NativeXHR = window.XMLHttpRequest;
+        window.XMLHttpRequest = function (opts) {
+          var xhr = new NativeXHR(opts);
+          var origOpen = xhr.open.bind(xhr);
+          var origSend = xhr.send.bind(xhr);
+          var blocked = false;
+          xhr.open = function (m, u) {
+            blocked = false;
+            try { blocked = !allowed(new URL(u, document.baseURI).href); } catch (e) {}
+            if (blocked) { console.log("[net-lock] blocked xhr:", u); }
+            return origOpen.apply(xhr, arguments);
+          };
+          xhr.send = function () {
+            if (!blocked) return origSend.apply(xhr, arguments);
+            setTimeout(function () {
+              try {
+                Object.defineProperty(xhr, "status", { value: 0, configurable: true });
+                Object.defineProperty(xhr, "readyState", { value: 4, configurable: true });
+                xhr.dispatchEvent(new ProgressEvent("readystatechange"));
+                xhr.dispatchEvent(new ProgressEvent("error"));
+                xhr.dispatchEvent(new ProgressEvent("loadend"));
+              } catch (e) {}
+            }, 1);
+          };
+          return xhr;
+        };
+        var NativeWS = window.WebSocket;
+        window.WebSocket = function (u) {
+          var url = String(u || "");
+          if (url.indexOf(ALLOW) < 0) { console.log("[net-lock] blocked websocket:", url); throw new Error("Network is locked down"); }
+          return new NativeWS(u);
+        };
+      })();
+    </script>
   <meta name="viewport"
     content="width=device-width,user-scalable=no,initial-scale=1, minimum-scale=1,maximum-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes">
