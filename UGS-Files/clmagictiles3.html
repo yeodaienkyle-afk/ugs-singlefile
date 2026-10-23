@@ -25,7 +25,9 @@
   function netFetch(url) {
     return nativeFetch(url).then(function (resp) {
       if (resp && resp.ok) {
-        caches.open(CNAME).then(function (c) { try { c.put(url, resp.clone()); } catch (e) {} });
+        var cl = null;
+        try { cl = resp.clone(); } catch (e) {} /* must clone BEFORE caller reads the body */
+        if (cl) { caches.open(CNAME).then(function (c) { try { c.put(url, cl); } catch (e) {} }); }
       }
       return resp;
     });
@@ -109,7 +111,13 @@
         cachedFetch(url).then(function (hit) {
           if (hit) return hit.blob();
           if (!tryNetFetch) throw new Error("not cached");
-          return nativeFetch(url).then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); });
+          return nativeFetch(url).then(function (r) {
+            if (!r.ok) throw new Error(r.status);
+            var cl = null;
+            try { cl = r.clone(); } catch (e) {}
+            if (cl) { caches.open(CNAME).then(function (c) { try { c.put(url, cl); } catch (e) {} }); }
+            return r.blob();
+          });
         }).then(function (blob) {
           nativeSet.call(self, URL.createObjectURL(blob));
         }).catch(function () { nativeSet.call(self, v); });
