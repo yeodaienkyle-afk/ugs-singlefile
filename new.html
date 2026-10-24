@@ -145,7 +145,9 @@ svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
     font-size: 12px; color: var(--muted); text-align: center;
 }
 /* the orb - traces the mouse instantly */
-* { cursor: none !important; }
+@media (hover: hover) and (pointer: fine) {
+    body.has-custom-cursor * { cursor: none !important; }
+}
 #cursor-orb {
     position: fixed; left: 0; top: 0;
     width: 34px; height: 34px; margin: -17px 0 0 -17px;
@@ -634,7 +636,9 @@ body.listmode .buttons-container { display: grid; }
     #sidebar { display: none; }
 }
 /* the orb - traces the mouse instantly */
-* { cursor: none !important; }
+@media (hover: hover) and (pointer: fine) {
+    body.has-custom-cursor * { cursor: none !important; }
+}
 #cursor-orb {
     position: fixed; left: 0; top: 0;
     width: 34px; height: 34px; margin: -17px 0 0 -17px;
@@ -1045,7 +1049,7 @@ var TITLE_PHRASES = [
         var pick = pool[Math.floor(Math.random() * pool.length)];
         shown.push(pick);
         if (shown.length > 10) { shown.shift(); }
-        el.innerHTML = pick;
+        el.textContent = pick;
         el.classList.toggle("is-link", pick === "visit main site");
     }
     setInterval(function () { if (!document.hidden) { step(); } }, 10000);
@@ -1456,6 +1460,8 @@ var UG = (function () {
 <script>
 (function () {
     var orb = document.getElementById("cursor-orb");
+    if (!orb || !window.matchMedia || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) { return; }
+    document.body.classList.add("has-custom-cursor");
     var tx = window.innerWidth / 2, ty = window.innerHeight / 2;
     var cx = tx, cy = ty;
     var hot = 1, hotTo = 1, frame = 0;
@@ -1954,7 +1960,9 @@ body {
 }
 
 /* the orb - traces the mouse instantly */
-* { cursor: none !important; }
+@media (hover: hover) and (pointer: fine) {
+    body.has-custom-cursor * { cursor: none !important; }
+}
 #cursor-orb {
     position: fixed; left: 0; top: 0;
     width: 34px; height: 34px; margin: -17px 0 0 -17px;
@@ -2342,6 +2350,8 @@ body {
 <script>
 (function () {
     var orb = document.getElementById("cursor-orb");
+    if (!orb || !window.matchMedia || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) { return; }
+    document.body.classList.add("has-custom-cursor");
     var tx = window.innerWidth / 2, ty = window.innerHeight / 2;
     var cx = tx, cy = ty;
     var hot = 1, hotTo = 1, frame = 0;
@@ -2473,7 +2483,9 @@ input:focus, textarea:focus { outline: none; border-color: #a46bff; box-shadow: 
     color: #47f0a3; font-size: 13px;
 }
 /* the orb - traces the mouse instantly */
-* { cursor: none !important; }
+@media (hover: hover) and (pointer: fine) {
+    body.has-custom-cursor * { cursor: none !important; }
+}
 #cursor-orb {
     position: fixed; left: 0; top: 0;
     width: 34px; height: 34px; margin: -17px 0 0 -17px;
@@ -2506,6 +2518,7 @@ input:focus, textarea:focus { outline: none; border-color: #a46bff; box-shadow: 
         <div id="sent" role="status" aria-live="polite">message received. if you asked for the code, we'll get back to you.</div>
     </form>
     <p class="note">want the site code? ask for permission here and we will give it to you.</p>
+    <p class="note">Messages are sent to our contact service. Do not include passwords or other private information.</p>
 </div>
 <div id="cursor-orb"></div>
 <script>
@@ -2546,6 +2559,8 @@ input:focus, textarea:focus { outline: none; border-color: #a46bff; box-shadow: 
 <script>
 (function () {
     var orb = document.getElementById("cursor-orb");
+    if (!orb || !window.matchMedia || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) { return; }
+    document.body.classList.add("has-custom-cursor");
     var tx = window.innerWidth / 2, ty = window.innerHeight / 2;
     var cx = tx, cy = ty;
     var hot = 1, hotTo = 1, frame = 0;
@@ -2582,6 +2597,8 @@ input:focus, textarea:focus { outline: none; border-color: #a46bff; box-shadow: 
 <script>
 (function () {
     var orb = document.getElementById("cursor-orb");
+    if (!orb || !window.matchMedia || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) { return; }
+    document.body.classList.add("has-custom-cursor");
     var tx = window.innerWidth / 2, ty = window.innerHeight / 2;
     var cx = tx, cy = ty;
     var hot = 1, hotTo = 1, frame = 0;
