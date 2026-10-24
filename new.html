@@ -100,6 +100,7 @@ svg.icon { width: 22px; height: 22px; fill: #9aa3b2; }
     background: var(--card);
 }
 .nav-card:hover { transform: translateY(-3px); }
+.nav-card:focus-visible { outline: 2px solid #a46bff; outline-offset: 4px; }
 .nav-card:hover::before { filter: blur(2px); }
 @keyframes rainbow-spin { to { filter: hue-rotate(360deg); } }
 .nav-icon {
@@ -215,6 +216,18 @@ function openPage(htmlContent) {
     win.document.close();
 }
 
+/* Keep the existing card design while making the launcher usable by keyboard. */
+document.querySelectorAll(".nav-card").forEach(function (card) {
+    card.setAttribute("role", "button");
+    card.setAttribute("tabindex", "0");
+    card.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            card.click();
+        }
+    });
+});
+
 // the title cycles through these every 10s. random order, and nothing
 // comes back until 10 others have shown first so it never repeats itself
 var TITLE_PHRASES = [
@@ -253,11 +266,11 @@ var TITLE_PHRASES = [
         shown.push(pick);
         if (shown.length > 10) { shown.shift(); }
         els.forEach(function (el) {
-            el.innerHTML = pick;
+            el.textContent = pick;
             el.classList.toggle("is-link", pick === "visit main site");
         });
     }
-    setInterval(step, 10000);
+    setInterval(function () { if (!document.hidden) { step(); } }, 10000);
     els.forEach(function (el) {
         el.addEventListener("click", function () {
             if (el.textContent.trim() === "visit main site") { window.open(SITE_URL, "_blank"); }
@@ -1035,7 +1048,7 @@ var TITLE_PHRASES = [
         el.innerHTML = pick;
         el.classList.toggle("is-link", pick === "visit main site");
     }
-    setInterval(step, 10000);
+    setInterval(function () { if (!document.hidden) { step(); } }, 10000);
     el.addEventListener("click", function () {
         if (el.textContent.trim() === "visit main site") { window.open(SITE_URL, "_blank"); }
     });
@@ -1052,7 +1065,7 @@ var UG = (function () {
     var hue = 0;
     var THUMB_BASE = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/ugs-thumbnails/";
 
-    fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/ugs-thumbnails/manifest.json?t=" + Date.now())
+    fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/ugs-thumbnails/manifest.json")
         .then(function (r) { return r.ok ? r.json() : {}; })
         .then(function (m) {
             manifest = m || {};
@@ -1275,24 +1288,44 @@ var UG = (function () {
         pushRecent(b.value || b.getAttribute("data-name") || "");
     }, true);
 
-    var SPEED = 0.35;
+    var SPEED = 0.35, stripFrame = 0;
+    var reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+    function shouldAnimateStrips() {
+        var rotationEnabled = true;
+        try { rotationEnabled = localStorage.getItem("ug_rotate") !== "0"; } catch (e) {}
+        return !document.hidden &&
+            !document.body.classList.contains("listmode") &&
+            rotationEnabled &&
+            !(reducedMotion && reducedMotion.matches);
+    }
     function tick() {
-        if (!document.body.classList.contains("listmode") &&
-            localStorage.getItem("ug_rotate") !== "0") {
-            var strips = document.querySelectorAll(".strip");
-            for (var i = 0; i < strips.length; i++) {
-                var s = strips[i];
-                if (paused.has(s)) { continue; }
-                if (s.scrollLeft >= s.scrollWidth - s.clientWidth - 2) {
-                    s.scrollLeft = 0;
-                } else {
-                    s.scrollLeft += SPEED;
-                }
+        stripFrame = 0;
+        if (!shouldAnimateStrips()) { return; }
+        var strips = document.querySelectorAll(".strip");
+        for (var i = 0; i < strips.length; i++) {
+            var s = strips[i];
+            if (paused.has(s) || s.clientWidth === 0 || s.scrollWidth <= s.clientWidth) { continue; }
+            if (s.scrollLeft >= s.scrollWidth - s.clientWidth - 2) {
+                s.scrollLeft = 0;
+            } else {
+                s.scrollLeft += SPEED;
             }
         }
-        requestAnimationFrame(tick);
+        if (shouldAnimateStrips()) { stripFrame = requestAnimationFrame(tick); }
     }
-    requestAnimationFrame(tick);
+    function startStripAnimation() {
+        if (!stripFrame && shouldAnimateStrips()) { stripFrame = requestAnimationFrame(tick); }
+    }
+    document.addEventListener("visibilitychange", startStripAnimation);
+    document.addEventListener("click", startStripAnimation);
+    window.addEventListener("storage", startStripAnimation);
+    if (window.MutationObserver) {
+        new MutationObserver(startStripAnimation).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+    }
+    if (reducedMotion && reducedMotion.addEventListener) {
+        reducedMotion.addEventListener("change", startStripAnimation);
+    }
+    startStripAnimation();
 
     transformAll(document);
     var target = document.getElementById("sections-container");
@@ -1425,19 +1458,29 @@ var UG = (function () {
     var orb = document.getElementById("cursor-orb");
     var tx = window.innerWidth / 2, ty = window.innerHeight / 2;
     var cx = tx, cy = ty;
-    window.addEventListener("pointermove", function (e) { tx = e.clientX; ty = e.clientY; }, { passive: true });
-    window.addEventListener("touchmove", function (e) { if (e.touches && e.touches[0]) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; } }, { passive: true });
-    var hot = 1, hotTo = 1;
-    window.addEventListener("pointerover", function (e) {
-        hotTo = (e.target.closest && e.target.closest("button, a, .nav-card, .gcard, input[type=button]")) ? 1.5 : 1;
-    });
-    (function tick() {
+    var hot = 1, hotTo = 1, frame = 0;
+    function renderCursor() {
+        frame = 0;
+        if (document.hidden) { return; }
         cx = tx;
         cy = ty;
         hot += (hotTo - hot) * 0.25;
         orb.style.transform = "translate3d(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px,0) scale(" + hot.toFixed(2) + ")";
-        requestAnimationFrame(tick);
-    })();
+        if (Math.abs(hotTo - hot) > 0.01) { frame = requestAnimationFrame(renderCursor); }
+    }
+    function scheduleCursorRender() {
+        if (!frame && !document.hidden) { frame = requestAnimationFrame(renderCursor); }
+    }
+    window.addEventListener("pointermove", function (e) { tx = e.clientX; ty = e.clientY; scheduleCursorRender(); }, { passive: true });
+    window.addEventListener("touchmove", function (e) {
+        if (e.touches && e.touches[0]) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; scheduleCursorRender(); }
+    }, { passive: true });
+    window.addEventListener("pointerover", function (e) {
+        hotTo = (e.target.closest && e.target.closest("button, a, .nav-card, .gcard, input[type=button]")) ? 1.5 : 1;
+        scheduleCursorRender();
+    });
+    document.addEventListener("visibilitychange", scheduleCursorRender);
+    scheduleCursorRender();
 })();
 <\/script>
 </body>
@@ -2301,19 +2344,29 @@ body {
     var orb = document.getElementById("cursor-orb");
     var tx = window.innerWidth / 2, ty = window.innerHeight / 2;
     var cx = tx, cy = ty;
-    window.addEventListener("pointermove", function (e) { tx = e.clientX; ty = e.clientY; }, { passive: true });
-    window.addEventListener("touchmove", function (e) { if (e.touches && e.touches[0]) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; } }, { passive: true });
-    var hot = 1, hotTo = 1;
-    window.addEventListener("pointerover", function (e) {
-        hotTo = (e.target.closest && e.target.closest("button, a, .nav-card, .gcard, input[type=button]")) ? 1.5 : 1;
-    });
-    (function tick() {
+    var hot = 1, hotTo = 1, frame = 0;
+    function renderCursor() {
+        frame = 0;
+        if (document.hidden) { return; }
         cx = tx;
         cy = ty;
         hot += (hotTo - hot) * 0.25;
         orb.style.transform = "translate3d(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px,0) scale(" + hot.toFixed(2) + ")";
-        requestAnimationFrame(tick);
-    })();
+        if (Math.abs(hotTo - hot) > 0.01) { frame = requestAnimationFrame(renderCursor); }
+    }
+    function scheduleCursorRender() {
+        if (!frame && !document.hidden) { frame = requestAnimationFrame(renderCursor); }
+    }
+    window.addEventListener("pointermove", function (e) { tx = e.clientX; ty = e.clientY; scheduleCursorRender(); }, { passive: true });
+    window.addEventListener("touchmove", function (e) {
+        if (e.touches && e.touches[0]) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; scheduleCursorRender(); }
+    }, { passive: true });
+    window.addEventListener("pointerover", function (e) {
+        hotTo = (e.target.closest && e.target.closest("button, a, .nav-card, .gcard, input[type=button]")) ? 1.5 : 1;
+        scheduleCursorRender();
+    });
+    document.addEventListener("visibilitychange", scheduleCursorRender);
+    scheduleCursorRender();
 })();
 <\/script>
 </body>
@@ -2446,11 +2499,11 @@ input:focus, textarea:focus { outline: none; border-color: #a46bff; box-shadow: 
     <p class="arcade">&gt; INSERT MESSAGE TO SEND &lt;</p>
     <form class="form-card" id="cform">
         <label for="cname">name</label>
-        <input type="text" id="cname" name="name" placeholder="your name (or don't)">
+        <input type="text" id="cname" name="name" maxlength="80" autocomplete="nickname" placeholder="your name (or don't)">
         <label for="cmsg">message</label>
-        <textarea id="cmsg" name="message" placeholder="broken game? game request? code permission? type it here" required></textarea>
+        <textarea id="cmsg" name="message" maxlength="2000" placeholder="broken game? game request? code permission? type it here" required></textarea>
         <button class="send" type="submit">SEND IT</button>
-        <div id="sent">message received. if you asked for the code, we'll get back to you.</div>
+        <div id="sent" role="status" aria-live="polite">message received. if you asked for the code, we'll get back to you.</div>
     </form>
     <p class="note">want the site code? ask for permission here and we will give it to you.</p>
 </div>
@@ -2495,19 +2548,29 @@ input:focus, textarea:focus { outline: none; border-color: #a46bff; box-shadow: 
     var orb = document.getElementById("cursor-orb");
     var tx = window.innerWidth / 2, ty = window.innerHeight / 2;
     var cx = tx, cy = ty;
-    window.addEventListener("pointermove", function (e) { tx = e.clientX; ty = e.clientY; }, { passive: true });
-    window.addEventListener("touchmove", function (e) { if (e.touches && e.touches[0]) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; } }, { passive: true });
-    var hot = 1, hotTo = 1;
-    window.addEventListener("pointerover", function (e) {
-        hotTo = (e.target.closest && e.target.closest("button, a, .nav-card, .gcard, input[type=button]")) ? 1.5 : 1;
-    });
-    (function tick() {
+    var hot = 1, hotTo = 1, frame = 0;
+    function renderCursor() {
+        frame = 0;
+        if (document.hidden) { return; }
         cx = tx;
         cy = ty;
         hot += (hotTo - hot) * 0.25;
         orb.style.transform = "translate3d(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px,0) scale(" + hot.toFixed(2) + ")";
-        requestAnimationFrame(tick);
-    })();
+        if (Math.abs(hotTo - hot) > 0.01) { frame = requestAnimationFrame(renderCursor); }
+    }
+    function scheduleCursorRender() {
+        if (!frame && !document.hidden) { frame = requestAnimationFrame(renderCursor); }
+    }
+    window.addEventListener("pointermove", function (e) { tx = e.clientX; ty = e.clientY; scheduleCursorRender(); }, { passive: true });
+    window.addEventListener("touchmove", function (e) {
+        if (e.touches && e.touches[0]) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; scheduleCursorRender(); }
+    }, { passive: true });
+    window.addEventListener("pointerover", function (e) {
+        hotTo = (e.target.closest && e.target.closest("button, a, .nav-card, .gcard, input[type=button]")) ? 1.5 : 1;
+        scheduleCursorRender();
+    });
+    document.addEventListener("visibilitychange", scheduleCursorRender);
+    scheduleCursorRender();
 })();
 <\/script>
 </body>
@@ -2521,19 +2584,29 @@ input:focus, textarea:focus { outline: none; border-color: #a46bff; box-shadow: 
     var orb = document.getElementById("cursor-orb");
     var tx = window.innerWidth / 2, ty = window.innerHeight / 2;
     var cx = tx, cy = ty;
-    window.addEventListener("pointermove", function (e) { tx = e.clientX; ty = e.clientY; }, { passive: true });
-    window.addEventListener("touchmove", function (e) { if (e.touches && e.touches[0]) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; } }, { passive: true });
-    var hot = 1, hotTo = 1;
-    window.addEventListener("pointerover", function (e) {
-        hotTo = (e.target.closest && e.target.closest("button, a, .nav-card, .gcard, input[type=button]")) ? 1.5 : 1;
-    });
-    (function tick() {
+    var hot = 1, hotTo = 1, frame = 0;
+    function renderCursor() {
+        frame = 0;
+        if (document.hidden) { return; }
         cx = tx;
         cy = ty;
         hot += (hotTo - hot) * 0.25;
         orb.style.transform = "translate3d(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px,0) scale(" + hot.toFixed(2) + ")";
-        requestAnimationFrame(tick);
-    })();
+        if (Math.abs(hotTo - hot) > 0.01) { frame = requestAnimationFrame(renderCursor); }
+    }
+    function scheduleCursorRender() {
+        if (!frame && !document.hidden) { frame = requestAnimationFrame(renderCursor); }
+    }
+    window.addEventListener("pointermove", function (e) { tx = e.clientX; ty = e.clientY; scheduleCursorRender(); }, { passive: true });
+    window.addEventListener("touchmove", function (e) {
+        if (e.touches && e.touches[0]) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; scheduleCursorRender(); }
+    }, { passive: true });
+    window.addEventListener("pointerover", function (e) {
+        hotTo = (e.target.closest && e.target.closest("button, a, .nav-card, .gcard, input[type=button]")) ? 1.5 : 1;
+        scheduleCursorRender();
+    });
+    document.addEventListener("visibilitychange", scheduleCursorRender);
+    scheduleCursorRender();
 })();
 </script>
 </body>
