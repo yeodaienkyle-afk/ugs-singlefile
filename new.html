@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0b0d12">
-<script>(function(){try{var mode=localStorage.getItem("ug_favicon_mode")||localStorage.getItem("ug_disguise")||"classroom";var value=localStorage.getItem("ug_favicon_value")||localStorage.getItem("ug_disguise_favicon")||"";var titleMode=localStorage.getItem("ug_title_mode")||(localStorage.getItem("ug_disguise_title")?"custom":"default");var title=localStorage.getItem("ug_title_value")||localStorage.getItem("ug_disguise_title")||"Home";var href=mode==="sls"?"https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png?v=2":mode==="classroom"?"https://ssl.gstatic.com/classroom/favicon.png":mode==="custom"?value:"";if(href){var l=document.createElement("link");l.rel="icon";l.href=href;document.head.appendChild(l);}if(titleMode==="custom"&&title){document.title=title;}}catch(e){}})();</script>
+<script>(function(){try{var value=localStorage.getItem("ug_favicon_value")||localStorage.getItem("ug_disguise_favicon")||"";var mode=localStorage.getItem("ug_favicon_mode")||(value?"custom":(localStorage.getItem("ug_disguise")||"classroom"));var titleMode=localStorage.getItem("ug_title_mode")||(localStorage.getItem("ug_disguise_title")?"custom":"default");var title=localStorage.getItem("ug_title_value")||localStorage.getItem("ug_disguise_title")||"Home";var href=mode==="sls"?"https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png?v=2":mode==="classroom"?"https://ssl.gstatic.com/classroom/favicon.png":mode==="custom"?value:"";if(href){var l=document.createElement("link");l.rel="icon";l.href=href;document.head.appendChild(l);}if(titleMode==="custom"&&title){document.title=title;}}catch(e){}})();</script>
 <title>Home</title>
 <style>
 :root {
@@ -958,7 +958,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var dTitle = document.getElementById("dis-title");
     var dIcon = document.getElementById("dis-favicon");
     var hideBtn = document.getElementById("hide-site");
-    var disguise = localStorage.getItem("ug_favicon_mode") || localStorage.getItem("ug_disguise") || "classroom";
+    var disguise = localStorage.getItem("ug_favicon_mode") || (localStorage.getItem("ug_favicon_value") || localStorage.getItem("ug_disguise_favicon") ? "custom" : (localStorage.getItem("ug_disguise") || "classroom"));
     var customTitle = localStorage.getItem("ug_title_value") || localStorage.getItem("ug_disguise_title") || "";
     var customIcon = localStorage.getItem("ug_favicon_value") || localStorage.getItem("ug_disguise_favicon") || "";
     dTitle.value = customTitle;
