@@ -3555,23 +3555,30 @@ const SAVE_BAR_SCRIPT = `(function () {
 })();`;
 const SAVE_BAR_TAG = "<script>" + SAVE_BAR_SCRIPT + "<\/script>";
 
-/* ---- tab disguise (sls / google classroom) ---- */
-const DISGUISE_ICONS = {
-  classroom: "https://ssl.gstatic.com/classroom/favicon.png",
-  sls: "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png"
-};
-function getDisguiseIcon() {
-  var d = "classroom";
-  try { d = localStorage.getItem("ug_disguise") || "classroom"; } catch (e) {}
-  return DISGUISE_ICONS[d] || DISGUISE_ICONS.classroom;
+/* ---- shared tab disguise settings (hub + launched games) ---- */
+function getDisguiseSettings() {
+  var mode = "classroom", iconValue = "", titleMode = "default", titleValue = "Home";
+  try {
+    mode = localStorage.getItem("ug_favicon_mode") || localStorage.getItem("ug_disguise") || "classroom";
+    iconValue = localStorage.getItem("ug_favicon_value") || localStorage.getItem("ug_disguise_favicon") || "";
+    titleMode = localStorage.getItem("ug_title_mode") || (localStorage.getItem("ug_disguise_title") ? "custom" : "default");
+    titleValue = localStorage.getItem("ug_title_value") || localStorage.getItem("ug_disguise_title") || "Home";
+  } catch (e) {}
+  var href = mode === "sls" ? "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png?v=2" :
+             mode === "classroom" ? "https://ssl.gstatic.com/classroom/favicon.png" :
+             mode === "custom" && /^data:image\//i.test(iconValue) ? iconValue : "";
+  return { iconMode: mode, iconHref: href, title: titleMode === "custom" && titleValue ? titleValue : "Home" };
 }
-// strips any existing icon/title from a game's HTML, then adds ours
+// strips game-provided icon/title and injects the selected shared settings
 function applyDisguise(html) {
+  var settings = getDisguiseSettings();
   html = html.replace(/<link\b[^>]*rel\s*=\s*["'][^"']*icon[^"']*["'][^>]*>/gi, "");
   html = html.replace(/<title\b[^>]*>[\s\S]*?<\/title>/gi, "");
-  var tag = '<title>Home</title><link rel="icon" href="' + getDisguiseIcon() + '">';
-  // keep the title "Home" even if the game script changes it later
-  var guard = '<script>(function(){var t="Home";function f(){if(document.title!==t)document.title=t;}f();try{new MutationObserver(f).observe(document.querySelector("title")||document.documentElement,{subtree:true,childList:true,characterData:true});}catch(e){}setInterval(f,1000);})();<\/script>';
+  var safeTitle = settings.title.replace(/[&<>"]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; });
+  var tag = '<title>' + safeTitle + '</title>' + (settings.iconHref ? '<link rel="icon" href="' + settings.iconHref.replace(/&/g, "&amp;").replace(/"/g, "&quot;") + '">' : "");
+  // keep the selected title even if the game script changes it later
+  var titleJson = JSON.stringify(settings.title).replace(/</g, "\\u003c");
+  var guard = '<script>(function(){var t=' + titleJson + ';function f(){if(document.title!==t)document.title=t;}f();try{new MutationObserver(f).observe(document.querySelector("title")||document.documentElement,{subtree:true,childList:true,characterData:true});}catch(e){}setInterval(f,1000);})();<\/script>';
   if (/<head\b[^>]*>/i.test(html)) {
     return html.replace(/<head\b[^>]*>/i, function (h) { return h + tag + guard; });
   } else if (/<html\b[^>]*>/i.test(html)) {
