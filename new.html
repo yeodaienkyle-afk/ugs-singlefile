@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0b0d12">
-<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png"><script>(function(){try{var f=localStorage.getItem("ug_disguise_favicon"),t=localStorage.getItem("ug_disguise_title");if(!f&&localStorage.getItem("ug_disguise")==="sls"){f="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png?v=2";}if(f){var l=document.querySelector('link[rel~="icon"]');if(l){l.href=f;}}if(t){document.title=t;}}catch(e){}})();</script>
+<script>(function(){try{var mode=localStorage.getItem("ug_favicon_mode")||localStorage.getItem("ug_disguise")||"classroom";var value=localStorage.getItem("ug_favicon_value")||localStorage.getItem("ug_disguise_favicon")||"";var titleMode=localStorage.getItem("ug_title_mode")||(localStorage.getItem("ug_disguise_title")?"custom":"default");var title=localStorage.getItem("ug_title_value")||localStorage.getItem("ug_disguise_title")||"Home";var href=mode==="sls"?"https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png?v=2":mode==="classroom"?"https://ssl.gstatic.com/classroom/favicon.png":mode==="custom"?value:"";if(href){var l=document.createElement("link");l.rel="icon";l.href=href;document.head.appendChild(l);}if(titleMode==="custom"&&title){document.title=title;}}catch(e){}})();</script>
 <title>Home</title>
 <style>
 :root {
@@ -824,7 +824,7 @@ body.listmode .buttons-container { display: grid; }
     </div>
     <div class="set-row">
         <div class="set-label">Custom favicon (url)</div>
-        <input id="dis-favicon" class="set-input" placeholder="https://...">
+        <input id="dis-favicon" class="set-input" placeholder="Image URL or data:image/...;base64,...">
     </div>
     <div class="set-row">
         <button id="hide-site" class="hide-btn">HIDE SITE</button>
@@ -958,43 +958,128 @@ document.addEventListener("DOMContentLoaded", function () {
     var dTitle = document.getElementById("dis-title");
     var dIcon = document.getElementById("dis-favicon");
     var hideBtn = document.getElementById("hide-site");
-    var disguise = localStorage.getItem("ug_disguise") || "classroom";
-    dTitle.value = localStorage.getItem("ug_disguise_title") || "";
-    dIcon.value = localStorage.getItem("ug_disguise_favicon") || "";
+    var disguise = localStorage.getItem("ug_favicon_mode") || localStorage.getItem("ug_disguise") || "classroom";
+    var customTitle = localStorage.getItem("ug_title_value") || localStorage.getItem("ug_disguise_title") || "";
+    var customIcon = localStorage.getItem("ug_favicon_value") || localStorage.getItem("ug_disguise_favicon") || "";
+    dTitle.value = customTitle;
+    dIcon.value = customIcon;
+    function selectedTitle() {
+        return localStorage.getItem("ug_title_mode") === "custom" ? (localStorage.getItem("ug_title_value") || "Home") : "Home";
+    }
     function setFavicon() {
-        var links = document.querySelectorAll('link[rel~="icon"]');
-        links.forEach(function (l) { l.parentNode.removeChild(l); });
-        var l = document.createElement("link");
-        l.rel = "icon";
-        l.href = localStorage.getItem("ug_disguise_favicon") || ICONS[disguise] || ICONS.classroom;
-        document.head.appendChild(l);
-        document.title = localStorage.getItem("ug_disguise_title") || "Home";
+        document.querySelectorAll('link[rel~="icon"]').forEach(function (l) { l.remove(); });
+        var href = disguise === "sls" ? ICONS.sls :
+                   disguise === "classroom" ? ICONS.classroom :
+                   disguise === "custom" ? (localStorage.getItem("ug_favicon_value") || "") : "";
+        if (href) {
+            var l = document.createElement("link");
+            l.rel = "icon";
+            l.href = href;
+            document.head.appendChild(l);
+        }
+        document.title = selectedTitle();
+        dSls.classList.toggle("active", disguise === "sls");
+        dCls.classList.toggle("active", disguise === "classroom");
+    }
+    function setFaviconMode(mode) {
+        disguise = mode;
+        localStorage.setItem("ug_favicon_mode", mode);
+        localStorage.setItem("ug_disguise", mode);
+        if (mode !== "custom") {
+            localStorage.removeItem("ug_favicon_value");
+            localStorage.removeItem("ug_disguise_favicon");
+            customIcon = "";
+            dIcon.value = "";
+        }
+        setFavicon();
     }
     dSls.addEventListener("click", function () {
-        disguise = "sls"; localStorage.setItem("ug_disguise", disguise);
-        localStorage.removeItem("ug_disguise_title"); localStorage.removeItem("ug_disguise_favicon");
-        dTitle.value = ""; dIcon.value = "";
+        setFaviconMode("sls");
+        localStorage.setItem("ug_title_mode", "default");
+        localStorage.removeItem("ug_title_value");
+        localStorage.removeItem("ug_disguise_title");
+        customTitle = "";
+        dTitle.value = "";
+        setFavicon();
         apply();
     });
     dCls.addEventListener("click", function () {
-        disguise = "classroom"; localStorage.setItem("ug_disguise", disguise);
-        localStorage.removeItem("ug_disguise_title"); localStorage.removeItem("ug_disguise_favicon");
-        dTitle.value = ""; dIcon.value = "";
+        setFaviconMode("classroom");
+        localStorage.setItem("ug_title_mode", "default");
+        localStorage.removeItem("ug_title_value");
+        localStorage.removeItem("ug_disguise_title");
+        customTitle = "";
+        dTitle.value = "";
+        setFavicon();
         apply();
     });
-    /* custom title + favicon, idea from noah's hub */
-    function onCustom() {
-        localStorage.setItem("ug_disguise_title", dTitle.value.trim());
-        localStorage.setItem("ug_disguise_favicon", dIcon.value.trim());
-        setFavicon();
+    function saveCustomIcon(value) {
+        value = value.trim();
+        if (!value) {
+            localStorage.removeItem("ug_favicon_value");
+            localStorage.removeItem("ug_disguise_favicon");
+            customIcon = "";
+            disguise = "classroom";
+            localStorage.setItem("ug_favicon_mode", "classroom");
+            localStorage.setItem("ug_disguise", "classroom");
+            setFavicon();
+            return;
+        }
+        if (/^data:image\/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=\s]+$/.test(value)) {
+            customIcon = value.replace(/\s/g, "");
+            localStorage.setItem("ug_favicon_value", customIcon);
+            localStorage.setItem("ug_disguise_favicon", customIcon);
+            disguise = "custom";
+            localStorage.setItem("ug_favicon_mode", "custom");
+            localStorage.setItem("ug_disguise", "custom");
+            setFavicon();
+            return;
+        }
+        if (!/^https?:\/\//i.test(value)) {
+            alert("Use an image URL or a data:image/...;base64,... value for your custom favicon.");
+            return;
+        }
+        fetch(value).then(function (r) {
+            if (!r.ok) { throw new Error("Image request failed"); }
+            return r.blob();
+        }).then(function (blob) {
+            if (!/^image\//i.test(blob.type)) { throw new Error("The URL did not return an image."); }
+            var reader = new FileReader();
+            reader.onload = function () {
+                customIcon = String(reader.result || "");
+                if (!/^data:image\//i.test(customIcon)) { alert("Could not convert that image to base64."); return; }
+                dIcon.value = customIcon;
+                localStorage.setItem("ug_favicon_value", customIcon);
+                localStorage.setItem("ug_disguise_favicon", customIcon);
+                disguise = "custom";
+                localStorage.setItem("ug_favicon_mode", "custom");
+                localStorage.setItem("ug_disguise", "custom");
+                setFavicon();
+                apply();
+            };
+            reader.onerror = function () { alert("Could not read that image. Try a base64 data URL instead."); };
+            reader.readAsDataURL(blob);
+        }).catch(function () {
+            alert("That image could not be converted (the image host may block cross-origin requests). Paste a data:image/...;base64,... value instead.");
+        });
     }
-    dTitle.addEventListener("change", onCustom);
-    dIcon.addEventListener("change", onCustom);
+    dIcon.addEventListener("change", function () { saveCustomIcon(dIcon.value); });
+    dTitle.addEventListener("change", function () {
+        customTitle = dTitle.value.trim().slice(0, 60);
+        if (customTitle) {
+            localStorage.setItem("ug_title_mode", "custom");
+            localStorage.setItem("ug_title_value", customTitle);
+            localStorage.setItem("ug_disguise_title", customTitle);
+        } else {
+            localStorage.setItem("ug_title_mode", "default");
+            localStorage.removeItem("ug_title_value");
+            localStorage.removeItem("ug_disguise_title");
+        }
+        setFavicon();
+    });
     /* panic button - swaps the tab for google classroom instantly */
     hideBtn.addEventListener("click", function () { location.replace("https://classroom.google.com/"); });
     function apply() {
-        dSls.classList.toggle("active", disguise === "sls");
-        dCls.classList.toggle("active", disguise === "classroom");
         setFavicon();
         vc.classList.toggle("active", view === "cards");
         vl.classList.toggle("active", view === "list");
