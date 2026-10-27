@@ -10,7 +10,7 @@
 <style>
 @property --orb-h{syntax:'<number>';initial-value:210;inherits:false}
 :root{color-scheme:dark;--ink:#e8eaed;--muted:#9aa3b2;--line:#232838;--bg:#0b0d12;--card:#13161f}
-*{box-sizing:border-box;margin:0;padding:0;cursor:none!important}
+*{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
 .appbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;background:#0d1017;padding:10px 16px;border-bottom:1px solid var(--line)}
@@ -47,33 +47,50 @@ svg.icon{width:22px;height:22px;fill:#9aa3b2}
 .hint{max-width:1200px;margin:0 auto;padding:4px 20px 34px;font-size:12px;color:var(--muted);text-align:center}
 #cursor-orb{position:fixed;left:0;top:0;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;--orb-h:210;background:radial-gradient(circle,hsl(var(--orb-h) 95% 62%/.5) 0%,hsl(calc(var(--orb-h) + 75) 95% 60%/.2) 70%,transparent 100%);border:2px solid hsl(var(--orb-h) 95% 72%/.9);box-shadow:0 0 12px hsl(var(--orb-h) 95% 62%/.55);pointer-events:none;z-index:2147483647;will-change:transform;animation:orb-hue 5s linear infinite}
 @keyframes orb-hue{from{--orb-h:0}to{--orb-h:360}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+:where(button,a,input,textarea,select,[role="button"],.nav-card):focus-visible{outline:3px solid #7dd3fc;outline-offset:3px}
+button,a,[role="button"],.nav-card{touch-action:manipulation}
+button{font:inherit}
+img,svg{max-width:100%}
+@media (hover:none),(pointer:coarse){#cursor-orb{display:none!important}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
 
 <div class="appbar">
-<button class="material"><svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+<button class="material" type="button" aria-label="Menu"><svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
 <div class="title-row"><h1 id="site-title" class="bar-title">free tutoring</h1></div>
 </div>
 
 <div class="launcher-hero"><h1 id="hero-logo" class="big-logo">free tutoring</h1><p class="tagline">the only class you never skip</p></div>
 
 <div class="nav-grid">
-<div class="nav-card" onclick="openPage(gamesHTML)"><div class="nav-icon"><img src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/controller-icon.png" alt="" draggable="false"/></div><div class="nav-name">games</div><div class="nav-desc">full game list &middot; opens as about:blank</div></div>
-<div class="nav-card" onclick="openPage(informationHTML)"><div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.4"/><circle cx="12" cy="7.9" r=".6" fill="currentColor"/></svg></div><div class="nav-name">information</div><div class="nav-desc">night sky &middot; opens as about:blank</div></div>
-<div class="nav-card" onclick="openPage(contactHTML)"><div class="nav-icon"><svg viewBox="0 0 24 24"><rect x="2.8" y="5" width="18.4" height="14" rx="2.4"/><path d="M3.4 6.6l8.6 6.4 8.6-6.4"/></svg></div><div class="nav-name">contact</div><div class="nav-desc">hit us up &middot; opens as about:blank</div></div>
+<div class="nav-card" role="button" tabindex="0" onclick="openPage(gamesHTML)"><div class="nav-icon"><img src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/controller-icon.png" alt="" draggable="false"/></div><div class="nav-name">games</div><div class="nav-desc">full game list &middot; opens as about:blank</div></div>
+<div class="nav-card" role="button" tabindex="0" onclick="openPage(informationHTML)"><div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.4"/><circle cx="12" cy="7.9" r=".6" fill="currentColor"/></svg></div><div class="nav-name">information</div><div class="nav-desc">night sky &middot; opens as about:blank</div></div>
+<div class="nav-card" role="button" tabindex="0" onclick="openPage(contactHTML)"><div class="nav-icon"><svg viewBox="0 0 24 24"><rect x="2.8" y="5" width="18.4" height="14" rx="2.4"/><path d="M3.4 6.6l8.6 6.4 8.6-6.4"/></svg></div><div class="nav-name">contact</div><div class="nav-desc">hit us up &middot; opens as about:blank</div></div>
 </div>
 
 <p class="hint">games open in new tabs labelled about:blank. if nothing happens when you click, allow popups for this page.</p>
 
 <script>
 function openPage(htmlContent) {
-    const win = window.open("about:blank", "_blank");
-    if (!win) { alert("popups got blocked - allow them for this page and try again"); return; }
-    win.document.open();
-    win.document.write(htmlContent);
-    win.document.close();
+    var win;
+    try {
+        win = window.open("about:blank", "_blank");
+        if (!win) {
+            alert("Popup blocked. Allow pop-ups for this site, then click again.");
+            return null;
+        }
+        win.document.open();
+        win.document.write(String(htmlContent || ""));
+        win.document.close();
+        try { win.focus(); } catch (e) {}
+        return win;
+    } catch (error) {
+        try { if (win && !win.closed) win.close(); } catch (e) {}
+        alert("The page could not be opened. Please try again or allow pop-ups for this site.");
+        return null;
+    }
 }
 
 document.querySelectorAll(".nav-card").forEach(function (card) {
@@ -116,7 +133,7 @@ const gamesHTML = `<!DOCTYPE html>
 <style>
 @property --orb-h{syntax:'<number>';initial-value:210;inherits:false}
 :root{color-scheme:dark;--ink:#e8eaed;--muted:#9aa3b2;--line:#232838;--bg:#0b0d12;--card:#13161f}
-*{box-sizing:border-box;margin:0;padding:0;cursor:none!important}
+*{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
 .appbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;background:#0d1017;padding:8px 16px;border-bottom:1px solid var(--line)}
 .material{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;border:none;background:transparent;cursor:pointer}
@@ -204,7 +221,7 @@ body.listmode .buttons-container{display:grid}
 .pinbtn.on svg{fill:currentColor}
 .pinbtn.on{opacity:1;color:#ffc371;border-color:#ffc371;box-shadow:0 0 10px rgba(255,195,113,.45)}
 @media (hover:none){.pinbtn{opacity:1}}
-@media (max-width:768px){.gcard{flex:0 0 160px;width:160px;height:150px}.buttons-container{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}
+@media (max-width:768px){.gcard{flex:0 0 160px;width:160px;height:150px}.buttons-container{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}.toolbar{flex-wrap:wrap;gap:8px}.search-glow{min-width:0;flex:1 1 100%}#searchInput{min-width:0}#game-count{flex:0 0 auto}}
 @media (max-width:1100px){#sidebar{display:none}}
 #cursor-orb{position:fixed;left:0;top:0;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;--orb-h:210;background:radial-gradient(circle,hsl(var(--orb-h) 95% 62%/.5) 0%,hsl(calc(var(--orb-h) + 75) 95% 60%/.2) 70%,transparent 100%);border:2px solid hsl(var(--orb-h) 95% 72%/.9);box-shadow:0 0 12px hsl(var(--orb-h) 95% 62%/.55);pointer-events:none;z-index:2147483647;will-change:transform;animation:orb-hue 5s linear infinite}
 @keyframes orb-hue{from{--orb-h:0}to{--orb-h:360}}
@@ -227,7 +244,12 @@ body.listmode .buttons-container{display:grid}
 .gate-cc{margin-top:16px;font-size:11px;color:#6b7280;letter-spacing:1px}
 #ug-wm{position:fixed;bottom:8px;right:12px;z-index:500;font-weight:600;font-size:11px;letter-spacing:1px;color:rgba(232,234,237,.3);pointer-events:none;user-select:none}
 @media (max-width:640px){.gate-cols{flex-direction:column}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+:where(button,a,input,textarea,select,[role="button"],.nav-card):focus-visible{outline:3px solid #7dd3fc;outline-offset:3px}
+button,a,[role="button"],.nav-card{touch-action:manipulation}
+button{font:inherit}
+img,svg{max-width:100%}
+@media (hover:none),(pointer:coarse){#cursor-orb{display:none!important}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body class="cardmode">
@@ -261,11 +283,11 @@ body.listmode .buttons-container{display:grid}
 })();
 <\/script>
 
-<div class="appbar"><button class="material"><svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button></div>
+<div class="appbar"><button class="material" type="button" aria-label="Menu"><svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button></div>
 
 <div class="hero">
 <div class="title-block"><h1 id="site-title" class="site-title">free tutoring</h1><p class="credits">ported by powerenkyle2 and mr tan who never did work</p></div>
-<button class="gear-btn" id="gear" title="settings"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></button>
+<button class="gear-btn" id="gear" title="settings" aria-label="Open game settings" aria-controls="settings" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></button>
 </div>
 
 <div class="settings-panel" id="settings">
@@ -294,26 +316,29 @@ body.listmode .buttons-container{display:grid}
     var countEl = document.getElementById("game-count");
     function updateCount() {
         var n = 0;
-        document.querySelectorAll('.buttons-container input[type="button"]').forEach(function(b){ if(b.offsetParent!==null) n++; });
-        document.querySelectorAll(".gcard").forEach(function(c){ if(!c.classList.contains("mini") && c.offsetParent!==null) n++; });
-        countEl.textContent = n > 0 ? (n + (n === 1 ? " game" : " games")) : "loading games...";
+        var cardsMode = document.body.classList.contains("cardmode");
+        document.querySelectorAll('.buttons-container input[type="button"]').forEach(function(b){ if(!cardsMode && b.offsetParent!==null) n++; });
+        document.querySelectorAll(".gcard").forEach(function(c){ if(cardsMode && !c.classList.contains("mini") && c.offsetParent!==null) n++; });
+        var queryActive = !!(searchInput && searchInput.value.trim());
+        countEl.textContent = n > 0 ? (n + (n === 1 ? " game" : " games")) : (queryActive ? "0 games" : "loading games...");
     }
     if (searchInput) {
         var searchTimer = null;
         function runSearch() {
             var query = searchInput.value.toLowerCase().trim();
             var total = 0;
+            var cardsMode = document.body.classList.contains("cardmode");
             document.querySelectorAll(".letter-section").forEach(function (section) {
                 var anyVisible = false;
                 section.querySelectorAll('input[type="button"]').forEach(function (btn) {
                     var ok = query === "" || btn.value.toLowerCase().indexOf(query) !== -1;
                     btn.style.display = ok ? "" : "none";
-                    if (ok) { anyVisible = true; total++; }
+                    if (ok) { anyVisible = true; if (!cardsMode) total++; }
                 });
                 section.querySelectorAll(".gcard").forEach(function (card) {
                     var ok = query === "" || (card.getAttribute("data-name") || "").toLowerCase().indexOf(query) !== -1;
                     card.style.display = ok ? "" : "none";
-                    if (ok) { anyVisible = true; total++; }
+                    if (ok) { anyVisible = true; if (cardsMode && !card.classList.contains("mini")) total++; }
                 });
                 section.style.display = anyVisible ? "" : "none";
             });
@@ -371,9 +396,31 @@ body.listmode .buttons-container{display:grid}
     var gear = document.getElementById("gear");
     var panel = document.getElementById("settings");
     if (!gear || !panel) return;
-    gear.addEventListener("click", function (e) { e.stopPropagation(); panel.classList.toggle("open"); });
-    document.addEventListener("click", function (e) { if (!panel.contains(e.target) && e.target !== gear) panel.classList.remove("open"); });
-    document.addEventListener("keydown", function (e) { if (window.__ugKeysLocked) return; if (e.key === "Escape") panel.classList.remove("open"); });
+    gear.setAttribute("aria-label", "Open game settings");
+    gear.setAttribute("aria-controls", "settings");
+    gear.setAttribute("aria-expanded", "false");
+    gear.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var isOpen = panel.classList.toggle("open");
+        gear.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        gear.setAttribute("aria-label", isOpen ? "Close game settings" : "Open game settings");
+    });
+    document.addEventListener("click", function (e) {
+        if (!panel.contains(e.target) && e.target !== gear) {
+            panel.classList.remove("open");
+            gear.setAttribute("aria-expanded", "false");
+            gear.setAttribute("aria-label", "Open game settings");
+        }
+    });
+    document.addEventListener("keydown", function (e) {
+        if (window.__ugKeysLocked) return;
+        if (e.key === "Escape") {
+            panel.classList.remove("open");
+            gear.setAttribute("aria-expanded", "false");
+            gear.setAttribute("aria-label", "Open game settings");
+            gear.focus();
+        }
+    });
     var vc = document.getElementById("view-cards");
     var vl = document.getElementById("view-list");
     var rot = document.getElementById("rot-toggle");
@@ -391,12 +438,17 @@ body.listmode .buttons-container{display:grid}
     dTitle.value = localStorage.getItem("ug_disguise_title") || "";
     dIcon.value = localStorage.getItem("ug_disguise_favicon") || "";
     function setFavicon() {
-        document.querySelectorAll('link[rel~="icon"]').forEach(function (l) { l.parentNode.removeChild(l); });
+        var customIcon = "", customTitle = "";
+        try {
+            customIcon = localStorage.getItem("ug_disguise_favicon") || "";
+            customTitle = localStorage.getItem("ug_disguise_title") || "";
+        } catch (e) {}
+        document.querySelectorAll('link[rel~="icon"]').forEach(function (l) { l.remove(); });
         var l = document.createElement("link");
         l.rel = "icon";
-        l.href = localStorage.getItem("ug_disguise_favicon") || ICONS[disguise] || ICONS.classroom;
+        l.href = customIcon || ICONS[disguise] || ICONS.classroom;
         document.head.appendChild(l);
-        document.title = localStorage.getItem("ug_disguise_title") || "Home";
+        document.title = customTitle || "Home";
     }
     dSls.addEventListener("click", function () {
         disguise = "sls"; localStorage.setItem("ug_disguise", disguise);
@@ -411,8 +463,24 @@ body.listmode .buttons-container{display:grid}
         apply();
     });
     function onCustom() {
-        localStorage.setItem("ug_disguise_title", dTitle.value.trim());
-        localStorage.setItem("ug_disguise_favicon", dIcon.value.trim());
+        var title = dTitle.value.trim().slice(0, 60);
+        var icon = dIcon.value.trim();
+        if (icon) {
+            try {
+                var parsed = new URL(icon, window.location.href);
+                if (parsed.protocol !== "https:" && parsed.protocol !== "http:") throw new Error("Invalid favicon URL");
+                icon = parsed.href;
+                dIcon.setCustomValidity("");
+            } catch (e) {
+                dIcon.setCustomValidity("Enter a valid http:// or https:// image URL.");
+                dIcon.reportValidity();
+                return;
+            }
+        } else dIcon.setCustomValidity("");
+        try {
+            if (title) localStorage.setItem("ug_disguise_title", title); else localStorage.removeItem("ug_disguise_title");
+            if (icon) localStorage.setItem("ug_disguise_favicon", icon); else localStorage.removeItem("ug_disguise_favicon");
+        } catch (e) {}
         setFavicon();
     }
     dTitle.addEventListener("change", onCustom);
@@ -666,10 +734,15 @@ var UG = (function () {
         var w = realOpen(url, target, feat);
         setTimeout(function () {
             try {
+                if (!w || w.closed) return;
+                var doc = w.document;
+                // Do not replace content already written by openPage() or games.js.
+                if (doc.body && doc.body.childNodes.length > 0) return;
+                if (doc.title && doc.title !== "about:blank") return;
                 var name = (pending || "the game").replace(/[<>&"]/g, "");
-                w.document.open();
-                w.document.write('<!DOCTYPE html><title>Home</title><style>body{margin:0;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:#0b0d12;color:#e8eaed;font-family:Segoe UI,Roboto,Arial,sans-serif}.s{width:34px;height:34px;border-radius:50%;border:3px solid #232838;border-top-color:#a46bff;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.t{font-size:20px;font-weight:700;background:linear-gradient(90deg,#ff5f6d,#ffc371,#47f0a3,#4facfe,#a46bff);-webkit-background-clip:text;background-clip:text;color:transparent}</style><div class="s"></div><div class="t">loading ' + name + '...</div>');
-                w.document.close();
+                doc.open();
+                doc.write('<!DOCTYPE html><title>Home</title><style>body{margin:0;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:#0b0d12;color:#e8eaed;font-family:Segoe UI,Roboto,Arial,sans-serif}.s{width:34px;height:34px;border-radius:50%;border:3px solid #232838;border-top-color:#a46bff;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.t{font-size:20px;font-weight:700;background:linear-gradient(90deg,#ff5f6d,#ffc371,#47f0a3,#4facfe,#a46bff);-webkit-background-clip:text;background-clip:text;color:transparent}</style><div class="s"></div><div class="t">loading ' + name + '...</div>');
+                doc.close();
             } catch (e) {}
         }, 40);
         return w;
@@ -847,7 +920,7 @@ const informationHTML = `<!DOCTYPE html>
 <script>alert("Night sky brought to you by powerenkyle");<\/script>
 <style>
 @property --orb-h{syntax:'<number>';initial-value:210;inherits:false}
-*{margin:0;padding:0;box-sizing:border-box;cursor:none!important}
+*{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
 body{font-family:Georgia,'Times New Roman',serif;color:#f4f7f8;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;background:radial-gradient(ellipse at 70% 15%,#14213d 0%,#0b1226 35%,#05060f 75%,#020208 100%)}
 .sky{position:fixed;inset:0;z-index:0;overflow:hidden}
@@ -941,7 +1014,7 @@ const contactHTML = `<!DOCTYPE html>
 <style>
 @property --orb-h{syntax:'<number>';initial-value:210;inherits:false}
 :root{color-scheme:dark;--ink:#e8eaed;--muted:#9aa3b2;--line:#232838;--bg:#0b0d12;--card:#13161f}
-*{box-sizing:border-box;margin:0;padding:0;cursor:none!important}
+*{box-sizing:border-box;margin:0;padding:0}
 body{min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);padding:28px 16px}
 .wrap{width:100%;max-width:540px;text-align:center}
 h1{font-size:clamp(30px,6vw,44px);font-weight:800;background:linear-gradient(90deg,#ff5f6d,#ffc371,#f7ff47,#47f0a3,#4facfe,#a46bff,#ff5f6d);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:slide 6s linear infinite}
