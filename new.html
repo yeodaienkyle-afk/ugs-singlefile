@@ -757,10 +757,16 @@ var UG = (function () {
         var w = realOpen(url, target, feat);
         setTimeout(function () {
             try {
+                if (!w || w.closed) return;
+                var doc = w.document;
+                // Do not replace content already written by openPage() or games.js.
+                // The previous unconditional document.write could erase the real page.
+                if (doc.body && doc.body.childNodes.length > 0) return;
+                if (doc.title && doc.title !== "about:blank") return;
                 var name = (pending || "the game").replace(/[<>&"]/g, "");
-                w.document.open();
-                w.document.write('<!DOCTYPE html><title>Home</title><style>body{margin:0;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:#0b0d12;color:#e8eaed;font-family:Segoe UI,Roboto,Arial,sans-serif}.s{width:34px;height:34px;border-radius:50%;border:3px solid #232838;border-top-color:#a46bff;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.t{font-size:20px;font-weight:700;background:linear-gradient(90deg,#ff5f6d,#ffc371,#47f0a3,#4facfe,#a46bff);-webkit-background-clip:text;background-clip:text;color:transparent}</style><div class="s"></div><div class="t">loading ' + name + '...</div>');
-                w.document.close();
+                doc.open();
+                doc.write('<!DOCTYPE html><title>Home</title><style>body{margin:0;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:#0b0d12;color:#e8eaed;font-family:Segoe UI,Roboto,Arial,sans-serif}.s{width:34px;height:34px;border-radius:50%;border:3px solid #232838;border-top-color:#a46bff;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.t{font-size:20px;font-weight:700;background:linear-gradient(90deg,#ff5f6d,#ffc371,#47f0a3,#4facfe,#a46bff);-webkit-background-clip:text;background-clip:text;color:transparent}</style><div class="s"></div><div class="t">loading ' + name + '...</div>');
+                doc.close();
             } catch (e) {}
         }, 40);
         return w;
