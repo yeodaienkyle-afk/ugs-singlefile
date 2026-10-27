@@ -85,11 +85,24 @@ img,svg{max-width:100%}
 
 <script>
 function openPage(htmlContent) {
-    const win = window.open("about:blank", "_blank");
-    if (!win) { alert("popups got blocked - allow them for this page and try again"); return; }
-    win.document.open();
-    win.document.write(htmlContent);
-    win.document.close();
+    // Open synchronously inside the click handler so popup blockers can allow it.
+    var win;
+    try {
+        win = window.open("about:blank", "_blank");
+        if (!win) {
+            alert("Popup blocked. Allow pop-ups for this site, then click again.");
+            return null;
+        }
+        win.document.open();
+        win.document.write(String(htmlContent || ""));
+        win.document.close();
+        try { win.focus(); } catch (e) {}
+        return win;
+    } catch (error) {
+        try { if (win && !win.closed) win.close(); } catch (e) {}
+        alert("The page could not be opened. Please try again or allow pop-ups for this site.");
+        return null;
+    }
 }
 
 document.querySelectorAll(".nav-card").forEach(function (card) {
@@ -319,17 +332,25 @@ body.listmode .buttons-container{display:grid}
         function runSearch() {
             var query = searchInput.value.toLowerCase().trim();
             var total = 0;
+            var cardsMode = document.body.classList.contains("cardmode");
             document.querySelectorAll(".letter-section").forEach(function (section) {
                 var anyVisible = false;
                 section.querySelectorAll('input[type="button"]').forEach(function (btn) {
                     var ok = query === "" || btn.value.toLowerCase().indexOf(query) !== -1;
                     btn.style.display = ok ? "" : "none";
-                    if (ok) { anyVisible = true; total++; }
+                    if (ok) {
+                        anyVisible = true;
+                        if (!cardsMode) total++;
+                    }
                 });
                 section.querySelectorAll(".gcard").forEach(function (card) {
-                    var ok = query === "" || (card.getAttribute("data-name") || "").toLowerCase().indexOf(query) !== -1;
+                    var name = card.getAttribute("data-name") || "";
+                    var ok = query === "" || name.toLowerCase().indexOf(query) !== -1;
                     card.style.display = ok ? "" : "none";
-                    if (ok) { anyVisible = true; total++; }
+                    if (ok) {
+                        anyVisible = true;
+                        if (cardsMode && !card.classList.contains("mini")) total++;
+                    }
                 });
                 section.style.display = anyVisible ? "" : "none";
             });
@@ -407,12 +428,19 @@ body.listmode .buttons-container{display:grid}
     dTitle.value = localStorage.getItem("ug_disguise_title") || "";
     dIcon.value = localStorage.getItem("ug_disguise_favicon") || "";
     function setFavicon() {
-        document.querySelectorAll('link[rel~="icon"]').forEach(function (l) { l.parentNode.removeChild(l); });
+        var customIcon = "";
+        var customTitle = "";
+        try {
+            customIcon = localStorage.getItem("ug_disguise_favicon") || "";
+            customTitle = localStorage.getItem("ug_disguise_title") || "";
+        } catch (e) {}
+        document.querySelectorAll('link[rel~="icon"]').forEach(function (l) { l.remove(); });
+        // Preset selection always wins unless the user explicitly supplied a custom icon.
         var l = document.createElement("link");
         l.rel = "icon";
-        l.href = localStorage.getItem("ug_disguise_favicon") || ICONS[disguise] || ICONS.classroom;
+        l.href = customIcon || ICONS[disguise] || ICONS.classroom;
         document.head.appendChild(l);
-        document.title = localStorage.getItem("ug_disguise_title") || "Home";
+        document.title = customTitle || "Home";
     }
     dSls.addEventListener("click", function () {
         disguise = "sls"; localStorage.setItem("ug_disguise", disguise);
@@ -427,8 +455,32 @@ body.listmode .buttons-container{display:grid}
         apply();
     });
     function onCustom() {
-        localStorage.setItem("ug_disguise_title", dTitle.value.trim());
-        localStorage.setItem("ug_disguise_favicon", dIcon.value.trim());
+        var title = dTitle.value.trim().slice(0, 60);
+        var icon = dIcon.value.trim();
+        if (icon) {
+            try {
+                var parsedIcon = new URL(icon, window.location.href);
+                if (parsedIcon.protocol !== "https:" && parsedIcon.protocol !== "http:") {
+                    throw new Error("Unsupported favicon URL scheme");
+                }
+                icon = parsedIcon.href;
+                dIcon.setCustomValidity("");
+            } catch (e) {
+                dIcon.setCustomValidity("Enter a valid http:// or https:// image URL.");
+                dIcon.reportValidity();
+                return;
+            }
+        } else {
+            dIcon.setCustomValidity("");
+        }
+        try {
+            if (title) localStorage.setItem("ug_disguise_title", title);
+            else localStorage.removeItem("ug_disguise_title");
+            if (icon) localStorage.setItem("ug_disguise_favicon", icon);
+            else localStorage.removeItem("ug_disguise_favicon");
+        } catch (e) {
+            // Private browsing or storage restrictions should not break the launcher.
+        }
         setFavicon();
     }
     dTitle.addEventListener("change", onCustom);
