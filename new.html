@@ -76,9 +76,9 @@ img,svg{max-width:100%}
 <div class="launcher-hero"><h1 id="hero-logo" class="big-logo">free tutoring</h1><p class="tagline">the only class you never skip</p></div>
 
 <div class="nav-grid">
-<div class="nav-card" onclick="openPage(gamesHTML)"><div class="nav-icon"><img src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/controller-icon.png" alt="" draggable="false"/></div><div class="nav-name">games</div><div class="nav-desc">full game list &middot; opens as about:blank</div></div>
-<div class="nav-card" onclick="openPage(informationHTML)"><div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.4"/><circle cx="12" cy="7.9" r=".6" fill="currentColor"/></svg></div><div class="nav-name">information</div><div class="nav-desc">night sky &middot; opens as about:blank</div></div>
-<div class="nav-card" onclick="openPage(contactHTML)"><div class="nav-icon"><svg viewBox="0 0 24 24"><rect x="2.8" y="5" width="18.4" height="14" rx="2.4"/><path d="M3.4 6.6l8.6 6.4 8.6-6.4"/></svg></div><div class="nav-name">contact</div><div class="nav-desc">hit us up &middot; opens as about:blank</div></div>
+<div class="nav-card" role="button" tabindex="0" onclick="openPage(gamesHTML)"><div class="nav-icon"><img src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/controller-icon.png" alt="" draggable="false"/></div><div class="nav-name">games</div><div class="nav-desc">full game list &middot; opens as about:blank</div></div>
+<div class="nav-card" role="button" tabindex="0" onclick="openPage(informationHTML)"><div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.4"/><circle cx="12" cy="7.9" r=".6" fill="currentColor"/></svg></div><div class="nav-name">information</div><div class="nav-desc">night sky &middot; opens as about:blank</div></div>
+<div class="nav-card" role="button" tabindex="0" onclick="openPage(contactHTML)"><div class="nav-icon"><svg viewBox="0 0 24 24"><rect x="2.8" y="5" width="18.4" height="14" rx="2.4"/><path d="M3.4 6.6l8.6 6.4 8.6-6.4"/></svg></div><div class="nav-name">contact</div><div class="nav-desc">hit us up &middot; opens as about:blank</div></div>
 </div>
 
 <p class="hint">games open in new tabs labelled about:blank. if nothing happens when you click, allow popups for this page.</p>
@@ -284,7 +284,7 @@ body.listmode .buttons-container{display:grid}
 <button class="gear-btn" id="gear" title="settings"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></button>
 </div>
 
-<div class="settings-panel" id="settings">
+<div class="settings-panel" id="settings" aria-label="Game settings">
 <h3>Settings</h3>
 <div class="set-row"><div class="set-label">Game view</div><div class="seg"><button id="view-cards" class="active">cards</button><button id="view-list">list</button></div></div>
 <div class="set-row"><div class="set-label">Auto-rotate strips</div><button id="rot-toggle" class="toggle on">ON</button></div>
@@ -296,8 +296,8 @@ body.listmode .buttons-container{display:grid}
 </div>
 
 <div class="toolbar">
-<div class="search-glow"><div class="searchbox"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><input type="text" placeholder="find the game to your heart's desire" id="searchInput" autocomplete="off" spellcheck="false"></div></div>
-<span id="game-count">loading games...</span>
+<div class="search-glow"><div class="searchbox"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><input type="text" placeholder="find the game to your heart's desire" id="searchInput" aria-label="Search games" autocomplete="off" spellcheck="false"></div></div>
+<span id="game-count" role="status" aria-live="polite" aria-atomic="true">loading games...</span>
 <button id="lolbutton">not loading? click here</button>
 </div>
 
