@@ -10,7 +10,7 @@
 <style>
 @property --orb-h{syntax:'<number>';initial-value:210;inherits:false}
 :root{color-scheme:dark;--ink:#e8eaed;--muted:#9aa3b2;--line:#232838;--bg:#0b0d12;--card:#13161f}
-*{box-sizing:border-box;margin:0;padding:0;cursor:none!important}
+*{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
 .appbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;background:#0d1017;padding:10px 16px;border-bottom:1px solid var(--line)}
@@ -47,7 +47,23 @@ svg.icon{width:22px;height:22px;fill:#9aa3b2}
 .hint{max-width:1200px;margin:0 auto;padding:4px 20px 34px;font-size:12px;color:var(--muted);text-align:center}
 #cursor-orb{position:fixed;left:0;top:0;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;--orb-h:210;background:radial-gradient(circle,hsl(var(--orb-h) 95% 62%/.5) 0%,hsl(calc(var(--orb-h) + 75) 95% 60%/.2) 70%,transparent 100%);border:2px solid hsl(var(--orb-h) 95% 72%/.9);box-shadow:0 0 12px hsl(var(--orb-h) 95% 62%/.55);pointer-events:none;z-index:2147483647;will-change:transform;animation:orb-hue 5s linear infinite}
 @keyframes orb-hue{from{--orb-h:0}to{--orb-h:360}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* Accessibility: keep the native pointer and provide a visible keyboard focus. */
+:where(button,a,input,textarea,select,[role="button"],.nav-card):focus-visible{
+  outline:3px solid #7dd3fc;
+  outline-offset:3px;
+}
+button,a,[role="button"],.nav-card{touch-action:manipulation}
+button{font:inherit}
+img,svg{max-width:100%}
+@media (hover:none),(pointer:coarse){#cursor-orb{display:none!important}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:0.01ms!important;
+    scroll-behavior:auto!important;
+  }
+}
 </style>
 </head>
 <body>
