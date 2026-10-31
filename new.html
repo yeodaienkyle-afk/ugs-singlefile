@@ -82,11 +82,11 @@ document.querySelectorAll(".nav-card").forEach(function (card) {
     card.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); card.click(); } });
 });
 
-var TITLE_PHRASES = ["free tutoring","ported by powerenkyle2","mr tan who never did work","visit main site","99% games, 1% tutoring","mr tan approved (he didn't)","the only class you never skip","homework? do it later","your firewall can't stop this","10/10 teachers hate this site","the tutoring is free, the fun is priceless","mr tan's contribution: existing","shhh, the tab says about:blank","powered by boredom and wifi","study? in this economy?","better than actual class","loading education... just kidding","attendance: 100% by accident"];
+var TITLE_PHRASES = ["free tutoring","ported by powerenkyle2","must have been the wind","water is from the ocean","your enemy cant outsmart you if you're not smart","we are a state of matter","if your enemy can predict your next move then don't move","animals have lives","if ing means you are still doing something what about buildings","noone can use you if you are useless","if you cant defeat them defeat yourself before they defeat you","If someone tells you a secret,tell everyone else so you don't forget it.","if someone ask for directions give them the wrong one so they can start an adventure","the more water you drink the less thirsty you become","brainless people have no brain","if you cant win the battle become the referee","if you don't understand the question the questiom don't understand you either","if you cant win the game uninstall it","you are not lazy,you are just highly motivated to do nothing","attack your heart before it attack you","if you cant handle the truth simply believe something else","if your problems are following you walk faster","if you don't know where you're going every wrong turn is progress","if studying is your power what are you without it","to confuse your enemies first confuse yourself","if there is no life there is no death","if death is bad define bad","create to dystroy,destroy to create"];
 
 (function () {
     var els = [document.getElementById("site-title"), document.getElementById("hero-logo")].filter(Boolean);
-    var SITE_URL = "https://sites.google.com/view/mr-tan-free-tutoring/home";
+    var SITE_URL = "https://sites.google.com/view/powerenkyle2/home";
     var shown = [els.length ? els[0].textContent.trim() : ""];
     function step() {
         var pool = TITLE_PHRASES.filter(function (p) { return shown.indexOf(p) === -1; });
@@ -442,7 +442,7 @@ body.listmode .buttons-container{display:grid}
 (function () {
     var el = document.getElementById("site-title");
     if (!el) return;
-    var SITE_URL = "https://sites.google.com/view/mr-tan-free-tutoring/home";
+    var SITE_URL = "https://sites.google.com/view/powerenkyle2/home";
     var shown = [el.textContent.trim()];
     var PHRASES = ["free tutoring","ported by powerenkyle2","mr tan who never did work","visit main site","99% games, 1% tutoring","mr tan approved (he didn't)","the only class you never skip","homework? do it later","your firewall can't stop this","10/10 teachers hate this site","the tutoring is free, the fun is priceless","mr tan's contribution: existing","shhh, the tab says about:blank","powered by boredom and wifi","study? in this economy?","better than actual class","loading education... just kidding","attendance: 100% by accident"];
     function step() {
