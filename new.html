@@ -53,7 +53,7 @@ svg.icon{width:22px;height:22px;fill:#9aa3b2}
 <body>
 
 <div class="appbar">
-<button class="material"><svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+
 <div class="title-row"><h1 id="site-title" class="bar-title">free tutoring</h1></div>
 </div>
 
@@ -96,7 +96,7 @@ var TITLE_PHRASES = ["free tutoring","ported by powerenkyle2","must have been th
         if (shown.length > 10) { shown.shift(); }
         els.forEach(function (el) { el.textContent = pick; el.classList.toggle("is-link", pick === "visit main site"); });
     }
-    setInterval(function () { if (!document.hidden) { step(); } }, 10000);
+    /* title stays static ("free tutoring") - phrase rotation disabled */
     els.forEach(function (el) {
         el.addEventListener("click", function () { if (el.textContent.trim() === "visit main site") { window.open(SITE_URL, "_blank"); } });
     });
@@ -261,7 +261,7 @@ body.listmode .buttons-container{display:grid}
 })();
 <\/script>
 
-<div class="appbar"><button class="material"><svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button></div>
+<div class="appbar"></div>
 
 <div class="hero">
 <div class="title-block"><h1 id="site-title" class="site-title">free tutoring</h1><p class="credits">ported by powerenkyle2 and mr tan who never did work</p></div>
@@ -454,7 +454,7 @@ body.listmode .buttons-container{display:grid}
         el.textContent = pick;
         el.classList.toggle("is-link", pick === "visit main site");
     }
-    setInterval(function () { if (!document.hidden) step(); }, 10000);
+    /* title stays static on the games page too - rotation disabled */
     el.addEventListener("click", function () { if (el.textContent.trim() === "visit main site") window.open(SITE_URL, "_blank"); });
 })();
 <\/script>
