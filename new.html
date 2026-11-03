@@ -378,7 +378,7 @@ body.listmode .buttons-container{display:grid}
     var vl = document.getElementById("view-list");
     var rot = document.getElementById("rot-toggle");
     var glow = document.getElementById("glow-toggle");
-    var view = localStorage.getItem("ug_view") || "list";
+    var view = localStorage.getItem("ug_view2") || "list";
     var rotate = localStorage.getItem("ug_rotate") !== "0";
     var gl = localStorage.getItem("ug_glow") !== "0";
     var ICONS = { classroom: "https://ssl.gstatic.com/classroom/favicon.png", sls: "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png" };
@@ -430,8 +430,8 @@ body.listmode .buttons-container{display:grid}
         document.body.classList.toggle("listmode", view === "list");
         document.body.classList.toggle("noglow", !gl);
     }
-    vc.addEventListener("click", function () { view = "cards"; localStorage.setItem("ug_view", view); apply(); });
-    vl.addEventListener("click", function () { view = "list"; localStorage.setItem("ug_view", view); apply(); });
+    vc.addEventListener("click", function () { view = "cards"; localStorage.setItem("ug_view2", view); apply(); });
+    vl.addEventListener("click", function () { view = "list"; localStorage.setItem("ug_view2", view); apply(); });
     rot.addEventListener("click", function () { rotate = !rotate; localStorage.setItem("ug_rotate", rotate ? "1" : "0"); apply(); });
     glow.addEventListener("click", function () { gl = !gl; localStorage.setItem("ug_glow", gl ? "1" : "0"); apply(); });
     apply();
@@ -454,7 +454,7 @@ body.listmode .buttons-container{display:grid}
         el.textContent = pick;
         el.classList.toggle("is-link", pick === "visit main site");
     }
-    /* title stays static on the games page too - rotation disabled */
+    setInterval(function () { if (!document.hidden) { step(); } }, 10000);
     el.addEventListener("click", function () { if (el.textContent.trim() === "visit main site") window.open(SITE_URL, "_blank"); });
 })();
 <\/script>
