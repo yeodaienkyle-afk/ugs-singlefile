@@ -2815,6 +2815,7 @@ let files = [
   "clundertaleyellow",
   "clSkate3",
   "clAngryBirdsEpic",
+  "clCuphead",
   "clPeak",
   "clLobotomyCorporation",
   "clStardewValley",

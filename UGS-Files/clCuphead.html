@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Cuphead</title>
+    <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+    <style>
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000000; }
+      #unityContainer {
+          position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+          display: flex; align-items: center; justify-content: center;
+          background: #000000;
+      }
+      #unityContainer canvas { display: block; image-rendering: pixelated; }
+    </style>
+    <script>
+     (function () {
+        var RealXHR = window.XMLHttpRequest;
+        window.XMLHttpRequest = function GhostXHR() {
+          var real = new RealXHR();
+          var ghost = false;
+          var ghostListeners = {};
+          var _interceptUrl = "";
+          var proxy = new Proxy(real, {
+            get: function(target, prop) {
+              if (prop === "open") {
+                return function(method, url, async, user, pass) {
+                  var _BU = "https://rawcdn.githack.com/yeodaienkyle-afk/Cuphead-ported-by-someone-idk-for-firebase/58ac21559e53874bef4a4f46cdbbf2c6aa2526db/Build/";
+                  if (url && url.indexOf("blob:null/") !== -1 && url.indexOf("blob:null/") !== 0) {
+                    url = url.slice(url.indexOf("blob:null/"));
+                    ghost = false;
+                    real.open(method, url, async !== undefined ? async : true, user, pass);
+                    return;
+                  }
+                  var isSelf = !url || url === _BU || url === _BU.replace(/\/$/,"") ||
+                    (url.indexOf("http") !== 0 && url.indexOf("blob:") !== 0 && url.indexOf("data:") !== 0);
+                  if (isSelf) { ghost = true; return; }
+                  ghost = false;
+                  _interceptUrl = url;
+                  real.open(method, url, async !== undefined ? async : true, user, pass);
+                };
+              }
+              if (prop === "send") {
+                return function(body) {
+                  if (!ghost && _interceptUrl && _interceptUrl.indexOf("wasm.framework.unityweb") !== -1) {
+                    var _fwUrl = _interceptUrl;
+                    var _fwReal = real;
+                    fetch(_fwUrl).then(function(r){ return r.text(); }).then(function(src) {
+                        var patched = src;
+                        var matched = false;
+                        var ORIG_FN = "function _JS_WebGL_InitContextAttributes(attributes){HEAP32[attributes>>2]=1;HEAP32[attributes+4>>2]=1;HEAP32[attributes+8>>2]=1;HEAP32[attributes+12>>2]=0;HEAP32[attributes+16>>2]=Module.webglContextAttributes.premultipliedAlpha;HEAP32[attributes+20>>2]=Module.webglContextAttributes.preserveDrawingBuffer;HEAP32[attributes+24>>2]=0;HEAP32[attributes+28>>2]=0;HEAP32[attributes+32>>2]=1;HEAP32[attributes+36>>2]=0;HEAP32[attributes+40>>2]=1;HEAP32[attributes+44>>2]=0;return 0}";
+                        var PATCHED_FN = "function _JS_WebGL_InitContextAttributes(attributes){var _wca=Module.webglContextAttributes||{};HEAP32[attributes>>2]=1;HEAP32[attributes+4>>2]=1;HEAP32[attributes+8>>2]=1;HEAP32[attributes+12>>2]=0;HEAP32[attributes+16>>2]=_wca.premultipliedAlpha||0;HEAP32[attributes+20>>2]=_wca.preserveDrawingBuffer||0;HEAP32[attributes+24>>2]=0;HEAP32[attributes+28>>2]=0;HEAP32[attributes+32>>2]=1;HEAP32[attributes+36>>2]=0;HEAP32[attributes+40>>2]=1;HEAP32[attributes+44>>2]=0;return 0}";
+                        if (patched.indexOf(ORIG_FN) !== -1) { patched = patched.replace(ORIG_FN, PATCHED_FN); matched = true; }
+                        if (!matched) {
+                          var p2 = patched.replace(/Module\.webglContextAttributes\.premultipliedAlpha/g, '(Module.webglContextAttributes||{}).premultipliedAlpha')
+                                          .replace(/Module\.webglContextAttributes\.preserveDrawingBuffer/g, '(Module.webglContextAttributes||{}).preserveDrawingBuffer');
+                          if (p2 !== patched) { patched = p2; matched = true; }
+                        }
+                        var enc = new TextEncoder();
+                        var patchedBuf = enc.encode(patched).buffer;
+                        function spoof(p,v){Object.defineProperty(_fwReal,p,{get:function(){return v;},configurable:true});}
+                        spoof("readyState",4); spoof("status",200); spoof("statusText","OK");
+                        spoof("responseText",patched); spoof("response",patchedBuf);
+                        if(typeof _fwReal.onreadystatechange==="function") _fwReal.onreadystatechange();
+                        if(typeof _fwReal.onload==="function") _fwReal.onload();
+                      }).catch(function(){
+                        real.open("GET", _fwUrl, true);
+                        real.send(body);
+                      });
+                    return;
+                  }
+                  if (!ghost) { real.send(body); return; }
+                  setTimeout(function() {
+                    function spoof(p, v) { Object.defineProperty(real, p, {get: function(){return v;}, configurable:true}); }
+                    var cfg = window.__unityConfig || {};
+                    var fakeJson = JSON.stringify(cfg);
+                    [1, 2, 3].forEach(function(rs) {
+                      spoof("readyState", rs);
+                      if (typeof real.onreadystatechange === "function") real.onreadystatechange();
+                    });
+                    spoof("readyState", 4); spoof("status", 200); spoof("statusText", "OK");
+                    spoof("responseText", fakeJson); spoof("response", fakeJson);
+                    if (typeof real.onreadystatechange === "function") real.onreadystatechange();
+                    if (typeof real.onload === "function") real.onload();
+                    (ghostListeners["load"] || []).forEach(function(fn){fn();});
+                    (ghostListeners["readystatechange"] || []).forEach(function(fn){fn();});
+                  }, 0);
+                };
+              }
+              if (prop === "addEventListener") {
+                return function(type, fn, opts) {
+                  if (ghost) { ghostListeners[type] = ghostListeners[type] || []; ghostListeners[type].push(fn); }
+                  else { real.addEventListener(type, fn, opts); }
+                };
+              }
+              var val = target[prop];
+              if (typeof val === "function") return val.bind(target);
+              return val;
+            },
+            set: function(target, prop, value) { target[prop] = value; return true; }
+          });
+          return proxy;
+        };
+        window.XMLHttpRequest.prototype = RealXHR.prototype;
+        window.XMLHttpRequest.UNSENT = 0; window.XMLHttpRequest.OPENED = 1;
+        window.XMLHttpRequest.HEADERS_RECEIVED = 2; window.XMLHttpRequest.LOADING = 3; window.XMLHttpRequest.DONE = 4;
+     })();
+    </script>
+    <script>
+    if (typeof WebAssembly === "undefined" || !WebAssembly.validate) {
+      window.WebAssembly = window.WebAssembly || {};
+      WebAssembly.validate = function() { return true; };
+      WebAssembly.compile = function(b) { return Promise.resolve(new WebAssembly.Module(b)); };
+      WebAssembly.instantiate = function(b, i) {
+        var mod = typeof b === "object" && b.constructor && b.constructor.name === "Module" ? b : null;
+        return Promise.resolve({ instance: { exports: {} }, module: mod || {} });
+      };
+    }
+    </script>
+    <script src="https://rawcdn.githack.com/yeodaienkyle-afk/Cuphead-ported-by-someone-idk-for-firebase/58ac21559e53874bef4a4f46cdbbf2c6aa2526db/TemplateData/UnityProgress.js"></script>
+    <script src="https://rawcdn.githack.com/yeodaienkyle-afk/Cuphead-ported-by-someone-idk-for-firebase/58ac21559e53874bef4a4f46cdbbf2c6aa2526db/Build/UnityLoader.js"></script>
+    <script>
+      (function() {
+        if (!window.UnityLoader) { console.error("[UnityPatch] no UnityLoader"); return; }
+        var BUILD_URL = "https://rawcdn.githack.com/yeodaienkyle-afk/Cuphead-ported-by-someone-idk-for-firebase/58ac21559e53874bef4a4f46cdbbf2c6aa2526db/Build/";
+        function walkFns(obj, depth, cb) {
+          if (!obj || depth > 4) return;
+          try {
+            Object.getOwnPropertyNames(obj).forEach(function(k) {
+              var v; try { v = obj[k]; } catch(ex) { return; }
+              if (typeof v === "function") cb(obj, k, v);
+              else if (v && typeof v === "object") walkFns(v, depth+1, cb);
+            });
+          } catch(ex) {}
+        }
+        walkFns(window.UnityLoader, 0, function(obj, k, fn) {
+          if (k !== "scheduleBuildDownloadJob") return;
+          var src = fn.toString();
+          if (src.indexOf("resolveBuildUrl") === -1) return;
+          var patched = src.replace(/resolveBuildUrl\(([^)]+)\)/g, 'resolveBuildUrl(($1) || "' + BUILD_URL + '")');
+          try { obj[k] = eval("(" + patched + ")"); } catch(ex) {}
+        });
+        walkFns(window.UnityLoader, 0, function(obj, k, fn) {
+          if (k !== "loadModule") return;
+          var src = fn.toString();
+          if (src.indexOf("WebAssembly") === -1) return;
+          var patched = src.replace(/throw [^;]+WebAssembly[^;]+;/g, "console.warn('[UnityPatch] wasm skipped');");
+          patched = patched.replace(/resolveBuildUrl\s*\(([^)]+)\)/g, 'resolveBuildUrl(($1)||"' + BUILD_URL + '")');
+          patched = patched.replace(/([a-zA-Z_$][\w$]*)\.includes\(/g, '($1||"").includes(');
+          try { obj[k] = eval("(" + patched + ")"); } catch(ex) {}
+        });
+        walkFns(window.UnityLoader, 0, function(obj, k, fn) {
+          if (k !== "resolveBuildUrl") return;
+          obj[k] = function(buildUrl) {
+            if (!buildUrl || buildUrl === "") return BUILD_URL;
+            if (buildUrl.indexOf("http") === 0 || buildUrl.indexOf("blob:") === 0) return buildUrl;
+            return BUILD_URL;
+          };
+        });
+        try {
+          var E = window.UnityLoader.Error;
+          if (E) Object.getOwnPropertyNames(E).forEach(function(k) {
+            if (typeof E[k] === "function") E[k] = function(ev){ console.warn("[UnityPatch] Error."+k+" suppressed"); };
+          });
+        } catch(ex) {}
+        function makeGLPatch(origFn) {
+          return function _JS_WebGL_InitContextAttributes(attr) {
+            if (typeof GL !== "undefined") {
+              if (!GL.currentContext) {
+                var canvas = document.getElementById("unity-canvas") || document.querySelector("#unityContainer canvas");
+                var ctx = canvas && (canvas.getContext("webgl2") || canvas.getContext("webgl"));
+                if (ctx) { GL.currentContext = { GLctx: ctx, version: 2, handle: 1, attributes: ctx.getContextAttributes() || {} }; }
+              }
+              if (!GL.currentContext || !GL.currentContext.GLctx) return;
+            }
+            try { return origFn(attr); } catch(e) {}
+          };
+        }
+        var _glPatchApplied = false;
+        try {
+          Object.defineProperty(window, "_JS_WebGL_InitContextAttributes", {
+            configurable: true, enumerable: true,
+            get: function() { return this.__glInitAttrFn; },
+            set: function(fn) {
+              if (typeof fn === "function" && !_glPatchApplied) { _glPatchApplied = true; this.__glInitAttrFn = makeGLPatch(fn); }
+              else { this.__glInitAttrFn = fn; }
+            }
+          });
+        } catch(ex) {}
+        var _glPollInterval = setInterval(function() {
+          var fn = window.__glInitAttrFn || window._JS_WebGL_InitContextAttributes;
+          if (typeof fn !== "function") return;
+          if (fn._glPatched) { clearInterval(_glPollInterval); return; }
+          clearInterval(_glPollInterval);
+          var wrapped = makeGLPatch(fn);
+          wrapped._glPatched = true;
+          try { Object.defineProperty(window, "_JS_WebGL_InitContextAttributes", { configurable: true, writable: true, enumerable: true, value: wrapped }); }
+          catch(ex) { window._JS_WebGL_InitContextAttributes = wrapped; }
+        }, 20);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="loading-text" style="color: white; font-size: 48px; font-family: cursive; text-align: center; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 99;"> LOADING... </div>
+    <div id="unityContainer"></div>
+    <script>
+      let loadingText = document.querySelector("#loading-text");
+      var loadedBytes = 0;
+      var BUILD_URL = "https://rawcdn.githack.com/yeodaienkyle-afk/Cuphead-ported-by-someone-idk-for-firebase/58ac21559e53874bef4a4f46cdbbf2c6aa2526db/Build/";
+      function fetchPart(url) {
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open("GET", url, true);
+          xhr.responseType = "arraybuffer";
+          xhr.onload = function() {
+            if (xhr.status === 200 || xhr.status === 0) { loadedBytes += xhr.response.byteLength || 0; resolve(xhr.response); }
+            else { reject(new Error("Network error: " + xhr.status)); }
+          };
+          xhr.onerror = function() { reject(new Error("Request failed for: " + url)); };
+          xhr.send();
+        });
+      }
+      async function getMergedBlobUrl(fileName, start, end) {
+        var chunks = [];
+        for (let i = start; i <= end; i++) {
+          var _mb = (loadedBytes / (1024*1024)).toFixed(2);
+          loadingText.innerHTML = `LOADING... ${_mb} MB / 2127.34 MB`;
+          var buffer = await fetchPart(`${BUILD_URL}${fileName}.part${i}`);
+          chunks.push(buffer);
+        }
+        var blob = new Blob(chunks, { type: "application/octet-stream" });
+        return URL.createObjectURL(blob);
+      }
+      let NATIVE_W = 1280;
+      var NATIVE_H = 720;
+      function resizeUnityContainer() {
+        var canvas = document.querySelector("#unityContainer canvas");
+        if (!canvas) return;
+        var scale = Math.min(window.innerWidth / NATIVE_W, window.innerHeight / NATIVE_H);
+        var cssW = Math.floor(NATIVE_W * scale);
+        const cssH = Math.floor(NATIVE_H * scale);
+        canvas.style.width = cssW + "px";
+        canvas.style.height = cssH + "px";
+      }
+      async function initGame() {
+        try {
+          const asmUrl = await getMergedBlobUrl("Build.asm.code.unityweb", 1, 3);
+          var dataUrl = await getMergedBlobUrl("Build.data.unityweb", 1, 103);
+          var wasmUrl = await getMergedBlobUrl("Build.wasm.code.unityweb", 1, 2);
+          var config = {
+            dataUrl: dataUrl,
+            wasmCodeUrl: wasmUrl,
+            wasmFrameworkUrl: BUILD_URL + "Build.wasm.framework.unityweb",
+            asmCodeUrl: asmUrl,
+            asmMemoryUrl: BUILD_URL + "Build.asm.memory.unityweb",
+            asmFrameworkUrl: BUILD_URL + "Build.asm.framework.unityweb",
+            TOTAL_MEMORY: 2130706432,
+            graphicsAPI: ["WebGL 2.0", "WebGL 1.0"],
+            companyName: "SpanishFreddy",
+            productName: "Cuphead",
+          };
+          window.__unityConfig = config;
+          window.UnityLoader.instantiate("unityContainer", BUILD_URL, {
+            params: config,
+            onProgress: (instance, progress) => {
+              var _mb3 = (loadedBytes / (1024*1024)).toFixed(2);
+              loadingText.innerHTML = `LOADING... ${_mb3} MB / 2127.34 MB`;
+            },
+            Module: {
+              onRuntimeInitialized: function() {
+                loadingText.remove();
+                resizeUnityContainer();
+                window.addEventListener("resize", resizeUnityContainer);
+              },
+              preRun: [function() {
+                var canvas = document.getElementById("unity-canvas") || document.querySelector("#unityContainer canvas");
+                if (!canvas) return;
+                var ctx = canvas.getContext("webgl2") || canvas.getContext("webgl");
+                if (!ctx) return;
+                var M = window.Module || this;
+                if (M.GL && !M.GL.currentContext) { M.GL.currentContext = { GLctx: ctx, version: 2, attributes: ctx.getContextAttributes() || {} }; }
+                if (typeof GL !== "undefined" && !GL.currentContext) { GL.currentContext = { GLctx: ctx, version: 2, attributes: ctx.getContextAttributes() || {} }; }
+              }],
+              preinitializedWebGLContext: (function() {
+                var canvas = document.createElement("canvas");
+                canvas.id = "unity-canvas";
+                canvas.width = 1280;
+                canvas.height = 720;
+                document.getElementById("unityContainer").appendChild(canvas);
+                var ctx = canvas.getContext("webgl2", { alpha: false, depth: true, stencil: true, antialias: false, premultipliedAlpha: false, preserveDrawingBuffer: false, powerPreference: "high-performance", failIfMajorPerformanceCaveat: false })
+                       || canvas.getContext("webgl", { alpha: false, depth: true, stencil: true, antialias: false, premultipliedAlpha: false, preserveDrawingBuffer: false });
+                return ctx;
+              })(),
+              canvas: (function() { return document.getElementById("unity-canvas") || document.querySelector("#unityContainer canvas"); })
+            }
+          });
+        } catch (e) {
+          loadingText.innerHTML = `<span style="color:red">ERROR: ${e.message}</span>`;
+        }
+      }
+      window.onload = initGame;
+    </script>
+  </body>
+</html>
