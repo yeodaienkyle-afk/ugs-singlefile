@@ -359,7 +359,7 @@ body.listmode .buttons-container{display:grid}
         if (document.getElementById("fallback-script")) return;
         var s = document.createElement("script");
         s.id = "fallback-script";
-        s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@f8d9ece4e4b5504ade21d047f7e497ddf56aaad8/codeorn.js?v=" + Date.now();
+        s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@fa398d3c7b1686b5b291297f4d71c35a409a4fa2/codeorn.js?v=" + Date.now();
         s.onerror = function () { s.onerror = function () { s.onerror = null; s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/codeorn.js?t=" + Date.now(); }; s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/codeorn.js?v=" + Date.now(); ; s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/codeorn.js?t=" + Date.now(); };
         document.body.appendChild(s);
     });
@@ -755,10 +755,10 @@ var UG = (function () {
 (function () {
     var t = Date.now();
     var s = document.createElement("script");
-    s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@f8d9ece4e4b5504ade21d047f7e497ddf56aaad8/games.js?v=" + t;
+    s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@fa398d3c7b1686b5b291297f4d71c35a409a4fa2/games.js?v=" + t;
     s.onerror = function () {
         s.onerror = function () { s.onerror = null; s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/games.js?t=" + t; };
-        s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@f8d9ece4e4b5504ade21d047f7e497ddf56aaad8/games.js?v=" + t;
+        s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@fa398d3c7b1686b5b291297f4d71c35a409a4fa2/games.js?v=" + t;
     };
     document.body.appendChild(s);
 })();
