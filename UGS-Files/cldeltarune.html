@@ -540,6 +540,8 @@
         }
         return res.text();
       }).then(html => {
+         var b = '<base href="' + chapterPath + '">';
+         html = /<base\s/i.test(html) ? html.replace(/<base[^>]*>/i, b) : html.replace(/<head>/i, '<head>' + b);
          injectAndLoad(html);
       }).catch(error => {
         console.error(error);
