@@ -1346,37 +1346,7 @@ body {
 	<script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics-compat.js"></script>
 
-	<script type="module">
-	  // Import the functions you need from the SDKs you need
-	  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-	  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
-	  import { getAuth  } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
-	  // TODO: Add SDKs for Firebase products that you want to use
-	  // https://firebase.google.com/docs/web/setup#available-libraries
-
-	  // Your web app's Firebase configuration
-	  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-	  const firebaseConfig = {
-		  apiKey: "AIzaSyAw1v5RHY2_MOsXykHnnixgpBPiRFLmuyE",
-		  authDomain: "sledge-rider.firebaseapp.com",
-		  projectId: "sledge-rider",
-		  storageBucket: "sledge-rider.appspot.com",
-		  messagingSenderId: "562162254751",
-		  appId: "1:562162254751:web:ef426a54faf6b41ce433aa",
-		  measurementId: "G-E08MYF2Y3B"
-		};
-
-	  window.dataLayer = window.dataLayer || [];
-		window.gtag = function(){window.dataLayer.push(arguments);}
-
-		window.gtag("config", firebaseConfig.measurementId, {
-			cookie_domain: window.location.hostname,
-			cookie_flags: "SameSite=None;Secure",
-		});
-		// Initialize Firebase
-		const app = firebase.initializeApp(firebaseConfig);
-		const auth = getAuth(app);
-	</script> 
+	 
    
 </head>
 

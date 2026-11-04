@@ -472,74 +472,11 @@
   <script async src="//api.adinplay.com/libs/aiptag/pub/SSK/kartbros.io/tag.min.js"></script>
   <!-- End AdinPlay Snippet -->
   <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-1BSXC3Y865"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-
-    function gtag() {
-      dataLayer.push(arguments);
-    }
-    gtag('js', new Date());
-
-    gtag('config', 'G-1BSXC3Y865', {
-      cookie_flags: 'secure;samesite=none'
-    });
-  </script>
+  
+  
 
   <!-- Analytics Functions -->
-  <script>
-    // Generate unique session ID
-    function generateSessionId() {
-      const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-      let result = '';
-      for (let i = 0; i < 25; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return result;
-    }
-
-    // Session ID for tracking
-    var sid = generateSessionId();
-
-    // Status update function that records session activity
-    function updateStatus(fromEvent = false) {
-      const req = new XMLHttpRequest();
-      var aStr = "recordsession.php?s=" + sid;
-      if (fromEvent == true) aStr = aStr + "&e=1"
-      req.open("GET", aStr);
-      req.send();
-    }
-
-    function SendEvent(theEvent, theAction, theParms = '') {
-      if (theParms == '') {
-        gtag(theEvent, theAction);
-      } else {
-        gtag(theEvent, theAction, theParms);
-      }
-      updateStatus(true);
-    }
-
-    function GA4_SendEvent(eventName, paramsJson) {
-      // Parse parameters if provided
-      var parsedParams;
-      if (paramsJson && paramsJson.length > 0) {
-        try {
-          parsedParams = JSON.parse(paramsJson);
-        } catch (e) {
-          parsedParams = undefined;
-        }
-      }
-
-      // Call SendEvent function
-      if (parsedParams === undefined) {
-        SendEvent('event', eventName);
-      } else {
-        SendEvent('event', eventName, parsedParams);
-      }
-    }
-
-    updateStatus(false);
-  </script>
+  
   <script>
     var msVideoInstanceId = null;
     var lastUnitPlayed = null;

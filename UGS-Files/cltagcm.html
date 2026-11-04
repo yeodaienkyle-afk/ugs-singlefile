@@ -98,12 +98,9 @@
           });
           var f = d.getElementsByTagName(s)[0],
             j = d.createElement(s),
-            dl = l != "dataLayer" ? "&l=" + l : "";
           j.async = true;
           j.src =
-            "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
           f.parentNode.insertBefore(j, f);
-        })(window, document, "script", "dataLayer", "GTM-WKRSNN8");
       }
     }
     cmg_ga4_init_ga();
@@ -354,12 +351,9 @@
         });
         var f = d.getElementsByTagName(s)[0],
           j = d.createElement(s),
-          dl = l != "dataLayer" ? "&l=" + l : "";
         j.async = true;
         j.src =
-          "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
         f.parentNode.insertBefore(j, f);
-      })(window, document, "script", "dataLayer", "GTM-WKRSNN8");
 
       function ga4ObjInit(event) {
         ga4Obj = {};
@@ -392,7 +386,6 @@
           deviceType = "Mobile";
         }
 
-        //dataLayer obj with required params
         var ga4Obj = {
           "event": event,
           "user_type": userType,
@@ -401,7 +394,6 @@
           "ad_blocker_detected": adBlock
         };
 
-        //Optional - dataLayer params
         if (typeof gameType != "undefined" && gameType != null) {
           gameType = gameType.replace("game_", "");
           ga4Obj.game_type = gameType;
@@ -430,7 +422,6 @@
       }
 
       function ga4_trackEvent(event, pArr, vArr) {
-        if (typeof dataLayer !== "undefined" && typeof dataLayer.push === "function") {
           ga4Obj = ga4ObjInit(event);
           if (typeof pArr != "undefined" && typeof vArr != "undefined") {
             var aLen = pArr.length;
@@ -439,10 +430,7 @@
             }
           }
           debugOut("CMGga4: track :" + event + " " + JSON.stringify(ga4Obj) + " " + new Date());
-          var ga4Response = dataLayer.push(ga4Obj);
-          debugOut("CMGga4: track :" + event + " dataLayer.push response = " + JSON.stringify(ga4Response) + " " + new Date());
         } else {
-          debugOut("CMGga4: dataLayer does not exist : " + new Date());
         }
       }
 

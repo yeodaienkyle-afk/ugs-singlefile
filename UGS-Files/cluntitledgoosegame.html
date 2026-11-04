@@ -92,55 +92,9 @@
                         </div>
                 </div>
         </main>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-BRPEBVLGFH"></script>
-        <script>
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', 'G-BRPEBVLGFH');
-                async function mergeFiles(basePath, parts) {
-                        const chunks = [];
-                        for (let i = 1; i <= parts; i++) {
-                                const response = await fetch(`${basePath}.part${i}`);
-                                if (!response.ok) throw new Error(`Part ${i} missing`);
-                                chunks.push(await response.arrayBuffer());
-                        }
-                        return new Blob(chunks);
-                }
-                async function init() {
-                        try {
-                                const dataBlob = await mergeFiles('Build/Untitled Goose Game.data', 4);
-                                const wasmBlob = await mergeFiles('Build/Untitled Goose Game.wasm', 2);
-                                const dataUrl = URL.createObjectURL(dataBlob);
-                                const wasmUrl = URL.createObjectURL(new Blob([wasmBlob], { type: 'application/wasm' }));
-                                createUnityInstance(document.querySelector("#unity-canvas"), {
-                                        dataUrl: dataUrl,
-                                        frameworkUrl: "Build/Untitled Goose Game.framework.js",
-                                        codeUrl: wasmUrl,
-                                        streamingAssetsUrl: "StreamingAssets",
-                                        companyName: "House House _ Bog",
-                                        productName: "Untitled Goose Game",
-                                        productVersion: "0.2",
-                                }).then(() => {
-                                        document.getElementById('loading').style.display = 'none';
-                                });
-                        } catch (e) {
-                                console.error(e);
-                                document.getElementById('loading').innerHTML = "Failed loading.";
-                                document.getElementById('loading').style.fontSize = "40px";
-                        }
-                }
-                const loaderScript = document.createElement('script');
-                loaderScript.src = 'Build/Untitled Goose Game.loader.js';
-                loaderScript.onload = init;
-                document.body.appendChild(loaderScript);
-        </script>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXHK7Q7G3Z"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-PXHK7Q7G3Z');
-</script>
+        
+        
+
+
 </body>
 </html>

@@ -154,31 +154,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics-compat.js"></script>
 
     <!-- Firebase Initialization -->
-    <script type="module">
-        const firebaseConfig = {
-            apiKey: "AIzaSyDbg-gcbf0pH6fZzr5nIoNflnKNfTX5V6M",
-            authDomain: "games-geometry-lite.firebaseapp.com",
-            projectId: "games-geometry-lite",
-            storageBucket: "games-geometry-lite.firebasestorage.app",
-            messagingSenderId: "23510219032",
-            appId: "1:23510219032:web:ad4c17e42228739bd9c66d",
-            measurementId: "G-9QZ1HGBJR6"
-        };
-
-        if (firebaseConfig) {
-            window.dataLayer = window.dataLayer || [];
-            window.gtag = function() {
-                window.dataLayer.push(arguments);
-            };
-
-            window.gtag("config", firebaseConfig.measurementId, {
-                cookie_domain: window.location.hostname,
-                cookie_flags: "SameSite=None;Secure"
-            });
-
-            firebase.initializeApp(firebaseConfig);
-        }
-    </script>
+    
 
     <!-- Firebase Event Logging -->
     <script>

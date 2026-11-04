@@ -101,15 +101,7 @@
   <canvas class="waflashCanvas" id="canvas" tabindex="1" width="1027" height="866" style="position: fixed !important; inset: 0px !important; width: 100vw !important; height: 100vh !important; margin: 0px !important; background: rgb(0, 0, 0) !important; cursor: default; --waf-content-width: 600px; --waf-content-height: 400px;" waf-content-width="600" waf-content-height="400" waf-content-fps="30"></canvas>
   <div id="waflashStatus" style="display: none;">Playing..</div>
 
-  <script>
-    var ua = navigator.userAgent.toLowerCase();
-    if ((navigator.appName =='Netscape' && ua.indexOf('trident') != -1) || (ua.indexOf("msie") != -1)) {
-      var waf = document.getElementById('waflashStatus');
-      waf.style.display ='block';
-      waf.innerText ='??? ?????(IE) ??? ??? ???? ???? !\n??, ???? ?? ????? ??????.';
-      gtag('event', 'connect_from_ie', {'event_category': 'error', 'event_label': ua });
-    }
-  </script>
+  
 
  <script type="module" crossorigin="anonymous">
   let is_mobile = /Mobi/i.test(window.navigator.userAgent);

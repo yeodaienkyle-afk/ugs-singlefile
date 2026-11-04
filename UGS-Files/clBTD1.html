@@ -813,15 +813,7 @@ if (_params['exp_rpc_js'] != 1) {
 <div id="waflashContainer">
 <canvas class="waflashCanvas" id="canvas" tabindex="1" width="987" height="931" style="cursor: default; --waf-content-width: 640px; --waf-content-height: 480px;" waf-content-width="640" waf-content-height="480" waf-content-fps="40"></canvas>
 <div id="waflashStatus" style="display: none;">Playing..</div>
-<script>
-		var ua = navigator.userAgent.toLowerCase();
-		if ( (navigator.appName =='Netscape' && ua.indexOf('trident') != -1) || (ua.indexOf("msie") != -1)) {
-    		var waf = document.getElementById('waflashStatus');
-			waf.style.display ='block';
-			waf.innerText ='??? ?????(IE) ??? ??? ???? ???? !\n??, ???? ?? ????? ??????.';
-			gtag('event', 'connect_from_ie', {'event_category': 'error', 'event_label': ua });
-		}
-	</script>
+
 <script crossorigin="anonymous" type="module">
 		let is_mobile = /Mobi/i.test(window.navigator.userAgent);
 		if (is_mobile) {

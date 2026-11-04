@@ -72,7 +72,6 @@ if (!window.ytgame) {
 				window.playAds = function(){};
         var enableADS = !true;
         var useZipLib = true;
-        dataLayer = [];
         var productKey = "";
 		var productTitle = "Kitchen Bazar"; // for tracking game name
         var gtmID = "";
@@ -86,7 +85,6 @@ if (!window.ytgame) {
 			var adsSDK_gameConfigUrl = '../js/games_lib/adsSDK/game_config.js'
 			var ima3Url = '//imasdk.googleapis.com/js/sdkloader/ima3.js'
 			
-			dataLayer.push({
 			  'publisher' :  'GAMELOFT', // This is the short name of the publisher. Example: GAMELOFT
 			});
         }
@@ -95,7 +93,6 @@ if (!window.ytgame) {
             gtmID = 'GTM-K74X66';
 			productKey = "kitchenBazar";
 			
-			dataLayer.push({
 			  'event': 'pageLoad',
 			  'publisher' :'GAMELOFT',
 			});
@@ -109,12 +106,9 @@ if (!window.ytgame) {
             });
             var f = d.getElementsByTagName(s)[0],
                 j = d.createElement(s),
-                dl = l != 'dataLayer' ? '&l=' + l : '';
             j.async = true;
             j.src =
-                'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
             f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', gtmID);*/
         
 	</script>    
     <!-- common functions -->
