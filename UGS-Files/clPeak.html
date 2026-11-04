@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <base href="https://rawcdn.githack.com/yeodaienkyle-afk/Peak-Port/f1924c4fcd0099172f50f8d2a5273fda12fa1444/">
+    <base href="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/Peak-Port@f1924c4fcd0099172f50f8d2a5273fda12fa1444/">
     <title>PEAK</title>
     <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
     <style>
@@ -75,7 +75,7 @@
       // this page; this stamps the same root onto our own URL so the C# level streamer
       // (which resolves bundle URLs against Application.absoluteURL, ignoring <base>)
       // fetches LevelBundles from the CDN too instead of from wherever the page is hosted.
-      var CDN_BASE = "https://rawcdn.githack.com/yeodaienkyle-afk/Peak-Port/f1924c4fcd0099172f50f8d2a5273fda12fa1444";
+      var CDN_BASE = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/Peak-Port@f1924c4fcd0099172f50f8d2a5273fda12fa1444";
       if (CDN_BASE) {
         var u = new URL(window.location.href);
         if (u.searchParams.get("cdn") !== CDN_BASE) {

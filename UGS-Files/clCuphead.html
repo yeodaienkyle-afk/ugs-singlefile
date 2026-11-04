@@ -26,7 +26,7 @@
             get: function(target, prop) {
               if (prop === "open") {
                 return function(method, url, async, user, pass) {
-                  var _BU = "https://rawcdn.githack.com/yeodaienkyle-afk/Cuphead-ported-by-someone-idk-for-firebase/58ac21559e53874bef4a4f46cdbbf2c6aa2526db/Build/";
+                  var _BU = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/Cuphead-ported-by-someone-idk-for-firebase@58ac21559e53874bef4a4f46cdbbf2c6aa2526db/Build/";
                   if (url && url.indexOf("blob:null/") !== -1 && url.indexOf("blob:null/") !== 0) {
                     url = url.slice(url.indexOf("blob:null/"));
                     ghost = false;
@@ -118,12 +118,12 @@
       };
     }
     </script>
-    <script src="https://rawcdn.githack.com/yeodaienkyle-afk/Cuphead-ported-by-someone-idk-for-firebase/58ac21559e53874bef4a4f46cdbbf2c6aa2526db/TemplateData/UnityProgress.js"></script>
-    <script src="https://rawcdn.githack.com/yeodaienkyle-afk/Cuphead-ported-by-someone-idk-for-firebase/58ac21559e53874bef4a4f46cdbbf2c6aa2526db/Build/UnityLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/Cuphead-ported-by-someone-idk-for-firebase@58ac21559e53874bef4a4f46cdbbf2c6aa2526db/TemplateData/UnityProgress.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/Cuphead-ported-by-someone-idk-for-firebase@58ac21559e53874bef4a4f46cdbbf2c6aa2526db/Build/UnityLoader.js"></script>
     <script>
       (function() {
         if (!window.UnityLoader) { console.error("[UnityPatch] no UnityLoader"); return; }
-        var BUILD_URL = "https://rawcdn.githack.com/yeodaienkyle-afk/Cuphead-ported-by-someone-idk-for-firebase/58ac21559e53874bef4a4f46cdbbf2c6aa2526db/Build/";
+        var BUILD_URL = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/Cuphead-ported-by-someone-idk-for-firebase@58ac21559e53874bef4a4f46cdbbf2c6aa2526db/Build/";
         function walkFns(obj, depth, cb) {
           if (!obj || depth > 4) return;
           try {
@@ -207,7 +207,7 @@
     <script>
       let loadingText = document.querySelector("#loading-text");
       var loadedBytes = 0;
-      var BUILD_URL = "https://rawcdn.githack.com/yeodaienkyle-afk/Cuphead-ported-by-someone-idk-for-firebase/58ac21559e53874bef4a4f46cdbbf2c6aa2526db/Build/";
+      var BUILD_URL = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/Cuphead-ported-by-someone-idk-for-firebase@58ac21559e53874bef4a4f46cdbbf2c6aa2526db/Build/";
       function fetchPart(url) {
         return new Promise((resolve, reject) => {
           const xhr = new XMLHttpRequest();
