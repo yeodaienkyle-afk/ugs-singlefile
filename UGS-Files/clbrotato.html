@@ -1,20 +1,10 @@
-<!-- Ultimate Game Stash file--> 
-<!-- For the regularly updating doc go to https://docs.google.com/document/d/1_FmH3BlSBQI7FGgAQL59-ZPe8eCxs35wel6JUyVaG8Q/ -->
-<!-- ported by henw -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
-<title>Home</title>
-
-  
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
-
+<title>Brotato</title>
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
 <style>
 body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000; }
 #canvas { display: block; width: 100vw !important; height: 100vh !important; position: fixed; top: 0; left: 0; border: none; outline: none; object-fit: fill; }
@@ -26,36 +16,25 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
     width: 100%; 
     z-index: 10; 
     text-align: center; 
-    font-family: 'Orbitron', sans-serif; 
-    font-size: 22px;
-    letter-spacing: 3px;
-    background: linear-gradient(to right, #500, #550, #050, #055, #005, #505, #500);
-    background-size: 200% auto;
-    color: transparent;
-    -webkit-background-clip: text;
-    background-clip: text;
-    animation: rainbow 3s linear infinite;
+    font-family: sans-serif; 
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: #dddddd;
     pointer-events: none;
-    text-shadow: 0 0 10px rgba(255,255,255,0.1);
+    text-shadow: 0 0 10px rgba(255,255,255,0.15);
 }
-
-#status i { margin-right: 15px; }
-
-@keyframes rainbow { to { background-position: 200% center; } }
 </style>
-<script src="https://cdn.jsdelivr.net/gh/gzuidhof/coi-serviceworker@latest/coi-serviceworker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/coi-serviceworker@7b1d2a092d0d2dd2b7270b6f12f13605de26f214/coi-serviceworker.min.js"></script>
 </head>
 <body>
 <canvas id="canvas"></canvas>
-<div id="status">
-    <i class="fas fa-compact-disc fa-spin"></i> LOADING: 0.00 / 160.54 MB
-</div>
+<div id="status">LOADING: 0.00 / 160.54 MB</div>
 
 <script>
 (function() {
 'use strict';
 const HASH = "20b998679f3a2a598bf5c10a5dd8422b47272a04";
-const BASE = `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ignore@${HASH}/`;
+const BASE = `https://rawcdn.githack.com/yeodaienkyle-afk/ignore/${HASH}/`;
 const TOTAL_MB = "160.54";
 
 const originalFetch = window.fetch;
@@ -67,7 +46,7 @@ const statusEl = document.getElementById('status');
 
 function updateStatus(currentBytes) {
     const currentMB = (currentBytes / 1048576).toFixed(2);
-    statusEl.innerHTML = `<i class="fas fa-sync-alt fa-spin"></i> LOADING: ${currentMB} / ${TOTAL_MB} MB`;
+    statusEl.textContent = `LOADING: ${currentMB} / ${TOTAL_MB} MB`;
 }
 
 window.fetch = function(url, ...args) {
@@ -148,7 +127,7 @@ async function init() {
         };
         document.body.appendChild(s);
     } catch (e) {
-        statusEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> LOAD ERROR`;
+        statusEl.textContent = 'LOAD ERROR';
     }
 }
 init();
