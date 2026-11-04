@@ -2812,6 +2812,7 @@ let files = [
   "clundertalelb",
   "clundertaler",
   "clundertaleyellow",
+  "clUndertale",
   "clunfairmario",
   "clunfairmarioworkquestionmark",
   "clunfairundyne",
