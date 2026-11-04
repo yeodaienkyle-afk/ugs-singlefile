@@ -1,376 +1,641 @@
-<!DOCTYPE html>
+<!doctype html>
 
-
-
-<!-- Ultimate Game Stash file--> 
-<!-- For the regularly updating doc go to https://docs.google.com/document/d/1_FmH3BlSBQI7FGgAQL59-ZPe8eCxs35wel6JUyVaG8Q/ -->
-	
-
-  <html lang=en-us><!-- ######################### HEAD ############################# -->
-  <base href="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/Endacopia/">
-  <head>
+<html lang="en-us">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#000000">
+<title>Endacopia</title>
 <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
-<title>Home</title>
 
-  
-    
-    <meta charset=utf-8>
-    <meta content="text/html; charset=utf-8" http-equiv=Content-Type>
-    <meta content=#000000 name=theme-color>
-    <meta content=yes name=apple-mobile-web-app-capable> 
-    <meta content=black name=apple-mobile-web-app-status-bar-style>
-    <style>
-      body {
-        font-family: arial;
-        margin: 0;
-        padding: 0;
-        background-color: #000;
-      }
+<style>
+html,body{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    min-width:100%;
+    min-height:100%;
+    overflow:hidden;
+    background:#000;
+}
 
-      .emscripten {
-        padding-right: 0;
-        margin-left: auto;
-        margin-right: auto;
-        display: block
-      }
+body{
+    font-family:"Lucida Console",Monaco,monospace;
+}
 
-      div.emscripten {
-        text-align: center
-      }
+.emscripten_border{
+    position:fixed!important;
+    left:0!important;
+    top:0!important;
+    right:0!important;
+    bottom:0!important;
+    width:100%!important;
+    height:100%!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:hidden!important;
+    background:#000;
+}
 
-      div.emscripten_border {
-        border: 1px solid #000
-      }
+canvas.emscripten{
+    position:fixed!important;
+    left:0!important;
+    top:0!important;
+    right:0!important;
+    bottom:0!important;
+    width:100vw!important;
+    height:100vh!important;
+    min-width:100vw!important;
+    min-height:100vh!important;
+    max-width:none!important;
+    max-height:none!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    outline:0!important;
+    display:block!important;
+    background:#000;
+}
 
-      canvas.emscripten {
-        position: absolute;
-        top: 0;
-        left: 0;
-        margin: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        display: block;
-        min-height: 180px;
-        min-width: 320px;
-        border: 0 none;
-        background-color: #000;
-        z-index: 1
-      }
+#status{
+    position:fixed;
+    left:50%;
+    bottom:18px;
+    transform:translateX(-50%);
+    color:#aaa;
+    font-size:14px;
+    z-index:1000;
+    pointer-events:none;
+    text-align:center;
+}
 
-      #textmsgs {
-        font-family: 'Lucida Console', Monaco, monospace;
-        font-size: 200%;
-        left: 50%;
-        top: 50%;
-        -ms-transform: translate(-50%, -50%);
-        -webkit-transform: translate(-50%, -50%);
-        transform: translate(-50%, -50%);
-        text-align: center;
-        margin: auto;
-        position: absolute;
-        overflow: hidden;
-        color: #787878;
-        z-index: 1000
-      }
+#loading{
+    position:fixed;
+    inset:0;
+    background:#000;
+    z-index:9999;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    color:#fff;
+    text-align:center;
+}
 
-      @-webkit-keyframes levitate {
-        0% {
-          transform: translate(-50%, 0)
+#loadingTitle{
+    font-size:24px;
+    margin-bottom:18px;
+}
+
+#loadingText{
+    color:#aaa;
+    font-size:14px;
+    max-width:90vw;
+}
+
+#progressOuter{
+    width:min(600px,80vw);
+    height:8px;
+    background:#222;
+    border-radius:4px;
+    overflow:hidden;
+    margin-top:18px;
+}
+
+#progressInner{
+    width:0%;
+    height:100%;
+    background:#fff;
+}
+</style>
+
+</head>
+
+<body>
+
+<div id="loading">
+    <div id="loadingTitle">Loading Endacopia...</div>
+    <div id="loadingText">Starting AGS...</div>
+
+<div id="progressOuter">
+    <div id="progressInner"></div>
+</div>
+
+</div>
+
+<div id="status">Starting...</div>
+
+<div class="emscripten_border">
+    <canvas
+        class="emscripten"
+        id="canvas"
+        tabindex="-1"
+        oncontextmenu="event.preventDefault()">
+    </canvas>
+</div>
+
+<script>
+
+var saved_games_path="/home/web_user/saved_games";
+var game_file="Endacopia.ags";
+var t_rs_id=0;
+
+/*
+ * jsDelivr repository containing the Endacopia game files.
+ */
+var GAME_BASE = "https://raw.githubusercontent.com/yeodaienkyle-afk/endacopia-/ce8f6dea90b7e8efa925e9ecf2ae9073571e61f0/Actual%20Game/";
+
+var loading=document.getElementById("loading");
+var loadingTitle=document.getElementById("loadingTitle");
+var loadingText=document.getElementById("loadingText");
+var progressInner=document.getElementById("progressInner");
+var statusElement=document.getElementById("status");
+
+function setLoading(text,percent){
+
+    loadingText.textContent=text;
+    statusElement.textContent=text;
+
+    if(typeof percent==="number"){
+        progressInner.style.width=
+            Math.max(0,Math.min(100,percent))+"%";
+    }
+}
+
+async function fetchFile(url){
+
+    var response=await fetch(
+        url,
+        {
+            cache:"no-store"
         }
+    );
 
-        50% {
-          transform: translate(-50%, -50%)
-        }
+    if(!response.ok){
+        throw new Error(
+            "Failed to load "+url+
+            " ("+response.status+")"
+        );
+    }
 
-        100% {
-          transform: translate(-50%, 0)
-        }
-      }
+    return new Uint8Array(
+        await response.arrayBuffer()
+    );
+}
 
-      @-moz-keyframes levitate {
-        0% {
-          transform: translate(-50%, 0)
-        }
+var splitFiles={
+    "Endacopia.ags":64,
+    "audio.vox":8
+};
 
-        50% {
-          transform: translate(-50%, -50%)
-        }
+async function loadSplitFile(name,count){
 
-        100% {
-          transform: translate(-50%, 0)
-        }
-      }
+    var parts=[];
+    var totalSize=0;
 
-      @-o-keyframes levitate {
-        0% {
-          transform: translate(-50%, 0)
-        }
+    for(var i=1;i<=count;i++){
 
-        50% {
-          transform: translate(-50%, -50%)
-        }
+        var number=String(i).padStart(3,"0");
+        var filename=name+".part"+number;
 
-        100% {
-          transform: translate(-50%, 0)
-        }
-      }
+        var percent=((i-1)/count)*40;
 
-      @keyframes levitate {
-        0% {
-          transform: translate(-50%, 0)
-        }
+        setLoading(
+            "Loading "+filename+
+            " ("+i+"/"+count+")...",
+            percent
+        );
 
-        50% {
-          transform: translate(-50%, -50%)
-        }
+        var data=await fetchFile(
+            GAME_BASE+
+            encodeURIComponent(filename)
+        );
 
-        100% {
-          transform: translate(-50%, 0)
-        }
-      }
+        parts.push(data);
+        totalSize+=data.length;
+    }
 
-      @-webkit-keyframes rotation {
-        0% {
-          transform: rotate(-30deg)
-        }
+    setLoading(
+        "Combining "+name+"...",
+        42
+    );
 
-        50% {
-          transform: rotate(30deg)
-        }
+    var combined=new Uint8Array(totalSize);
+    var offset=0;
 
-        100% {
-          transform: rotate(-30deg)
-        }
-      }
+    for(var p=0;p<parts.length;p++){
 
-      @-moz-keyframes rotation {
-        0% {
-          transform: rotate(-30deg)
-        }
+        combined.set(
+            parts[p],
+            offset
+        );
 
-        50% {
-          transform: rotate(30deg)
-        }
+        offset+=parts[p].length;
+    }
 
-        100% {
-          transform: rotate(-30deg)
-        }
-      }
+    return combined;
+}
 
-      @-o-keyframes rotation {
-        0% {
-          transform: rotate(-30deg)
-        }
+async function loadNormalFile(name){
 
-        50% {
-          transform: rotate(30deg)
-        }
+    setLoading(
+        "Loading "+name+"...",
+        65
+    );
 
-        100% {
-          transform: rotate(-30deg)
-        }
-      }
+    return await fetchFile(
+        GAME_BASE+
+        encodeURIComponent(name)
+    );
+}
 
-      @keyframes rotation {
-        0% {
-          transform: rotate(-30deg)
-        }
+function putFile(name,data){
 
-        50% {
-          transform: rotate(30deg)
-        }
+    try{
+        Module.FS_unlink("/"+name);
+    }catch(e){}
 
-        100% {
-          transform: rotate(-30deg)
-        }
-      }
+    Module.FS_createDataFile(
+        "/",
+        name,
+        data,
+        true,
+        true,
+        true
+    );
 
-      .bluecup {
-        background-image: url("data:image/svg+xml,%3Csvg width='96' height='64' viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cg shape-rendering='crispEdges'%3E%3Crect style='fill:%23fff%3Bfill-rule:evenodd' width='10' height='7'/%3E%3Crect style='fill:%23fff' width='12' height='5' y='1'/%3E%3Crect style='fill:%23fff' width='8' height='8' x='1'/%3E%3Crect style='fill:%232a7fff' width='8' height='5' x='1' y='1'/%3E%3Crect style='fill:%232a7fff' width='6' height='1' x='2' y='6'/%3E%3Crect style='fill:%232a7fff' width='2' height='3' x='9' y='2'/%3E%3Crect style='fill:%23fff' width='1' height='1' x='9' y='3'/%3E%3Crect style='fill:%230000d4' width='6' height='3' x='2' y='2'/%3E%3Crect style='fill:%230000d4' width='4' height='1' x='3' y='5'/%3E%3Crect style='fill:%23fff' width='6' height='1' x='2' y='1'/%3E%3C/g%3E%3C/svg%3E");
-        left: 50%;
-        top: 64%;
-        width: 96px;
-        height: 64px;
-        margin: 0 auto;
-        position: absolute;
-        z-index: 1000;
-        transform: translate(-50%, 0)
-      }
+    console.log(
+        "Installed:",
+        name,
+        data.length,
+        "bytes"
+    );
+}
 
-      .bluecup.rotate {
-        -webkit-animation: rotation 1s ease-in-out infinite;
-        -moz-animation: rotation 1s ease-in-out infinite;
-        -o-animation: rotation 1s ease-in-out infinite;
-        animation: rotation 1s ease-in-out infinite
-      }
+function mountSavedGamesDir(callback){
 
-      .bluecup.levitate {
-        -webkit-animation: levitate 4s ease-in-out infinite;
-        -moz-animation: levitate 4s ease-in-out infinite;
-        -o-animation: levitate 4s ease-in-out infinite;
-        animation: levitate 4s ease-in-out infinite
-      }
+    try{
 
-      #status {
-        display: inline-block;
-        vertical-align: top;
-        margin-top: 30px;
-        margin-left: 20px;
-        font-weight: 700;
-        color: #787878
-      }
+        try{
+            Module.FS_mkdir(
+                saved_games_path
+            );
+        }catch(e){}
 
-      #controls {
-        font-family: 'Lucida Console', Monaco, monospace;
-        font-size: 200%;
-        left: 50%;
-        top: 10%;
-        -ms-transform: translate(-50%, -50%);
-        -webkit-transform: translate(-50%, -50%);
-        transform: translate(-50%, -50%);
-        text-align: center;
-        margin: auto;
-        position: absolute;
-        overflow: hidden;
-        color: #787878;
-        z-index: 100
-      }
-    </style>
-  </head><!-- ######################### BODY ############################# -->
+        Module.FS_mount(
+            IDBFS,
+            {},
+            saved_games_path
+        );
 
-  <body>
-    <div class="bluecup rotate" id=bcup></div>
-    <div class=emscripten id=status>Downloading...</div><span hidden id=controls><span><input id=agsgamepkgid type=file accept=*/* multiple name=agsgamepkg onchange=agsAttachFileInput(this)><label for=agsgamepkgid>Select the .ags game and files.</label></span><span hidden><input id=resize type=checkbox checked>Resize canvas</span><span hidden><input id=pointerLock type=checkbox checked>Lock/hide mouse pointer</span></span>
-    <div class=emscripten></div>
-    <div class=emscripten_border><canvas class=emscripten id=canvas oncontextmenu=event.preventDefault() tabindex=-1></canvas></div>
-    <div id=textmsgs></div>
-    <script>
-      window.fileMergerConfig = {
-        files: [
-          { name: 'Endacopia.ags', parts: 5},
-        ],
-        basePath: '',
-        debug: true
-      };  
-      </script>
-    <script src="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/merge.js"></script>
-    <script src=my_game_files.js></script>
-    <script>
-      window.onload = function() {
-        window.focus()
-      }, window.onclick = function() {
-        window.focus()
-      };
-      var ctrlsElement = document.getElementById("controls");
+        Module.FS_syncfs(
+            true,
+            function(error){
 
-      function writeMsgOnCanvas(e) {
-        document.getElementById("textmsgs").innerHTML = e
-      }
-
-      function hideAll() {
-        ctrlsElement.hidden = !0, ctrlsElement.style.display = "none", bcupElement.hidden = !0, bcupElement.style.display = "none", writeMsgOnCanvas("")
-      }
-      var file_being_loaded = "",
-        fileresulthere = {},
-        file_read_count = 0,
-        file_total_count = 1,
-        game_file = "";
-
-      function doPostRun() {
-        if ("undefined" != typeof gamefiles) {
-          file_total_count = gamefiles.length;
-          for (var e = 0; e < file_total_count; e++)
-            if ("winsetup.exe" != gamefiles[e] && (gamefiles[e].endsWith(".exe") || gamefiles[e].endsWith(".ags"))) {
-              game_file = gamefiles[e];
-              break
-            } bcupElement.className = "bluecup levitate", bcupElement.hidden = !1,
-            function e(n) {
-              file_being_loaded = n, writeMsgOnCanvas("loading " + n + "...");
-              var l = new XMLHttpRequest;
-              l.open("GET", n, !0), l.responseType = "arraybuffer", l.onprogress = function(e) {
-                e.lengthComputable && writeMsgOnCanvas("loading " + file_being_loaded + " " + Math.round(e.loaded / e.total * 100) + "% ...")
-              }, l.onload = function(n) {
-                var i = l.response;
-                if (i) {
-                  var t = new Uint8Array(i);
-                  Module.FS_createDataFile("/", gamefiles[file_read_count], t, !0, !0, !0), (file_read_count += 1) == file_total_count ? (hideAll(), Module.callMain(["/" + game_file, "--windowed"])) : e(gamefiles[file_read_count])
+                if(error){
+                    console.warn(
+                        "IDBFS:",
+                        error
+                    );
                 }
-              }, l.send(null)
-            }(gamefiles[0])
-        }
-      }
 
-      function agsAttachFileInput(e) {
-        if ("undefined" == typeof gamefiles && 0 != e.files.length) {
-          file_total_count = e.files.length;
-          for (var n = 0; n < file_total_count; n++)
-            if ("winsetup.exe" != e.files[n].name && (e.files[n].name.endsWith(".exe") || e.files[n].name.endsWith(".ags"))) {
-              game_file = e.files[n];
-              break
-            } file_read_count = 0, 0 == file_reader_fr && (file_reader_fr = new FileReader), file_reader_fr.onload = function() {
-            fileresulthere = file_reader_fr.result;
-            var n = new Uint8Array(fileresulthere);
-            Module.FS_createDataFile("/", e.files[file_read_count].name, n, !0, !0, !0), (file_read_count += 1) == file_total_count ? (hideAll(), Module.callMain(["/" + game_file.name, "--windowed"])) : file_reader_fr.readAsArrayBuffer(e.files[file_read_count])
-          }, file_reader_fr.readAsArrayBuffer(e.files[0])
-        }
-      }
-      file_read_count = 0, "undefined" == typeof gamefiles && (file_reader_fr = 0, ctrlsElement.hidden = !1), window.addEventListener("orientationchange", (function() {
-        window.dispatchEvent(new Event("resize"))
-      }), !1)
-    </script>
-    <script>
-      function getPrettyTime() {
-        var t = new Date;
-
-        function e(t, e) {
-          for (; t.toString().length < e;) t = "0" + t;
-          return t
-        }
-        return e(t.getHours(), 2) + ":" + e(t.getMinutes(), 2) + ":" + e(t.getSeconds(), 2) + ":" + e(t.getMilliseconds(), 3)
-      }
-      var statusElement = document.getElementById("status"),
-        bcupElement = document.getElementById("bcup"),
-        Module = {
-          arguments: [],
-          preRun: [],
-          postRun: [doPostRun],
-          print: function(t) {
-            arguments.length > 1 && (t = Array.prototype.slice.call(arguments).join(" "));
-            var e = getPrettyTime() + ": " + t;
-            console.log(e)
-          },
-          printErr: function(t) {
-            arguments.length > 1 && (t = Array.prototype.slice.call(arguments).join(" ")), console.error(t)
-          },
-          canvas: function() {
-            var t = document.getElementById("canvas");
-            return window.addEventListener("resize", (function(t) {}), !0), t.addEventListener("webglcontextlost", (function(t) {
-              alert("WebGL context lost. You will need to reload the page."), t.preventDefault()
-            }), !1), t
-          }(),
-          setStatus: function(t) {
-            if (Module.setStatus.last || (Module.setStatus.last = {
-                time: Date.now(),
-                text: ""
-              }), t !== Module.setStatus.last.text) {
-              var e = t.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/),
-                n = Date.now();
-              writeMsgOnCanvas(t), e && n - Module.setStatus.last.time < 30 || (Module.setStatus.last.time = n, Module.setStatus.last.text = t, e && (t = e[1]), statusElement.innerHTML = t)
+                callback();
             }
-          },
-          totalDependencies: 0,
-          monitorRunDependencies: function(t) {
-            bcupElement.hidden = !t, this.totalDependencies = Math.max(this.totalDependencies, t), Module.setStatus(t ? "Preparing... (" + (this.totalDependencies - t) + "/" + this.totalDependencies + ")" : "All downloads complete.")
-          }
-        };
-      Module.setStatus("Downloading..."), window.onerror = function(t) {
-        statusElement.style["z-index"] = 1001, Module.setStatus("Exception thrown, see JavaScript console"), bcupElement.style.display = "none", Module.setStatus = function(t) {
-          t && Module.printErr("[post-exception status] " + t)
-        }
-      }
-    </script>
-    <script src=ags.js async></script>
-  </body>
+        );
 
-  </html>
+    }catch(error){
+
+        console.warn(
+            "Save filesystem:",
+            error
+        );
+
+        callback();
+    }
+}
+
+function startGame(){
+
+    setLoading(
+        "Launching Endacopia...",
+        100
+    );
+
+    setTimeout(function(){
+
+        loading.style.display="none";
+        statusElement.style.display="none";
+
+        console.log(
+            "Starting:",
+            game_file
+        );
+
+        Module.callMain([
+            "/Endacopia.ags",
+            "--windowed"
+        ]);
+
+        resizeCanvas();
+
+    },100);
+}
+
+async function loadEndacopia(){
+
+    try{
+
+        var agsData=
+            await loadSplitFile(
+                "Endacopia.ags",
+                splitFiles["Endacopia.ags"]
+            );
+
+        setLoading(
+            "Endacopia.ags assembled.",
+            50
+        );
+
+        var audioData=
+            await loadSplitFile(
+                "audio.vox",
+                splitFiles["audio.vox"]
+            );
+
+        setLoading(
+            "audio.vox assembled.",
+            65
+        );
+
+        var configData=
+            await loadNormalFile(
+                "acsetup.cfg"
+            );
+
+        var speechData=
+            await loadNormalFile(
+                "sp_speechsounds.vox"
+            );
+
+        setLoading(
+            "Installing game files...",
+            80
+        );
+
+        putFile(
+            "Endacopia.ags",
+            agsData
+        );
+
+        putFile(
+            "audio.vox",
+            audioData
+        );
+
+        putFile(
+            "acsetup.cfg",
+            configData
+        );
+
+        putFile(
+            "sp_speechsounds.vox",
+            speechData
+        );
+
+        agsData=null;
+        audioData=null;
+        configData=null;
+        speechData=null;
+
+        mountSavedGamesDir(
+            function(){
+                startGame();
+            }
+        );
+
+    }catch(error){
+
+        console.error(
+            "Endacopia loading error:",
+            error
+        );
+
+        loadingTitle.textContent=
+            "Failed to load Endacopia";
+
+        setLoading(
+            error.message,
+            0
+        );
+    }
+}
+
+function resizeCanvas(){
+
+    var canvas=
+        document.getElementById("canvas");
+
+    if(!canvas)return;
+
+    var width=
+        window.innerWidth ||
+        document.documentElement.clientWidth;
+
+    var height=
+        window.innerHeight ||
+        document.documentElement.clientHeight;
+
+    canvas.style.position="fixed";
+    canvas.style.left="0px";
+    canvas.style.top="0px";
+    canvas.style.width="100vw";
+    canvas.style.height="100vh";
+
+    canvas.width=width;
+    canvas.height=height;
+
+    var parent=
+        canvas.parentElement;
+
+    if(parent){
+
+        parent.style.position="fixed";
+        parent.style.left="0px";
+        parent.style.top="0px";
+        parent.style.width="100vw";
+        parent.style.height="100vh";
+        parent.style.margin="0";
+        parent.style.padding="0";
+    }
+
+    try{
+        canvas.dispatchEvent(
+            new Event("resize")
+        );
+    }catch(e){}
+
+    console.log(
+        "Canvas:",
+        width+"x"+height
+    );
+}
+
+var Module={
+
+    arguments:[],
+
+    preRun:[],
+
+    postRun:[],
+
+    print:function(text){
+        console.log(text);
+    },
+
+    printErr:function(text){
+        console.error(text);
+    },
+
+    canvas:(function(){
+
+        var canvas=
+            document.getElementById("canvas");
+
+        canvas.addEventListener(
+            "webglcontextlost",
+            function(event){
+
+                alert(
+                    "WebGL context lost. Please reload the page."
+                );
+
+                event.preventDefault();
+
+            },
+            false
+        );
+
+        window.addEventListener(
+            "resize",
+            function(){
+
+                clearTimeout(t_rs_id);
+
+                t_rs_id=setTimeout(
+                    resizeCanvas,
+                    50
+                );
+
+            },
+            true
+        );
+
+        return canvas;
+
+    })(),
+
+    setStatus:function(text){
+
+        if(text){
+            statusElement.textContent=text;
+        }
+
+    },
+
+    totalDependencies:0,
+
+    monitorRunDependencies:function(left){
+
+        this.totalDependencies=
+            Math.max(
+                this.totalDependencies,
+                left
+            );
+
+    }
+};
+
+Module.postRun.push(
+    function(){
+
+        console.log(
+            "AGS engine initialized."
+        );
+
+        resizeCanvas();
+
+        loadEndacopia();
+
+    }
+);
+
+document.getElementById(
+    "canvas"
+).addEventListener(
+    "mouseenter",
+    function(){
+        window.focus();
+    }
+);
+
+document.getElementById(
+    "canvas"
+).addEventListener(
+    "click",
+    function(){
+        window.focus();
+    }
+);
+
+window.addEventListener(
+    "load",
+    function(){
+
+        window.focus();
+
+        setTimeout(
+            resizeCanvas,
+            50
+        );
+
+    }
+);
+
+window.addEventListener(
+    "orientationchange",
+    function(){
+
+        setTimeout(
+            resizeCanvas,
+            250
+        );
+
+    }
+);
+
+window.onerror=function(
+    message,
+    source,
+    line,
+    column,
+    error
+){
+
+    console.error(
+        "Endacopia error:",
+        message,
+        source,
+        line,
+        column,
+        error
+    );
+
+};
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/endacopia-@ce8f6dea90b7e8efa925e9ecf2ae9073571e61f0/ags.js"></script>
+
+</body>
+</html>

@@ -2813,6 +2813,8 @@ let files = [
   "clundertalelb",
   "clundertaler",
   "clundertaleyellow",
+  "clSkate3",
+  "clAngryBirdsEpic",
   "clUndertale",
   "clunfairmario",
   "clunfairmarioworkquestionmark",
