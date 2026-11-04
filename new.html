@@ -465,6 +465,7 @@ var UG = (function () {
     var waiters = [];
     var hue = 0;
     var THUMB_BASE = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/ugs-thumbnails/";
+    function thumbName(n) { var s = String(n); var i = s.toLowerCase().indexOf(" (maintenance)"); return i >= 0 ? s.slice(0, i) : s; }
     fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/ugs-thumbnails/manifest.json")
         .then(function (r) { return r.ok ? r.json() : {}; })
         .then(function (m) { manifest = m || {}; waiters.forEach(function (fn) { try { fn(); } catch (e) {} }); waiters = []; })
@@ -513,7 +514,7 @@ var UG = (function () {
         card.appendChild(meta);
         card.addEventListener("click", function () { btn.click(); });
         card.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); btn.click(); } });
-        function applyManifest() { img.src = THUMB_BASE + encodeURIComponent(name) + ".jpg"; }
+        function applyManifest() { img.src = THUMB_BASE + encodeURIComponent(thumbName(name)) + ".jpg?v=4"; }
         if (manifest) applyManifest(); else waiters.push(applyManifest);
         var prev = btn.previousElementSibling;
         while (prev && prev.getAttribute && !prev.getAttribute("data-carded")) prev = prev.previousElementSibling;
@@ -595,7 +596,7 @@ var UG = (function () {
         mt.appendChild(t);
         card.appendChild(th);
         card.appendChild(mt);
-        img.src = THUMB_BASE + encodeURIComponent(name) + ".jpg";
+        img.src = THUMB_BASE + encodeURIComponent(thumbName(name)) + ".jpg?v=4";
         card.addEventListener("click", function () { var b = findBtn(name); if (b) b.click(); });
         card.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); var b = findBtn(name); if (b) b.click(); } });
         if (pinned) {
