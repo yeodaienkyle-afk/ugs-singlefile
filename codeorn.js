@@ -3584,7 +3584,12 @@ const lower = file.toLowerCase();
   const normalized = normalizeFileName(file);
   const encoded = encodeURIComponent(normalized);
 
+  const SHELL_PINS = {
+    "cldeltarune.html": "086d181f85b0b52497752568f4eb63b456863300",
+  };
+  const _pin = SHELL_PINS[normalized];
   const sources = [
+    ...(_pin ? [`https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@${_pin}/UGS-Files/${encoded}`] : []),
     `UGS-Files/${encoded}?t=${Date.now()}`,
     `https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/UGS-Files/${encoded}?t=${Date.now()}`,
   ];
