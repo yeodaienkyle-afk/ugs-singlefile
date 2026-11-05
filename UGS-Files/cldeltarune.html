@@ -522,6 +522,21 @@
         document.getElementById('loader-screen').style.display = 'none';
     }
 
+    var BLOCKED_HOSTS = /googlesyndication|googleadservices|doubleclick|googletagmanager|google-analytics|adsbygoogle|genizy/i;
+    function sanitizeChapter(html) {
+      html = html.replace(/<script\b[^>]*(?:googlesyndication|googleadservices|doubleclick|googletagmanager|google-analytics|adsbygoogle)[^>]*>[\s\S]*?<\/script>/gi, '');
+      html = html.replace(/window\.adsbygoogle\s*=\s*window\.adsbygoogle\s*\|\|\s*\[\s*\]\s*;?/gi, '');
+      html = html.replace(/adConfig\s*=\s*function\s*\([^)]*\)\s*\{[^}]*\}\s*;?/gi, '');
+      var guard = '<script>(function(){var B=' + String(BLOCKED_HOSTS) + ';'
+        + 'var _f=window.fetch;window.fetch=function(u){var s=String((u&&u.url)||u||"");if(B.test(s)){return Promise.resolve(new Response("",{status:204}));}return _f.apply(this,arguments);};'
+        + 'var _o=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u){if(B.test(String(u))){this.__blk=1;u="about:blank";}return _o.apply(this,arguments);};'
+        + 'var _s=XMLHttpRequest.prototype.send;XMLHttpRequest.prototype.send=function(){if(this.__blk){try{Object.defineProperty(this,"readyState",{value:4,configurable:true});Object.defineProperty(this,"status",{value:204,configurable:true});}catch(e){}if(typeof this.onload==="function"){try{this.onload();}catch(e){}}return;}return _s.apply(this,arguments);};'
+        + 'if(navigator.sendBeacon){var _b=navigator.sendBeacon.bind(navigator);navigator.sendBeacon=function(u,d){return B.test(String(u))?true:_b(u,d);};}'
+        + '})();<\/script>';
+      html = html.replace(/<head>/i, '<head>' + guard);
+      return html;
+    }
+
     function loadChapter(chapter) {
       playSelect();
       gamestarted = true; 
@@ -540,6 +555,7 @@
         }
         return res.text();
       }).then(html => {
+         html = sanitizeChapter(html);
          var b = '<base href="' + chapterPath + '">';
          html = /<base\s/i.test(html) ? html.replace(/<base[^>]*>/i, b) : html.replace(/<head>/i, '<head>' + b);
          injectAndLoad(html);
