@@ -665,8 +665,16 @@ var UG = (function () {
     var realOpen = window.open.bind(window);
     window.open = function (url, target, feat) {
         var w = realOpen(url, target, feat);
+        var isBlank = !url || String(url).indexOf("about:blank") === 0;
+        if (!w || !isBlank) return w;
         setTimeout(function () {
             try {
+                if (w.closed) return;
+                var d = w.document;
+                if (!d || d.readyState === "loading") return;
+                /* never clobber a page that already rendered something (the game writes here) */
+                if (d.body && d.body.children.length > 0) return;
+                if (d.querySelector && d.querySelector("iframe,canvas,video,img,script[src]")) return;
                 var name = (pending || "the game").replace(/[<>&"]/g, "");
                 w.document.open();
                 w.document.write('<!DOCTYPE html><title>Home</title><style>body{margin:0;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:#0b0d12;color:#e8eaed;font-family:Segoe UI,Roboto,Arial,sans-serif}.s{width:34px;height:34px;border-radius:50%;border:3px solid #232838;border-top-color:#a46bff;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.t{font-size:20px;font-weight:700;background:linear-gradient(90deg,#ff5f6d,#ffc371,#47f0a3,#4facfe,#a46bff);-webkit-background-clip:text;background-clip:text;color:transparent}</style><div class="s"></div><div class="t">loading ' + name + '...</div>');
