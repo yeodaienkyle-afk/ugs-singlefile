@@ -3471,6 +3471,9 @@ const lower = file.toLowerCase();
               let saved = null;
               try { saved = JSON.parse(localStorage.getItem("ugs:game:" + normalized) || "null"); } catch (e) {}
               if (saved && saved.t) {
+                if (saved.t.indexOf("SKIP_DBS") !== -1) {
+                  saved.t = saved.t.replace(/<script\b[^>]*>[\s\S]*?SKIP_DBS[\s\S]*?<\/script>/gi, "");
+                }
                 newWin.document.open();
                 newWin.document.write(saved.t);
                 newWin.document.close();
