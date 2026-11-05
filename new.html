@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0b0d12">
 <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
-<script>(function(){try{var f=localStorage.getItem("ug_disguise_favicon"),t=localStorage.getItem("ug_disguise_title");if(!f&&localStorage.getItem("ug_disguise")==="sls"){f="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png";}if(f){var l=document.querySelector('link[rel~="icon"]');if(l){l.href=f;}}if(t){document.title=t;}}catch(e){}})();</script>
+<script>(function(){try{var f=localStorage.getItem("ug_disguise_favicon"),t=localStorage.getItem("ug_disguise_title");if(!f&&localStorage.getItem("ug_disguise")==="sls"){f="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/sls-favicon.png";}if(f){var l=document.querySelector('link[rel~="icon"]');if(l){l.href=f;}}if(t){document.title=t;}}catch(e){}})();</script>
 <title>Home</title>
 <style>
 @property --orb-h{syntax:'<number>';initial-value:210;inherits:false}
@@ -60,7 +60,7 @@ svg.icon{width:22px;height:22px;fill:#9aa3b2}
 <div class="launcher-hero"><h1 id="hero-logo" class="big-logo">free tutoring</h1><p class="tagline">the only class you never skip</p></div>
 
 <div class="nav-grid">
-<div class="nav-card" onclick="openPage(gamesHTML)"><div class="nav-icon"><img src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/controller-icon.png" alt="" draggable="false"/></div><div class="nav-name">games</div><div class="nav-desc">full game list &middot; opens as about:blank</div></div>
+<div class="nav-card" onclick="openPage(gamesHTML)"><div class="nav-icon"><img src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/controller-icon.png" alt="" draggable="false"/></div><div class="nav-name">games</div><div class="nav-desc">full game list &middot; opens as about:blank</div></div>
 <div class="nav-card" onclick="openPage(informationHTML)"><div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.4"/><circle cx="12" cy="7.9" r=".6" fill="currentColor"/></svg></div><div class="nav-name">information</div><div class="nav-desc">night sky &middot; opens as about:blank</div></div>
 <div class="nav-card" onclick="openPage(contactHTML)"><div class="nav-icon"><svg viewBox="0 0 24 24"><rect x="2.8" y="5" width="18.4" height="14" rx="2.4"/><path d="M3.4 6.6l8.6 6.4 8.6-6.4"/></svg></div><div class="nav-name">contact</div><div class="nav-desc">hit us up &middot; opens as about:blank</div></div>
 </div>
@@ -111,7 +111,7 @@ const gamesHTML = `<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0b0d12">
 <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
-<script>(function(){try{var f=localStorage.getItem("ug_disguise_favicon"),t=localStorage.getItem("ug_disguise_title");if(!f&&localStorage.getItem("ug_disguise")==="sls"){f="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png";}if(f){var l=document.querySelector('link[rel~="icon"]');if(l){l.href=f;}}if(t){document.title=t;}}catch(e){}})();<\/script>
+<script>(function(){try{var f=localStorage.getItem("ug_disguise_favicon"),t=localStorage.getItem("ug_disguise_title");if(!f&&localStorage.getItem("ug_disguise")==="sls"){f="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/sls-favicon.png";}if(f){var l=document.querySelector('link[rel~="icon"]');if(l){l.href=f;}}if(t){document.title=t;}}catch(e){}})();<\/script>
 <title>Home</title>
 <style>
 @property --orb-h{syntax:'<number>';initial-value:210;inherits:false}
@@ -359,8 +359,8 @@ body.listmode .buttons-container{display:grid}
         if (document.getElementById("fallback-script")) return;
         var s = document.createElement("script");
         s.id = "fallback-script";
-        s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/codeorn.js?v=" + Date.now();
-        s.onerror = function () { s.onerror = function () { s.onerror = null; s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/codeorn.js?t=" + Date.now(); }; s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/codeorn.js?v=" + Date.now(); ; s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/codeorn.js?t=" + Date.now(); };
+        s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/codeorn.js?v=" + Date.now();
+        s.onerror = function () { s.onerror = function () { s.onerror = null; s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/codeorn.js?t=" + Date.now(); }; s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/codeorn.js?v=" + Date.now(); ; s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/codeorn.js?t=" + Date.now(); };
         document.body.appendChild(s);
     });
 })();
@@ -381,7 +381,7 @@ body.listmode .buttons-container{display:grid}
     var view = localStorage.getItem("ug_view2") || "list";
     var rotate = localStorage.getItem("ug_rotate") !== "0";
     var gl = localStorage.getItem("ug_glow") !== "0";
-    var ICONS = { classroom: "https://ssl.gstatic.com/classroom/favicon.png", sls: "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png" };
+    var ICONS = { classroom: "https://ssl.gstatic.com/classroom/favicon.png", sls: "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/sls-favicon.png" };
     var dSls = document.getElementById("dis-sls");
     var dCls = document.getElementById("dis-classroom");
     var dTitle = document.getElementById("dis-title");
@@ -464,9 +464,9 @@ var UG = (function () {
     var manifest = null;
     var waiters = [];
     var hue = 0;
-    var THUMB_BASE = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/ugs-thumbnails/";
+    var THUMB_BASE = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/ugs-thumbnails/";
     function thumbName(n) { var s = String(n); var i = s.toLowerCase().indexOf(" (maintenance)"); return i >= 0 ? s.slice(0, i) : s; }
-    fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/ugs-thumbnails/manifest.json")
+    fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/ugs-thumbnails/manifest.json")
         .then(function (r) { return r.ok ? r.json() : {}; })
         .then(function (m) { manifest = m || {}; waiters.forEach(function (fn) { try { fn(); } catch (e) {} }); waiters = []; })
         .catch(function () { manifest = {}; waiters.forEach(function (fn) { try { fn(); } catch (e) {} }); waiters = []; });
@@ -689,7 +689,7 @@ var UG = (function () {
 <script>
 (function () {
     var CL = "https://ssl.gstatic.com/classroom/favicon.png";
-    var SL = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png?v=2";
+    var SL = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/sls-favicon.png?v=2";
     function disguise() {
         var m = localStorage.getItem("ug_disguise") || "classroom";
         var ic = localStorage.getItem("ug_disguise_favicon") || "";
@@ -763,10 +763,10 @@ var UG = (function () {
 (function () {
     var t = Date.now();
     var s = document.createElement("script");
-    s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/games.js?v=" + t;
+    s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/games.js?v=" + t;
     s.onerror = function () {
-        s.onerror = function () { s.onerror = null; s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/games.js?t=" + t; };
-        s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/games.js?v=" + t;
+        s.onerror = function () { s.onerror = null; s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/games.js?t=" + t; };
+        s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/games.js?v=" + t;
     };
     document.body.appendChild(s);
 })();
@@ -807,7 +807,7 @@ var UG = (function () {
             if (!w) { alert("allow popups"); return; }
             w.document.write("<p>Loading credits...</p>");
             w.document.close();
-            fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/UGS-Files/credits.html?t=" + Date.now())
+            fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/UGS-Files/credits.html?t=" + Date.now())
                 .then(function (r) { if (!r.ok) throw 0; return r.text(); })
                 .then(function (t) { w.document.open(); w.document.write(t); w.document.close(); })
                 .catch(function () { w.document.open(); w.document.write("<p>Could not load credits.</p>"); w.document.close(); });
@@ -854,7 +854,7 @@ const informationHTML = `<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0b0d12">
 <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
-<script>(function(){try{var f=localStorage.getItem("ug_disguise_favicon"),t=localStorage.getItem("ug_disguise_title");if(!f&&localStorage.getItem("ug_disguise")==="sls"){f="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png";}if(f){var l=document.querySelector('link[rel~="icon"]');if(l){l.href=f;}}if(t){document.title=t;}}catch(e){}})();<\/script>
+<script>(function(){try{var f=localStorage.getItem("ug_disguise_favicon"),t=localStorage.getItem("ug_disguise_title");if(!f&&localStorage.getItem("ug_disguise")==="sls"){f="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/sls-favicon.png";}if(f){var l=document.querySelector('link[rel~="icon"]');if(l){l.href=f;}}if(t){document.title=t;}}catch(e){}})();<\/script>
 <title>Home</title>
 <script>alert("Night sky brought to you by powerenkyle");<\/script>
 <style>
@@ -948,7 +948,7 @@ const contactHTML = `<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0b0d12">
 <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
-<script>(function(){try{var f=localStorage.getItem("ug_disguise_favicon"),t=localStorage.getItem("ug_disguise_title");if(!f&&localStorage.getItem("ug_disguise")==="sls"){f="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png";}if(f){var l=document.querySelector('link[rel~="icon"]');if(l){l.href=f;}}if(t){document.title=t;}}catch(e){}})();<\/script>
+<script>(function(){try{var f=localStorage.getItem("ug_disguise_favicon"),t=localStorage.getItem("ug_disguise_title");if(!f&&localStorage.getItem("ug_disguise")==="sls"){f="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/sls-favicon.png";}if(f){var l=document.querySelector('link[rel~="icon"]');if(l){l.href=f;}}if(t){document.title=t;}}catch(e){}})();<\/script>
 <title>Home</title>
 <style>
 @property --orb-h{syntax:'<number>';initial-value:210;inherits:false}
@@ -1059,7 +1059,7 @@ input:focus,textarea:focus{outline:none;border-color:#a46bff;box-shadow:0 0 10px
 <script>
 (function () {
     var CL = "https://ssl.gstatic.com/classroom/favicon.png";
-    var SL = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/sls-favicon.png?v=2";
+    var SL = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/sls-favicon.png?v=2";
     function disguise() {
         var m = localStorage.getItem("ug_disguise") || "classroom";
         var ic = localStorage.getItem("ug_disguise_favicon") || "";
