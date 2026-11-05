@@ -837,6 +837,92 @@ var UG = (function () {
     }, { passive: true });
 })();
 <\/script>
+<style>
+#ugs-auth{position:fixed;left:12px;bottom:12px;z-index:99998;border:0;border-radius:999px;padding:9px 15px;font:600 12px system-ui,sans-serif;background:rgba(20,20,24,.92);color:#eee;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.45)}
+#ugs-modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;place-items:center;z-index:99999}
+#ugs-modal.on{display:grid}
+.ugs-card{background:#17171c;color:#eee;border:1px solid #2c2c34;border-radius:14px;padding:16px;width:min(330px,92vw);font:13px/1.35 system-ui,sans-serif;box-shadow:0 18px 50px rgba(0,0,0,.5)}
+.ugs-card h3{margin:0 0 10px;font-size:15px;font-weight:600}
+.ugs-card input{width:100%;box-sizing:border-box;margin:0 0 8px;padding:9px 10px;border-radius:8px;border:1px solid #33333d;background:#101014;color:#eee;font:13px system-ui,sans-serif}
+.ugs-row{display:flex;gap:8px;margin-top:6px}
+.ugs-row button{flex:1;padding:9px;border:0;border-radius:8px;font:600 13px system-ui,sans-serif;cursor:pointer}
+.ugs-go{background:#2f7d32;color:#fff}
+.ugs-alt{background:#2a2a33;color:#ddd}
+.ugs-msg{min-height:15px;margin-top:8px;color:#ff9a9a;font-size:12px}
+.ugs-note{color:#8e8e9a;font-size:11px;margin-top:8px;line-height:1.45}
+</style>
+<button id="ugs-auth">Sign in to save</button>
+<div id="ugs-modal"><div class="ugs-card">
+<h3 id="ugs-title">Sign in</h3>
+<input id="ugs-user" placeholder="username" autocomplete="username" spellcheck="false">
+<input id="ugs-pass" type="password" placeholder="password" autocomplete="current-password">
+<div class="ugs-row"><button id="ugs-go" class="ugs-go">Sign in</button><button id="ugs-cancel" class="ugs-alt">Cancel</button></div>
+<div class="ugs-row"><button id="ugs-switch" class="ugs-alt">Create an account instead</button></div>
+<div class="ugs-msg" id="ugs-msg"></div>
+<div class="ugs-note">Prefer no account? Just keep playing, you simply won't get cloud saves. Passwords are hashed with salted PBKDF2-SHA256 on the server and never stored in plain text.</div>
+</div></div>
+<script>
+(function () {
+  var API = "https://superagent-49ac7abc.base44.app/functions/ugsAccount";
+  window.__UGS_API = API;
+  var pill = document.getElementById("ugs-auth"), modal = document.getElementById("ugs-modal"),
+      title = document.getElementById("ugs-title"), user = document.getElementById("ugs-user"),
+      pass = document.getElementById("ugs-pass"), go = document.getElementById("ugs-go"),
+      cancel = document.getElementById("ugs-cancel"), swap = document.getElementById("ugs-switch"),
+      msg = document.getElementById("ugs-msg");
+  if (!pill || !modal) return;
+  var mode = "login";
+  function session() { try { return JSON.parse(localStorage.getItem("ugs:auth") || "null"); } catch (e) { return null; } }
+  function paint() {
+    var s = session();
+    pill.textContent = (s && s.username) ? "@" + s.username + " · sign out" : "Sign in to save";
+  }
+  function setMode(m) {
+    mode = m;
+    title.textContent = m === "login" ? "Sign in" : "Create an account";
+    go.textContent = m === "login" ? "Sign in" : "Create account";
+    swap.textContent = m === "login" ? "Create an account instead" : "I already have an account";
+    msg.textContent = "";
+  }
+  function openModal() { setMode(mode); modal.classList.add("on"); try { user.focus(); } catch (e) {} }
+  function closeModal() { modal.classList.remove("on"); msg.textContent = ""; }
+  function submit() {
+    var u = (user.value || "").trim(), p = pass.value || "";
+    if (!u || !p) { msg.textContent = "username and password, please"; return; }
+    go.disabled = true;
+    msg.textContent = "";
+    fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: mode, username: u, password: p }) })
+      .then(function (r) { return r.json(); })
+      .then(function (b) {
+        if (b && b.token) {
+          try { localStorage.setItem("ugs:auth", JSON.stringify({ username: b.username, token: b.token })); } catch (e) {}
+          pass.value = "";
+          paint();
+          closeModal();
+        } else {
+          msg.textContent = (b && b.error) ? b.error : "that didn't work";
+        }
+      })
+      .catch(function () { msg.textContent = "can't reach the save server right now"; })
+      .then(function () { go.disabled = false; });
+  }
+  pill.addEventListener("click", function () {
+    var s = session();
+    if (s && s.username) {
+      if (confirm("Sign out of @" + s.username + "? Cloud saves stay on the server.")) {
+        try { localStorage.removeItem("ugs:auth"); } catch (e) {}
+        paint();
+      }
+    } else { openModal(); }
+  });
+  go.addEventListener("click", submit);
+  pass.addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
+  cancel.addEventListener("click", closeModal);
+  swap.addEventListener("click", function () { setMode(mode === "login" ? "signup" : "login"); });
+  modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+  paint();
+})();
+<\/script>
 </body>
 </html>`;
 
