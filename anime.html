@@ -61,11 +61,11 @@ function render(){
 
   grid.innerHTML = list.map(function(c){
     var r = c.s ? '<span class="rate">' + (c.s/10).toFixed(1) + '</span>' : '<span class="rate na">&ndash;</span>';
-    var fallback = c.alt ? "this.src='" + c.alt.replace(/'/g,"%27") + "';this.onerror=null;" : "this.onerror=null;";
+    var img = '<img src="' + esc(c.p) + '" alt="' + esc(c.t) + '" loading="lazy" decoding="async"';
+    if (c.f) img += ' onerror="this.onerror=null;this.src=this.getAttribute(\'data-f\')" data-f="' + esc(c.f) + '"';
+    img += '>';
     return '<a class="card" href="' + esc(c.u) + '" target="_blank" rel="noopener">' +
-             '<div class="shot">' + r +
-               '<img src="' + esc(c.img) + '" alt="' + esc(c.t) + '" loading="lazy" decoding="async" onerror="' + fallback + '">' +
-             '</div>' +
+             '<div class="shot">' + r + img + '</div>' +
              '<div class="name">' + esc(c.t) + '</div>' +
            '</a>';
   }).join("");
