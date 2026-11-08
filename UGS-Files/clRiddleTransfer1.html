@@ -15,13 +15,19 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#000;overflow:hid
 <script>
 window.RufflePlayer = window.RufflePlayer || {};
 window.RufflePlayer.config = { autoplay: "on", unmuteOverlay: "hidden", letterbox: "on", scale: "showAll", splashScreen: false, contextMenu: "rightClickOnly" };
-window.addEventListener("load", function () {
-  var r = window.RufflePlayer.newest();
-  var p = r.createPlayer();
+function ugBoot() {
+  var l = document.getElementById("ugsl");
+  if (!window.RufflePlayer || !window.RufflePlayer.newest) {
+    if (l) l.textContent = "player failed to load - refresh";
+    return;
+  }
+  var p = window.RufflePlayer.newest().createPlayer();
   p.style.width = "100%"; p.style.height = "100%";
   document.getElementById("game").appendChild(p);
-  var l = document.getElementById("ugsl");
-  p.addEventListener("loadeddata", function () { if (l) l.style.display = "none"; });
+  p.load("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/Holy-Moly-Rips@6fb555f8b6102654fd4d62fef74db1680826f70b/Riddle%20School%20And%20Transfer/RT%201/571729_Riddle_Transfer.swf");
+  setTimeout(function () { if (l) l.style.display = "none"; }, 2500);
+}
+if (document.readyState === "complete") { ugBoot(); } else { window.addEventListener("load", ugBoot); }
   p.load("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/Holy-Moly-Rips@6fb555f8b6102654fd4d62fef74db1680826f70b/Riddle%20School%20And%20Transfer/RT%201/571729_Riddle_Transfer.swf");
   setTimeout(function () { if (l) l.style.display = "none"; }, 4000);
 });
