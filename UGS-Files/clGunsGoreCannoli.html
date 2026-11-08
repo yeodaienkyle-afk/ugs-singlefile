@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unity WebGL Player | Guns, Gore, and Cannoli</title>
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+<style>
+html,body{margin:0;padding:0;background:#14161c;color:#e8eaed;font:14px/1.4 "Segoe UI",Roboto,Arial,sans-serif;overflow:hidden}
+#unity-container{position:fixed;inset:0;display:grid;place-items:center;background:#14161c}
+#unity-canvas{background:#14161c;width:960px;height:600px;max-width:100vw;max-height:100vh;display:block}
+#unity-loading-bar{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(420px,80vw);text-align:center}
+#unity-logo{width:154px;height:130px;margin:0 auto 18px;background:radial-gradient(circle at 50% 45%,#a46bff 0%,#5a3aa8 45%,transparent 70%);border-radius:50%;opacity:.85}
+#unity-progress-bar-empty{height:10px;border-radius:999px;background:#242835;overflow:hidden;border:1px solid #2f3446}
+#unity-progress-bar-full{height:100%;width:0%;background:linear-gradient(90deg,#ff5f6d,#ffc371,#47f0a3,#4facfe,#a46bff);transition:width .2s}
+#unity-warning{position:absolute;left:50%;top:12px;transform:translateX(-50%);display:none;z-index:9;max-width:90vw}
+#unity-warning div{border-radius:8px;color:#111;margin-bottom:6px;font-weight:600}
+#unity-footer{position:absolute;right:10px;bottom:8px;display:flex;gap:10px;align-items:center;font-size:11px;color:#7b8398}
+#unity-fullscreen-button{width:26px;height:26px;border-radius:6px;border:1px solid #2f3446;background:#1d2130;cursor:pointer;position:relative}
+#unity-fullscreen-button:after{content:"\26F6";position:absolute;inset:0;display:grid;place-items:center;color:#c9cede;font-size:13px}
+#unity-build-title{opacity:.75}
+</style>
+</head>
+<body>
+<div id="unity-container" class="unity-desktop">
+  <canvas id="unity-canvas" width="960" height="600"></canvas>
+  <div id="unity-loading-bar">
+    <div id="unity-logo"></div>
+    <div id="unity-progress-bar-empty"><div id="unity-progress-bar-full"></div></div>
+  </div>
+  <div id="unity-warning"></div>
+  <div id="unity-footer">
+    <div id="unity-build-title">Guns, Gore, and Cannoli</div>
+    <div id="unity-fullscreen-button"></div>
+  </div>
+</div>
+<script>
+var BASE = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@e3897cec4c94622ea5577fe399a56695b4d73301/guns-gore-cannoli";
+var buildUrl = BASE + "/Build";
+var prefix = "GunsGoreAndCannoliWeb";
+var DATA_PARTS = 16;
+var WASM_PARTS = 2;
+
+var container = document.querySelector("#unity-container");
+var canvas = document.querySelector("#unity-canvas");
+var loadingBar = document.querySelector("#unity-loading-bar");
+var progressBarFull = document.querySelector("#unity-progress-bar-full");
+var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+var warningBanner = document.querySelector("#unity-warning");
+
+function unityShowBanner(msg, type) {
+  var div = document.createElement("div");
+  div.textContent = msg;
+  div.style.padding = "10px";
+  if (type === "error") {
+    div.style.background = "#ff6b6b";
+  } else {
+    div.style.background = "#ffd166";
+    setTimeout(function () {
+      div.remove();
+      warningBanner.style.display = warningBanner.children.length ? "block" : "none";
+    }, 5000);
+  }
+  warningBanner.appendChild(div);
+  warningBanner.style.display = "block";
+}
+
+async function fetchWithRetry(url, tries) {
+  var lastErr;
+  for (var a = 0; a < (tries || 4); a++) {
+    try {
+      var res = await fetch(url, { cache: "force-cache" });
+      if (res.ok) return res;
+      lastErr = new Error("HTTP " + res.status + " for " + url.split("/").pop());
+    } catch (e) {
+      lastErr = e;
+    }
+    await new Promise(function (r) { setTimeout(r, 900 * (a + 1)); });
+  }
+  throw lastErr || new Error("failed to load " + url);
+}
+
+async function loadParts(extension, count, progressStart, progressEnd) {
+  var chunks = [];
+  for (var i = 0; i < count; i++) {
+    var partName = prefix + "." + extension + ".part" + String(i).padStart(3, "0");
+    var response = await fetchWithRetry(buildUrl + "/" + partName);
+    chunks.push(await response.arrayBuffer());
+    var progress = (i + 1) / count;
+    progressBarFull.style.width = (progressStart + progress * (progressEnd - progressStart)) + "%";
+  }
+  return new Blob(chunks);
+}
+
+async function startGame() {
+  loadingBar.style.display = "block";
+  try {
+    var results = await Promise.all([
+      loadParts("data", DATA_PARTS, 0, 40),
+      loadParts("wasm", WASM_PARTS, 40, 80)
+    ]);
+    var dataBlob = results[0], wasmBlob = results[1];
+
+    var config = {
+      dataUrl: URL.createObjectURL(dataBlob),
+      frameworkUrl: buildUrl + "/" + prefix + ".framework.js",
+      codeUrl: URL.createObjectURL(wasmBlob),
+      streamingAssetsUrl: BASE + "/StreamingAssets",
+      companyName: "Crazy Monkey Studios",
+      productName: "Guns, Gore, and Cannoli",
+      productVersion: "1.2.21",
+      showBanner: unityShowBanner
+    };
+
+    progressBarFull.style.width = "85%";
+
+    var script = document.createElement("script");
+    script.src = buildUrl + "/" + prefix + ".loader.js";
+    script.onload = function () {
+      createUnityInstance(canvas, config, function (progress) {
+        progressBarFull.style.width = (85 + progress * 15) + "%";
+      }).then(function (unityInstance) {
+        loadingBar.style.display = "none";
+        fullscreenButton.onclick = function () { unityInstance.SetFullscreen(1); };
+      }).catch(function (error) {
+        unityShowBanner(error, "error");
+      });
+    };
+    script.onerror = function () { unityShowBanner("Failed to load Unity loader.", "error"); };
+    document.body.appendChild(script);
+  } catch (error) {
+    unityShowBanner(error.message || String(error), "error");
+  }
+}
+
+if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+  container.className = "unity-mobile";
+  canvas.style.width = "100%";
+  canvas.style.height = "100%";
+}
+
+startGame();
+</script>
+</body>
+</html>

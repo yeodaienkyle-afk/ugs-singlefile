@@ -1137,6 +1137,7 @@ let files = [
   "clgunmayhem2goof",
   "clgunmayhemredux",
   "clgunnight",
+  "clGunsGoreCannoli",
   "clgunsmoke",
   "clgunstarheroes",
   "clgymstack",
