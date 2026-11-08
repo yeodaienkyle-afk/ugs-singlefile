@@ -1,0 +1,53 @@
+;; Copyright (C) 2013 Sony Computer Entertainment Inc. All Rights Reserved.
+
+;------------------------------------------------------------------------
+!$LANGUAGE!$	ENGLISH
+;------------------------------------------------------------------------
+;!$NOISES!$
+;------------------------------------------------------------------------
+!$DICTIONARY!$
+;------------------------------------------------------------------------
+
+;----------------------
+; COMMAND
+;----------------------
+
+
+"PlayStation"		p l ey s t ey sh ax n
+"PlayStation"		p l ey s t ey sh n
+"PlayStation"		p l eh s t ey sh ax n
+"PlayStation"		p l eh s t ey sh n
+"PlayStation"		p l eh s t eh sh ax n
+"PlayStation"		p l eh s t eh sh n
+"home screen"		hh ow m ___ s k r iy n
+"back to game"		b ae k ___ t uw ___ g ey m
+"log in"		    l ao g ___ ax n
+"log in"		    l ao g ___ ih n
+"power"		        p aw ax r
+"power"		        p aw er
+"start"		        s t aa r t
+"start"		        s t aa t
+"user one"		    y uw z er ___ w aa n
+"what's new"		w ah t s ___ n y uw
+"what's new"		w ah t z ___ n y uw
+"what's new"		w ao t s ___ n y uw
+
+
+;---------------------------------------------------------------------------
+!$COMMAND
+;---------------------------------------------------------------------------
+
+"PlayStation"
+"home screen"
+"back to game"
+"log in"
+"power"
+"start"
+"user one"
+"what's new"
+
+;---------------------------------------------------------------------------
+!$SENTENCE!$
+;---------------------------------------------------------------------------
+
+		==> $COMMAND
