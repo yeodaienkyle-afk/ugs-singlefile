@@ -97,7 +97,7 @@ function cardHtml(c){
   var link=c.sf?SHOWS_BASE+"#f="+c.sf:c.u;
   var attrs=c.dubs
     ? ' data-dub="'+encodeURIComponent(JSON.stringify(c.dubs))+'" data-title="'+esc(c.t)+'" href="#"'
-    : ' href="'+esc(link)+'"'+(c.sf?' title="opens the episode list"':' target="_blank" rel="noopener"');
+    : ' href="'+esc(link)+'" target="_blank" rel="noopener"'+(c.sf?' title="opens the episode list"':'');
   return '<a class="card"'+attrs+'><div class="shot">'+age+
     '<img src="'+c.i+'" alt="'+esc(c.t)+'" loading="lazy" decoding="async">'+dub+sc+'</div>'+
     '<div class="name">'+esc(c.t)+(cat==="all"?'<em>'+esc(c.c)+'</em>':'')+'</div></a>';
