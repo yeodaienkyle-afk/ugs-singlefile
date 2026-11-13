@@ -33,6 +33,22 @@ input:focus,select:focus{border-color:var(--accent)}
 .age{position:absolute;top:8px;left:8px;font-size:11px;font-weight:800;padding:3px 8px;border-radius:6px;color:#0b0d12;box-shadow:0 2px 8px rgba(0,0,0,.5)}
 .a-G{background:#7ddc8a}.a-PG{background:#f2c14e}.a-PG13{background:#f5a623}.a-NC16{background:#f2705d}.a-M18{background:#c0392b;color:#fff}
 .a-NR{background:#5b6474;color:#fff}
+.card[data-m18] .age::after{content:" \1F512";font-size:10px}
+#gate{position:fixed;inset:0;background:rgba(5,6,10,.9);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px;z-index:70}
+#gate.on{display:flex}
+.gcard{width:min(560px,100vw);max-height:88vh;overflow:auto;background:#13161f;border:1px solid #3a2230;border-radius:18px;padding:22px 22px 18px;box-shadow:0 24px 70px rgba(0,0,0,.7)}
+.gcard h2{font-size:19px;margin-bottom:4px;color:#ff8a7a}
+.gcard .sub{color:#9aa3b2;font-size:12.5px;margin-bottom:14px;letter-spacing:.04em;text-transform:uppercase}
+.gcard p{font-size:13.5px;color:#d6dae2;line-height:1.6;margin-bottom:12px}
+.gcard ul{margin:0 0 14px 18px;color:#d6dae2;font-size:13.5px;line-height:1.65}
+.gcard li{margin-bottom:7px}
+.gcard .fine{font-size:12px;color:#8b93a1;border-top:1px solid #232838;padding-top:12px}
+.gcard label{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#e8eaed;background:#0f131d;border:1px solid #232838;border-radius:12px;padding:11px 12px;margin-bottom:14px;cursor:pointer;line-height:1.5}
+.gcard input[type=checkbox]{margin-top:2px;accent-color:#a46bff;width:16px;height:16px;flex:none}
+.gbtns{display:flex;gap:10px;flex-wrap:wrap}
+.gbtns button{flex:1 1 160px;border-radius:12px;padding:12px 14px;font:700 13.5px inherit;cursor:pointer;border:1px solid #232838;background:#191d29;color:#e8eaed}
+#gateGo{background:#a46bff;border-color:#a46bff;color:#0b0d12}
+#gateGo:disabled{background:#2a2f3d;border-color:#2a2f3d;color:#69707e;cursor:not-allowed}
 .score{position:absolute;bottom:8px;right:8px;background:rgba(10,12,18,.86);border:1px solid var(--line);color:#ffd166;font-weight:700;font-size:11px;padding:2px 7px;border-radius:999px}
 .dubtag{position:absolute;bottom:8px;left:8px;background:rgba(164,107,255,.92);color:#0b0d12;font-weight:800;font-size:10px;padding:2px 7px;border-radius:999px}
 .name{padding:10px 12px 12px;font-weight:600;font-size:13.5px;line-height:1.35}
@@ -69,9 +85,30 @@ input:focus,select:focus{border-color:var(--accent)}
   </div>
 </header>
 <div class="tabs" id="tabs"></div>
-<div class="note">Age ratings mapped to SG-style labels: anime from MAL/Kitsu, films from MPA certificates, TV from the TV Parental Guidelines. Anything with no published rating (music, clips, broken links) is marked NR. Some folders are restricted: <a href="https://groups.google.com/g/kayoanimedrive/c/e4kz4OEIqRQ?pli=1" target="_blank" rel="noopener">JOIN GOOGLE GROUP</a> first. Artwork is embedded, so this page works offline. Every folder now opens a file list in our style, and every video plays in an embedded player instead of bouncing to Drive.
+<div class="note">Age ratings mapped to SG-style labels: anime from MAL/Kitsu, films from MPA certificates, TV from the TV Parental Guidelines. Anything with no published rating (music, clips, broken links) is marked NR. Anything rated M18 (61 titles) opens a terms-of-access notice first: you sign it once, and it is remembered for 30 days on that browser. Some folders are restricted: <a href="https://groups.google.com/g/kayoanimedrive/c/e4kz4OEIqRQ?pli=1" target="_blank" rel="noopener">JOIN GOOGLE GROUP</a> first. Artwork is embedded, so this page works offline. Every folder now opens a file list in our style, and every video plays in an embedded player instead of bouncing to Drive.
 <span class="key"><span class="k-g">G</span><span class="k-pg">PG</span><span class="k-nc16">NC16</span><span class="k-m18">M18</span><span class="k-nr">NR</span></span></div>
 <main class="grid" id="grid"></main>
+<div id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+  <div class="gcard">
+    <h2 id="gateTitle">18+ content notice</h2>
+    <div class="sub">M18 &middot; terms of access</div>
+    <p>You are opening material rated <b>M18</b>: strong violence, gore, horror, drug use, coarse language and/or sexual content. It may not be appropriate for your age.</p>
+    <p>Before it plays, read and accept these terms.</p>
+    <ul>
+      <li>I will not abuse, redistribute or misuse these materials, and I will not share this library with anyone under 18.</li>
+      <li>I am aware that streaming is built to keep me watching. I will watch with self-awareness of addictive behaviour and step away when I need to.</li>
+      <li>I am aware that what is about to be shown may not be appropriate for my age, my beliefs or my family's rules, and I am choosing to continue with that in mind.</li>
+      <li>If anything here upsets me or starts to feel unhealthy, I will stop watching and talk to someone I trust.</li>
+    </ul>
+    <label><input type="checkbox" id="gateChk"><span>I have read the terms above. I am 18 or older, or I have a guardian's permission, and I accept them.</span></label>
+    <div class="gbtns">
+      <button id="gateGo" disabled>Sign and continue</button>
+      <button id="gateNo">Take me back</button>
+    </div>
+    <div class="fine">Your acceptance is saved in this browser for 30 days. This library is a personal, educational archive. Watch responsibly.</div>
+  </div>
+</div>
+
 <button class="more" id="more" hidden>show more</button>
 <div id="chooser"><div class="pick">
   <h2 id="pickTitle"></h2><p>pick a dub</p><div id="pickBtns"></div>
@@ -104,11 +141,11 @@ function cardHtml(c){
   var sc=c.s?'<span class="score">'+(c.s/10).toFixed(1)+'</span>':'';
   var dub=c.dubs?'<span class="dubtag">2 DUBS</span>':'';
   var link=c.sf?LIB_BASE+"#f="+c.sf:c.u;
-  var attrs;
-  if(c.dubs){ attrs=' data-dub="'+encodeURIComponent(JSON.stringify(c.dubs))+'" data-title="'+esc(c.t)+'" href="#"'; }
-  else if(c.sf){ attrs=' href="'+esc(link)+'" target="_blank" rel="noopener" title="opens the file list"'; }
-  else if(c.dl){ attrs=' href="'+esc(c.u)+'" data-drive="'+esc(c.dl)+'" data-title="'+esc(c.t)+'" title="plays here"'; }
-  else { attrs=' href="'+esc(c.u)+'" target="_blank" rel="noopener"'; }
+  var attrs, gate=c.a==="M18"?' data-m18="1"':'';
+  if(c.dubs){ attrs=gate+' data-dub="'+encodeURIComponent(JSON.stringify(c.dubs))+'" data-title="'+esc(c.t)+'" href="#"'; }
+  else if(c.sf){ attrs=gate+' href="'+esc(link)+'" target="_blank" rel="noopener" title="opens the file list"'; }
+  else if(c.dl){ attrs=gate+' href="'+esc(c.u)+'" data-drive="'+esc(c.dl)+'" data-title="'+esc(c.t)+'" title="plays here"'; }
+  else { attrs=gate+' href="'+esc(c.u)+'" target="_blank" rel="noopener"'; }
   return '<a class="card"'+attrs+'><div class="shot">'+age+
     '<img src="'+c.i+'" alt="'+esc(c.t)+'" loading="lazy" decoding="async">'+dub+sc+'</div>'+
     '<div class="name">'+esc(c.t)+(cat==="all"?'<em>'+esc(c.c)+'</em>':'')+'</div></a>';
@@ -165,9 +202,18 @@ pickBtns.onclick=function(e){
 };
 more.onclick=function(){ step(false); };
 tabs.onclick=function(e){ var b=e.target.closest?e.target.closest(".tab"):null; if(!b) return; cat=b.getAttribute("data-cat"); compute(); };
+var GATE_KEY="ugs_m18_terms_v1", GATE_DAYS=30, gateAction=null;
+function gateOK(){ try{ var t=parseInt(localStorage.getItem(GATE_KEY),10); return !!t && (Date.now()-t)<GATE_DAYS*864e5; }catch(err){ return false; } }
+var gateEl=document.getElementById("gate"), gateGo=document.getElementById("gateGo"), gateNo=document.getElementById("gateNo"), gateChk=document.getElementById("gateChk");
+function gateOpen(fn){ gateAction=fn; gateChk.checked=false; gateGo.disabled=true; gateEl.classList.add("on"); gateEl.scrollTop=0; }
+function gateClose(){ gateEl.classList.remove("on"); gateAction=null; }
+if(gateChk) gateChk.onchange=function(){ gateGo.disabled=!gateChk.checked; };
+if(gateGo) gateGo.onclick=function(){ if(!gateChk.checked) return; try{ localStorage.setItem(GATE_KEY,String(Date.now())); }catch(err){} var fn=gateAction; gateClose(); if(fn) fn(); };
+if(gateNo) gateNo.onclick=gateClose;
 grid.onclick=function(e){
   var card=e.target.closest?e.target.closest(".card"):null;
   if(!card) return;
+  if(card.getAttribute("data-m18") && !gateOK()){ e.preventDefault(); e.stopPropagation(); gateOpen(function(){ card.click(); }); return; }
   if(card.getAttribute("data-drive")){ e.preventDefault(); launchDrive(card.getAttribute("data-drive"), card.getAttribute("data-title")||""); return; }
   if(!card.getAttribute("data-dub")) return;
   e.preventDefault();
@@ -185,6 +231,7 @@ document.addEventListener("keydown",function(e){ if(e.key==="Escape") chooser.cl
 q.oninput=compute; sortSel.onchange=compute; filt.onchange=compute;
 compute();
 </script>
+
 <div id="player">
   <div class="pbar"><h2 id="ptitle"></h2><a id="pdrive" href="#" target="_blank" rel="noopener">open in Drive</a><button id="pclose">close</button></div>
   <iframe id="pframe" allow="autoplay; fullscreen" allowfullscreen></iframe>
