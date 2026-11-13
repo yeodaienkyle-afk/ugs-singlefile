@@ -137,7 +137,6 @@ function step(first){
   if(first && !list.length) grid.innerHTML='<p style="color:#9aa3b2">nothing matches that</p>';
 }
 
-var playerEl=document.getElementById("player"), pFrame=document.getElementById("pframe"), pTitle=document.getElementById("ptitle"), pDrive=document.getElementById("pdrive");
 function escH(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
 function launchDrive(id,name){
   var url="https://drive.google.com/file/d/"+id+"/preview";
@@ -149,11 +148,14 @@ function launchDrive(id,name){
   var w=null;
   try{ w=window.open("about:blank","_blank"); }catch(err){}
   if(w&&w.document){ try{ w.document.open(); w.document.write(doc); w.document.close(); return; }catch(err2){} }
-  if(!playerEl) return;
-  pTitle.textContent=name; pDrive.href="https://drive.google.com/file/d/"+id+"/view";
+  var playerEl=document.getElementById("player"), pFrame=document.getElementById("pframe"),
+      pTitle=document.getElementById("ptitle"), pDrive=document.getElementById("pdrive"), pClose=document.getElementById("pclose");
+  if(!playerEl||!pFrame) return;
+  pTitle.textContent=name;
+  if(pDrive) pDrive.href="https://drive.google.com/file/d/"+id+"/view";
+  if(pClose) pClose.onclick=function(){ playerEl.classList.remove("on"); pFrame.src="about:blank"; };
   pFrame.src=url; playerEl.classList.add("on");
 }
-if(document.getElementById("pclose")) document.getElementById("pclose").onclick=function(){ playerEl.classList.remove("on"); pFrame.src="about:blank"; };
 pickBtns.onclick=function(e){
   var a=e.target.closest?e.target.closest("a"):null; if(!a) return;
   var id=a.getAttribute("data-drive"); if(!id) return;
