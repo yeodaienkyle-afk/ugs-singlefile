@@ -122,12 +122,11 @@ var CARDS = [{"t":"Monster","u":"https://drive.google.com/drive/folders/1B8PuNai
 var UGS_SRC=["https://raw.githubusercontent.com/yeodaienkyle-afk/ugs-singlefile/main/",
              "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/"];
 var UGS_TAG="<"+"script>", UGS_END="<"+"/script>";
-function ugsStamp(){ try{ var k="ugs_build_stamp", v=sessionStorage.getItem(k); if(!v){ v=String(Date.now()); sessionStorage.setItem(k,v); } return v; }catch(e){ return String(Date.now()); } }
 var UGS_BOOT='(function(){var S='+JSON.stringify(UGS_SRC)+';'+
 'window.UGS_BOOT=(document.currentScript&&document.currentScript.textContent)||window.UGS_BOOT||"";'+
 'window.UGSgo=function(page,frag){var go=function(i){'+
 'if(i>=S.length){var m=document.getElementById("m");if(m){m.textContent="Could not load "+page+".";}return;}'+
-'fetch(S[i]+page+"?t="+((function(){try{var k="ugs_build_stamp",v=sessionStorage.getItem(k);if(!v){v=String(Date.now());sessionStorage.setItem(k,v);}return v;}catch(e){return String(Date.now());}})()),{cache:"no-store"}).then(function(r){if(!r.ok){throw new Error(r.status);}return r.text();})'+
+'fetch(S[i]+page,{cache:"no-cache"}).then(function(r){if(!r.ok){throw new Error(r.status);}return r.text();})'+
 '.then(function(h){if(!/id="grid"/.test(String(h))||!/ugsOpenPage/.test(String(h))){throw new Error("unexpected page");}try{history.replaceState(null,"","#"+(frag||""));}catch(e){try{location.hash=frag||"";}catch(e2){}}'+
 'h=String(h).replace(/<head([^>]*)>/i,function(m,a){return "<head"+a+"><"+"script>"+(window.UGS_BOOT||"")+"<"+"/script>";});'+
 'document.open();document.write(h);document.close();}).catch(function(){go(i+1);});};go(0);};})();';
@@ -146,7 +145,7 @@ function ugsLoadHere(page,frag){
   var i=0;
   (function go(){
     if(i>=UGS_SRC.length){ var m=document.getElementById("m"); if(m){ m.textContent="Could not load "+page+"."; } return; }
-    fetch(UGS_SRC[i++]+page+"?t="+ugsStamp(),{cache:"no-store"})
+    fetch(UGS_SRC[i++]+page,{cache:"no-cache"})
       .then(function(r){ if(!r.ok){ throw new Error(r.status); } return r.text(); })
       .then(function(h){
         if(!/id="grid"/.test(String(h)) || !/ugsOpenPage/.test(String(h))){ throw new Error("unexpected page"); }
