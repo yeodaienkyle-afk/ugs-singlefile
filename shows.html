@@ -111,9 +111,8 @@ var LIB={"N":{"1gXO5GSzGhlaL32uNs38ZgTjNCglboLt4":["Fullmetal Alchemist BrotherH
 
 /* UGS page router. Pages are fetched from jsDelivr and written into a document we
    control, so series folders open in our own tab and never leave the site. */
-var UGS_SRC=["https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/",
-             "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/",
-             "https://raw.githubusercontent.com/yeodaienkyle-afk/ugs-singlefile/main/"];
+var UGS_SRC=["https://raw.githubusercontent.com/yeodaienkyle-afk/ugs-singlefile/main/",
+             "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/"];
 var UGS_TAG="<"+"script>", UGS_END="<"+"/script>";
 function ugsStamp(){ try{ var k="ugs_build_stamp", v=sessionStorage.getItem(k); if(!v){ v=String(Date.now()); sessionStorage.setItem(k,v); } return v; }catch(e){ return String(Date.now()); } }
 var UGS_BOOT='(function(){var S='+JSON.stringify(UGS_SRC)+';'+
