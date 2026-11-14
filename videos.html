@@ -243,6 +243,8 @@ function launchDrive(id,name){
 }
 pickBtns.onclick=function(e){
   var a=e.target.closest?e.target.closest("a"):null; if(!a) return;
+  var sf=a.getAttribute("data-sfdub");
+  if(sf){ e.preventDefault(); chooser.classList.remove("on"); ugsOpenPage("shows.html","f="+sf,"Shows"); return; }
   var id=a.getAttribute("data-drive"); if(!id) return;
   e.preventDefault(); chooser.classList.remove("on"); launchDrive(id, pickTitle.textContent);
 };
@@ -267,8 +269,11 @@ grid.onclick=function(e){
   var dubs=JSON.parse(decodeURIComponent(card.getAttribute("data-dub")));
   pickTitle.textContent=card.getAttribute("data-title");
   pickBtns.innerHTML=dubs.map(function(d){
-    var did=/\/file\/d\/([A-Za-z0-9_-]+)/.exec(d.u||"");
-    return '<a class="'+(/japan/i.test(d.l)?"jp":"")+'" href="'+esc(d.u)+'"'+(did?' data-drive="'+esc(did[1])+'"':' target="_blank" rel="noopener"')+'>'+esc(d.l)+'</a>';
+    var u=d.u||"", did=/\/file\/d\/([A-Za-z0-9_-]+)/.exec(u), fdr=/\/folders\/([A-Za-z0-9_-]+)/.exec(u);
+    var cls=/japan/i.test(d.l)?"jp":"";
+    if(fdr) return '<a class="'+cls+'" href="#" data-sfdub="'+esc(fdr[1])+'">'+esc(d.l)+'</a>';
+    if(did) return '<a class="'+cls+'" href="#" data-drive="'+esc(did[1])+'">'+esc(d.l)+'</a>';
+    return '<a class="'+cls+'" href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(d.l)+'</a>';
   }).join("");
   chooser.classList.add("on");
 };
