@@ -171,7 +171,7 @@ body.noglow *{box-shadow:none!important}
 #lolbutton:hover{border-color:#a46bff;box-shadow:0 0 12px rgba(164,107,255,.45);color:#fff}
 #game-count{height:38px;padding:0 16px;display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:19px;background:#12161f;color:var(--muted);font-size:12px;white-space:nowrap}
 #sections-container{max-width:1240px;margin:0 auto;padding:10px 20px 40px}
-.letter-section{background:transparent;margin-bottom:26px;scroll-margin-top:90px}
+.letter-section{background:transparent;margin-bottom:26px;scroll-margin-top:90px} body.listmode.cv .letter-section{content-visibility:auto}
 #sidebar{position:fixed;right:6px;top:50%;transform:translateY(-50%);z-index:40;display:flex;flex-direction:column;gap:2px;max-height:78vh;overflow-y:auto;scrollbar-width:none;padding:6px 4px;background:rgba(13,16,23,.85);border:1px solid var(--line);border-radius:10px}
 #sidebar::-webkit-scrollbar{display:none}
 .sidebar-btn{border:none;background:transparent;color:var(--muted);font-size:10px;font-weight:600;width:20px;height:18px;border-radius:5px;cursor:pointer;line-height:1}
@@ -307,7 +307,8 @@ body.listmode .buttons-container{display:grid}
     var countEl = document.getElementById("game-count");
     function updateCount() {
         var n = 0;
-        document.querySelectorAll('.buttons-container input[type="button"]').forEach(function(b){ if(b.offsetParent!==null) n++; });
+        var lm = document.body.classList.contains("listmode");
+        document.querySelectorAll('.buttons-container input[type="button"]').forEach(function(b){ if(b.offsetParent!==null || (lm && b.style.display!=="none")) n++; });
         document.querySelectorAll(".gcard").forEach(function(c){ if(!c.classList.contains("mini") && c.offsetParent!==null) n++; });
         countEl.textContent = n > 0 ? (n + (n === 1 ? " game" : " games")) : "loading games...";
     }
@@ -442,6 +443,7 @@ body.listmode .buttons-container{display:grid}
         document.body.classList.toggle("cardmode", view === "cards");
         document.body.classList.toggle("listmode", view === "list");
         document.body.classList.toggle("noglow", !gl);
+        if (view === "cards" && window.UG && window.UG.ensureCards) window.UG.ensureCards();
     }
     vc.addEventListener("click", function () { view = "cards"; localStorage.setItem("ug_view2", view); apply(); });
     vl.addEventListener("click", function () { view = "list"; localStorage.setItem("ug_view2", view); apply(); });
@@ -494,11 +496,9 @@ var UG = (function () {
         var name = (btn.value || "").replace(/ \(maintenance\)$/, "");
         var card = document.createElement("div");
         card.className = "gcard";
-        var h = nextHue();
+        var h = btn.style.getPropertyValue("--hue") || nextHue();
         card.style.setProperty("--hue", h);
         btn.style.setProperty("--hue", h);
-        btn.style.setProperty("--dur", (14 + (h % 10)) + "s");
-        btn.style.setProperty("--del", (-(h % 14)) + "s");
         card.setAttribute("data-name", btn.value || "");
         card.setAttribute("role", "button");
         card.setAttribute("tabindex", "0");
@@ -646,7 +646,49 @@ var UG = (function () {
         var b = e.target.closest && e.target.closest('.gcard, input[type="button"]');
         if (b) pushRecent(b.value || b.getAttribute("data-name") || "");
     }, true);
-    transformAll(document);
+    var cardsBuilt = false;
+    function paintOne(b) {
+        if (!b || !b.getAttribute || !b.matches || !b.matches('.buttons-container input[type="button"]')) return;
+        if (b.getAttribute("data-hue")) return;
+        b.setAttribute("data-hue", "1");
+        b.style.setProperty("--hue", nextHue());
+    }
+    function paintHues(root) {
+        var scope = (root && root.querySelectorAll) ? root : document;
+        var btns = scope.querySelectorAll('.buttons-container input[type="button"]');
+        for (var i = 0; i < btns.length; i++) paintOne(btns[i]);
+        paintOne(root);
+    }
+    function ensureCards() {
+        if (cardsBuilt) return;
+        cardsBuilt = true;
+        transformAll(document);
+    }
+    var cvTimer = null;
+    function applyCV() {
+        cvTimer = null;
+        if (!document.body.classList.contains("listmode")) return;
+        var wasOn = document.body.classList.contains("cv");
+        if (wasOn) document.body.classList.remove("cv");
+        var secs = document.querySelectorAll(".letter-section");
+        var measured = 0;
+        for (var i = 0; i < secs.length; i++) {
+            var sec = secs[i];
+            if (sec.style.containIntrinsicSize) continue;
+            var h = sec.offsetHeight;
+            if (h > 0) { sec.style.containIntrinsicSize = "auto " + Math.round(h) + "px"; measured++; }
+        }
+        document.body.classList.add("cv");
+    }
+    function scheduleCV() { clearTimeout(cvTimer); cvTimer = setTimeout(applyCV, 1200); }
+    window.addEventListener("resize", function () {
+        document.body.classList.remove("cv");
+        scheduleCV();
+    });
+    scheduleCV();
+    // list view never shows a card, so only colour the buttons; cards get built when needed
+    if (document.body.classList.contains("listmode")) paintHues(document);
+    else ensureCards();
     var target = document.getElementById("sections-container");
     if (target && window.MutationObserver) {
         var mo;
@@ -657,14 +699,17 @@ var UG = (function () {
                     var n = m.addedNodes[j];
                     if (n.nodeType === 1 && !n.matches(".gcard, .strip")) {
                         clearTimeout(mo);
-                        mo = setTimeout(function () { transformAll(document); }, 150);
+                        mo = setTimeout(function () {
+                            if (cardsBuilt) transformAll(document);
+                            else { paintHues(document); scheduleCV(); }
+                        }, 150);
                         return;
                     }
                 }
             }
         }).observe(target, { childList: true, subtree: true });
     }
-    return { transformAll: transformAll };
+    return { transformAll: transformAll, ensureCards: ensureCards, paintHues: paintHues };
 })();
 <\/script>
 
