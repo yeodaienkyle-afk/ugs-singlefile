@@ -204,8 +204,8 @@ body.listmode .buttons-container{display:grid}
 .gtitle{font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 4px rgba(0,0,0,.9)}
 .buttons-container{display:none;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));grid-auto-rows:40px;gap:9px}
 body.listmode .buttons-container{display:grid}
-.buttons-container input[type="button"]{width:100%;height:100%;background:#12161f;border:1px solid hsl(var(--hue,210) 95% 60%/.55);border-radius:10px;padding:0 14px;font-size:13px;color:var(--ink);text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;--hue:210;box-shadow:0 0 7px hsl(var(--hue,210) 95% 55%/.22);animation:hue-flow var(--dur,18s) linear infinite;animation-delay:var(--del,0s);transition:box-shadow .18s ease,background .18s ease,border-color .18s ease}
-.buttons-container input[type="button"]:hover{background:hsl(var(--hue,210) 90% 55%/.13);border-color:hsl(var(--hue,210) 95% 68%);box-shadow:0 0 16px hsl(var(--hue,210) 95% 55%/.6)}
+.buttons-container input[type="button"]{width:100%;height:100%;background:#12161f;border:1px solid hsl(var(--hue,210) 95% 60%/.55);border-radius:10px;padding:0 14px;font-size:13px;color:var(--ink);text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;--hue:210;box-shadow:0 0 7px hsl(var(--hue,210) 95% 55%/.22);transition:box-shadow .18s ease,background .18s ease,border-color .18s ease}
+.buttons-container input[type="button"]:hover{background:hsl(var(--hue,210) 90% 55%/.13);border-color:hsl(var(--hue,210) 95% 68%);box-shadow:0 0 16px hsl(var(--hue,210) 95% 55%/.6);animation:hue-flow 3s linear infinite}
 @keyframes hue-flow{to{filter:hue-rotate(360deg)}}
 .gcard.mini{flex:0 0 150px;width:150px;height:150px}
 .gcard.mini .ph{font-size:32px}
