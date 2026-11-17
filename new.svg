@@ -38,16 +38,15 @@
           '<style>html,body{margin:0;height:100%;background:#0b0d12;color:#9aa3b2;font-family:Segoe UI,Roboto,Arial,sans-serif;display:flex;align-items:center;justify-content:center}p{font-size:14px}</style>' +
           '</head><body><p>loading...</p>' +
           '<script>' +
-          'fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/new.html?cb=" + Date.now())' +
-          '.then(response => response.text())' +
-          '.then(html => {' +
-          'document.open();' +
-          'document.write(html);' +
-          'document.close();' +
-          '})' +
-          '.catch(error => {' +
-          'document.body.innerHTML = "Failed to load: " + error;' +
-          '});' +
+          '(function(){' +
+          'var S=["https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/new.html","https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/new.html","https://raw.githubusercontent.com/yeodaienkyle-afk/ugs-singlefile/main/new.html"];' +
+          'function go(i){' +
+          'if(i>=S.length){document.body.innerHTML="Failed to load the page.";return;}' +
+          'fetch(S[i],{cache:"no-cache"}).then(function(r){if(!r.ok)throw new Error(r.status);return r.text();})' +
+          '.then(function(html){if(html.indexOf("const gamesHTML")<0)throw new Error("unexpected page");' +
+          'document.open();document.write(html);document.close();})' +
+          '.catch(function(){go(i+1);});}' +
+          'go(0);})();' +
           '<\/script></body></html>';
         frame.contentDocument.open();
         frame.contentDocument.write(bootstrap);
