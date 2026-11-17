@@ -464,9 +464,9 @@ var UG = (function () {
     var manifest = null;
     var waiters = [];
     var hue = 0;
-    var THUMB_BASE = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/ugs-thumbnails/";
+    var THUMB_BASE = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/ugs-thumbnails/";
     function thumbName(n) { var s = String(n); var i = s.toLowerCase().indexOf(" (maintenance)"); return i >= 0 ? s.slice(0, i) : s; }
-    fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/ugs-thumbnails/manifest.json")
+    fetch("https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/ugs-thumbnails/manifest.json")
         .then(function (r) { return r.ok ? r.json() : {}; })
         .then(function (m) { manifest = m || {}; waiters.forEach(function (fn) { try { fn(); } catch (e) {} }); waiters = []; })
         .catch(function () { manifest = {}; waiters.forEach(function (fn) { try { fn(); } catch (e) {} }); waiters = []; });
