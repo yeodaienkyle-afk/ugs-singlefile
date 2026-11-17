@@ -930,10 +930,47 @@ var UG = (function () {
       msg = document.getElementById("ugs-msg");
   if (!pill || !modal) return;
   var mode = "login";
+
+  /* Backup store: Firestore on the Firebase project, keyed by a synthetic email
+     built from the UGS username. Google domains still resolve when our save
+     server is blocked, so this is what keeps saves alive at school. */
+  var FKEY = "AIzaSyCNBY4qmAy3TA81E_TDReZbKmDqhcxkEPM";
+  var FS_DOMAIN = "@ugs-users.web.app";
+  function fsEmail(u) { return String(u || "").trim().toLowerCase() + FS_DOMAIN; }
+  function fsSession() { try { return JSON.parse(localStorage.getItem("ugs:fs") || "null"); } catch (e) { return null; } }
+  function fsStore(username, b) {
+    try {
+      localStorage.setItem("ugs:fs", JSON.stringify({
+        username: username || "",
+        email: b.email || fsEmail(username),
+        uid: b.localId || "",
+        idt: b.idToken || "",
+        rt: b.refreshToken || "",
+        exp: Date.now() + ((parseInt(b.expiresIn, 10) || 3600) * 1000)
+      }));
+    } catch (e) {}
+  }
+  function fsPost(path, body) {
+    return fetch("https://identitytoolkit.googleapis.com/v1/accounts:" + path + "?key=" + FKEY, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
+    }).then(function (r) { return r.json(); });
+  }
+  function fsAuth(username, password) {
+    var body = { email: fsEmail(username), password: password, returnSecureToken: true };
+    return fsPost("signUp", body).then(function (b) {
+      if (b && b.localId) return b;
+      return fsPost("signInWithPassword", body).then(function (b2) {
+        return (b2 && b2.localId) ? b2 : null;
+      });
+    }).catch(function () { return null; });
+  }
+
   function session() { try { return JSON.parse(localStorage.getItem("ugs:auth") || "null"); } catch (e) { return null; } }
   function paint() {
     var s = session();
-    pill.textContent = (s && s.username) ? "@" + s.username + " · sign out" : "Sign in to save";
+    var f = (s && s.username) ? null : fsSession();
+    var name = (s && s.username) || (f && f.username) || null;
+    pill.textContent = name ? "@" + name + " · sign out" : "Sign in to save";
   }
   function setMode(m) {
     mode = m;
@@ -957,18 +994,36 @@ var UG = (function () {
           pass.value = "";
           paint();
           closeModal();
+          // mirror the sign-in into the backup store, best effort
+          fsAuth(u, p).then(function (fb) { if (fb) fsStore(b.username || u, fb); });
         } else {
           msg.textContent = (b && b.error) ? b.error : "that didn't work";
         }
       })
-      .catch(function () { msg.textContent = "can't reach the save server right now"; })
+      .catch(function () {
+        // Our save server is unreachable (school network). Sign in to the backup
+        // store on its own so saves and loads still work across devices.
+        if (mode !== "login") { msg.textContent = "can't reach the save server right now"; return; }
+        msg.textContent = "server unreachable, trying the backup...";
+        return fsAuth(u, p).then(function (fb) {
+          if (fb) {
+            fsStore(u, fb);
+            pass.value = "";
+            msg.textContent = "";
+            paint();
+            closeModal();
+          } else {
+            msg.textContent = "can't reach the save server right now";
+          }
+        });
+      })
       .then(function () { go.disabled = false; });
   }
   pill.addEventListener("click", function () {
-    var s = session();
+    var s = session() || fsSession();
     if (s && s.username) {
       if (confirm("Sign out of @" + s.username + "? Cloud saves stay on the server.")) {
-        try { localStorage.removeItem("ugs:auth"); } catch (e) {}
+        try { localStorage.removeItem("ugs:auth"); localStorage.removeItem("ugs:fs"); } catch (e) {}
         paint();
       }
     } else { openModal(); }
