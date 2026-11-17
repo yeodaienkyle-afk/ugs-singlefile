@@ -188,6 +188,14 @@ body.noglow *{box-shadow:none!important}
 .letter-section.empty{opacity:.55}
 .strip{display:flex;gap:14px;overflow-x:auto;overflow-y:hidden;scroll-behavior:auto;padding:4px 2px 10px;scrollbar-width:none}
 .strip::-webkit-scrollbar{display:none}
+body.listmode #pinned-section,body.listmode #recently-section{display:none}
+#extras-row{display:none;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 18px}
+body.listmode #extras-row{display:flex}
+#extras-row .xlabel{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+#extras-row .xpill{appearance:none;border:1px solid hsl(285 95% 60%/.4);background:#12161f;color:var(--ink);border-radius:999px;padding:6px 12px;font-size:12px;cursor:pointer;white-space:nowrap;font-family:inherit}
+#extras-row .xpill:hover{border-color:hsl(285 95% 60%/.8);box-shadow:0 0 8px hsl(285 95% 60%/.35)}
+#extras-row .xpill.pin{border-color:#ffc371;color:#ffc371}
+#extras-row .xpill.muted{opacity:.5;cursor:default;border-style:dashed;box-shadow:none}
 body.cardmode .strip{display:flex}
 body.listmode .strip{display:none}
 body.cardmode .buttons-container{display:none}
@@ -314,17 +322,24 @@ body.listmode .buttons-container{display:grid}
     }
     if (searchInput) {
         var searchTimer = null;
+        var LC = new WeakMap();
+        function lcName(btn) {
+            var v = LC.get(btn);
+            if (v === undefined) { v = String(btn.value || "").toLowerCase(); LC.set(btn, v); }
+            return v;
+        }
         function runSearch() {
             var query = searchInput.value.toLowerCase().trim();
             var total = 0;
+            var hasCards = document.body.classList.contains("cardmode");
             document.querySelectorAll(".letter-section").forEach(function (section) {
                 var anyVisible = false;
                 section.querySelectorAll('input[type="button"]').forEach(function (btn) {
-                    var ok = query === "" || btn.value.toLowerCase().indexOf(query) !== -1;
+                    var ok = query === "" || lcName(btn).indexOf(query) !== -1;
                     btn.style.display = ok ? "" : "none";
                     if (ok) { anyVisible = true; total++; }
                 });
-                section.querySelectorAll(".gcard").forEach(function (card) {
+                if (hasCards) section.querySelectorAll(".gcard").forEach(function (card) {
                     var ok = query === "" || (card.getAttribute("data-name") || "").toLowerCase().indexOf(query) !== -1;
                     card.style.display = ok ? "" : "none";
                     if (ok) { anyVisible = true; total++; }
@@ -355,6 +370,19 @@ body.listmode .buttons-container{display:grid}
                 clearTimeout(searchTimer);
                 runSearch();
                 this.blur();
+                return;
+            }
+            if (e.key === "Enter" && this.value.trim() !== "") {
+                clearTimeout(searchTimer);
+                runSearch();
+                var secs = document.querySelectorAll(".letter-section");
+                for (var i = 0; i < secs.length; i++) {
+                    if (secs[i].style.display === "none") continue;
+                    var bs = secs[i].querySelectorAll('input[type="button"]');
+                    for (var j = 0; j < bs.length; j++) {
+                        if (bs[j].style.display !== "none") { e.preventDefault(); bs[j].click(); return; }
+                    }
+                }
             }
         });
     }
@@ -621,6 +649,61 @@ var UG = (function () {
         }
         return card;
     }
+    function extrasRow() {
+        var c = document.getElementById("sections-container");
+        var row = document.getElementById("extras-row");
+        if (!row) {
+            row = document.createElement("div");
+            row.id = "extras-row";
+            c.insertBefore(row, c.firstChild);
+        }
+        return row;
+    }
+    function extrasPill(name, pinned) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "xpill" + (pinned ? " pin" : "");
+        b.textContent = (pinned ? "\u2605 " : "") + String(name).replace(/ \(maintenance\)$/, "");
+        b.title = pinned ? "click to open, right-click to unpin" : "click to open, right-click to pin";
+        b.onclick = function (ev) {
+            ev.preventDefault(); ev.stopPropagation();
+            var btn = findBtn(name);
+            if (btn) btn.click();
+        };
+        b.oncontextmenu = function (ev) {
+            ev.preventDefault(); ev.stopPropagation();
+            togglePin(name);
+            refreshExtras();
+        };
+        return b;
+    }
+    function renderExtrasRow() {
+        var row = extrasRow();
+        row.innerHTML = "";
+        var pins = lsArr(LS_PIN).filter(function (n) { return !!findBtn(n); });
+        var recs = lsArr(LS_REC).filter(function (n) { return !!findBtn(n) && pins.indexOf(n) === -1; }).slice(0, 10);
+        if (!pins.length && !recs.length) {
+            var hint = document.createElement("span");
+            hint.className = "xpill muted";
+            hint.textContent = "right-click any game to pin it";
+            row.appendChild(hint);
+            return;
+        }
+        if (pins.length) {
+            var lp = document.createElement("span");
+            lp.className = "xlabel";
+            lp.textContent = "pinned";
+            row.appendChild(lp);
+            pins.slice(0, 12).forEach(function (n) { row.appendChild(extrasPill(n, true)); });
+        }
+        if (recs.length) {
+            var lr = document.createElement("span");
+            lr.className = "xlabel";
+            lr.textContent = "recent";
+            row.appendChild(lr);
+            recs.forEach(function (n) { row.appendChild(extrasPill(n, false)); });
+        }
+    }
     function refreshExtras() {
         var pinSec = extrasSection("pinned-section", "pinned");
         var recSec = extrasSection("recently-section", "recently played");
@@ -633,6 +716,7 @@ var UG = (function () {
         recs.forEach(function (n) { recStrip.appendChild(miniCard(n, false)); });
         pinSec.hidden = pins.length === 0;
         recSec.hidden = recs.length === 0;
+        renderExtrasRow();
     }
     function pushRecent(name) {
         if (!name) return;
@@ -641,6 +725,13 @@ var UG = (function () {
         lsSave(LS_REC, r.slice(0, 24));
         refreshExtras();
     }
+    document.addEventListener("contextmenu", function (e) {
+        var b = e.target.closest && e.target.closest('input[type="button"]');
+        if (!b || !b.value) return;
+        e.preventDefault();
+        togglePin(b.value);
+        refreshExtras();
+    });
     document.addEventListener("click", function (e) {
         if (e.target.closest && e.target.closest(".pinbtn")) return;
         var b = e.target.closest && e.target.closest('.gcard, input[type="button"]');
@@ -689,6 +780,7 @@ var UG = (function () {
     // list view never shows a card, so only colour the buttons; cards get built when needed
     if (document.body.classList.contains("listmode")) paintHues(document);
     else ensureCards();
+    refreshExtras();
     var target = document.getElementById("sections-container");
     if (target && window.MutationObserver) {
         var mo;
@@ -701,7 +793,7 @@ var UG = (function () {
                         clearTimeout(mo);
                         mo = setTimeout(function () {
                             if (cardsBuilt) transformAll(document);
-                            else { paintHues(document); scheduleCV(); }
+                            else { paintHues(document); scheduleCV(); refreshExtras(); }
                         }, 150);
                         return;
                     }
