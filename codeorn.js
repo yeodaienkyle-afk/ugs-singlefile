@@ -1089,7 +1089,6 @@ let files = [
   "clgoodbigtowertinysquare",
   "clgoodbigtowertinysquare2",
   "clgoodboygalaxy",
-  "clgoodmonkeymart",
   "clgooftroopsnes",
   "clgooglebaseball",
   "clgoogledino",
@@ -1598,8 +1597,7 @@ let files = [
   "clmomimsleeping",
   "clmomoscrushers",
   "clmoneyrush",
-  
-  "clmonkeymartenc",
+  "clmonkeymart",
   "clmonsterderby",
   "clmonsterswing",
   "clmonstertracks",
