@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>nav test</title></head>
+<body style="background:#0b0d12;color:#9aa3b2;font:14px 'Segoe UI',sans-serif;padding:20px">harness loading...</body>
+<script>
+fetch('https://raw.githubusercontent.com/yeodaienkyle-afk/ugs-singlefile/2c67d82/new.html').then(function(r){return r.text()}).then(function(t){
+  var m='const gamesHTML = `', i=t.indexOf(m)+m.length, j=i;
+  for(;j<t.length;j++){var c=t.charAt(j); if(c==='\\'){j++;continue;} if(c==='`')break;}
+  var body=t.slice(i,j).replace('${JSON.stringify(PHRASES)}','[]');
+  document.open(); document.write(body); document.close();
+}).catch(function(e){document.body.textContent='harness error: '+e;});
+</script>
+</html>
