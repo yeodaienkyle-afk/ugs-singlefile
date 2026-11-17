@@ -129,6 +129,9 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:v
 #ugs3frame{flex:1 1 auto;width:100%;height:100%;border:0;background:#0b0d12;display:block}
 #ugs3msg{display:none;padding:26px 22px;color:var(--muted);font-size:14px;line-height:1.6}
 body.ugs3lib #ugs-auth,body.ugs3lib #ug-wm{display:none!important}
+body.ugs3lib #cursor-orb{display:none!important}
+body.ugs3lib #ugs3frame{cursor:auto}
+body.ugs3lib .hero,body.ugs3lib .toolbar,body.ugs3lib #sections-container,body.ugs3lib #sidebar{display:none!important}
 .material{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;border:none;background:transparent;cursor:pointer}
 .material:hover{background:#1c2130}
 svg.icon{width:22px;height:22px;fill:#9aa3b2}
@@ -748,7 +751,7 @@ var UG = (function () {
     document.addEventListener("touchstart", function (e) { var s = e.target.closest && e.target.closest(".strip"); if (s) paused.add(s); }, { passive: true });
     document.addEventListener("touchend", function (e) { var s = e.target.closest && e.target.closest(".strip"); if (s) setTimeout(function () { paused.delete(s); }, 1200); }, { passive: true });
     function tick() {
-        if (!document.hidden && !document.body.classList.contains("listmode") && localStorage.getItem("ug_rotate") !== "0") {
+        if (!document.hidden && !document.body.classList.contains("ugs3lib") && !document.body.classList.contains("listmode") && localStorage.getItem("ug_rotate") !== "0") {
             var strips = document.querySelectorAll(".strip");
             for (var i = 0; i < strips.length; i++) {
                 var s = strips[i];
