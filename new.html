@@ -62,7 +62,6 @@ svg.icon{width:22px;height:22px;fill:#9aa3b2}
 <div class="nav-grid">
 <div class="nav-card" onclick="openPage(gamesHTML)"><div class="nav-icon"><img src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/controller-icon.png" alt="" draggable="false"/></div><div class="nav-name">games</div><div class="nav-desc">full game list &middot; opens as about:blank</div></div>
 <div class="nav-card" onclick="openPage(informationHTML)"><div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.4"/><circle cx="12" cy="7.9" r=".6" fill="currentColor"/></svg></div><div class="nav-name">information</div><div class="nav-desc">night sky &middot; opens as about:blank</div></div>
-<div class="nav-card" onclick="openPage(contactHTML)"><div class="nav-icon"><svg viewBox="0 0 24 24"><rect x="2.8" y="5" width="18.4" height="14" rx="2.4"/><path d="M3.4 6.6l8.6 6.4 8.6-6.4"/></svg></div><div class="nav-name">contact</div><div class="nav-desc">hit us up &middot; opens as about:blank</div></div>
 </div>
 
 <p class="hint">games open in new tabs labelled about:blank. if nothing happens when you click, allow popups for this page.</p>
@@ -119,6 +118,16 @@ const gamesHTML = `<!DOCTYPE html>
 *{box-sizing:border-box;margin:0;padding:0;cursor:none!important}
 body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
 .appbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;background:#0d1017;padding:8px 16px;border-bottom:1px solid var(--line)}
+#ugs3mount{gap:8px}
+#ugs3bar{display:flex;gap:8px;flex-wrap:wrap;width:100%;max-width:1240px;margin:0 auto}
+#ugs3bar button{height:32px;padding:0 18px;border-radius:999px;border:1px solid var(--line);background:#13161f;color:#c9d2e0;font:700 12px 'Segoe UI',Roboto,Arial,sans-serif;letter-spacing:1.1px;cursor:pointer;transition:border-color .15s,color .15s,background .15s,box-shadow .15s}
+#ugs3bar button:hover{border-color:#a46bff;color:#fff;box-shadow:0 0 12px rgba(164,107,255,.35)}
+#ugs3bar button.on{background:#a46bff;border-color:#a46bff;color:#0b0d12;cursor:default;box-shadow:0 0 14px rgba(164,107,255,.5)}
+#ugs3view{position:fixed;inset:0;z-index:70;background:var(--bg);display:none;flex-direction:column}
+#ugs3view .ugs3top{display:flex;align-items:center;gap:8px;padding:8px 16px;background:#0d1017;border-bottom:1px solid var(--line)}
+#ugs3view .ugs3top #ugs3bar{max-width:none}
+#ugs3frame{flex:1 1 auto;width:100%;height:100%;border:0;background:#0b0d12;display:block}
+#ugs3msg{display:none;padding:26px 22px;color:var(--muted);font-size:14px;line-height:1.6}
 .material{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;border:none;background:transparent;cursor:pointer}
 .material:hover{background:#1c2130}
 svg.icon{width:22px;height:22px;fill:#9aa3b2}
@@ -237,7 +246,7 @@ body.listmode .buttons-container{display:grid}
 <div class="gate-sub">read this, tick the box, then you can start</div>
 <div class="gate-cols">
 <section class="gate-sec"><h3>terms &amp; conditions</h3><ul><li>this site is for entertainment only. use it responsibly.</li><li>if you snitch this site to a teacher, you agree to pay a penalty fee of <b>$500</b>. no warnings, no refunds.</li><li>what happens in the hub stays in the hub.</li></ul></section>
-<section class="gate-sec"><h3>privacy policy</h3><ul><li>the site code is private. you may not copy, reuse or republish it without permission.</li><li>want the code? ask through the contact page and we will give it to you.</li><li>we do not collect or share any personal data.</li></ul></section>
+<section class="gate-sec"><h3>privacy policy</h3><ul><li>the site code is private. you may not copy, reuse or republish it without permission.</li><li>want the code? ask us directly and we will give it to you.</li><li>we do not collect or share any personal data.</li></ul></section>
 </div>
 <label class="gate-check"><input type="checkbox" id="agree-check"><span>I have read and agree to the Terms &amp; Conditions and Privacy Policy</span></label>
 <button id="gate-start" class="gate-btn" disabled>START</button>
@@ -261,7 +270,7 @@ body.listmode .buttons-container{display:grid}
 })();
 <\/script>
 
-<div class="appbar"></div>
+<div class="appbar" id="ugs3mount"></div>
 
 <div class="hero">
 <div class="title-block"><h1 id="site-title" class="site-title">free tutoring</h1><p class="credits">ported by powerenkyle2 and mr tan who never did work</p></div>
@@ -923,6 +932,104 @@ var UG = (function () {
   paint();
 })();
 <\/script>
+
+<script>
+/* the three bars: games / videos / books, all inside this one tab */
+(function () {
+  var SRC = ["https://raw.githubusercontent.com/yeodaienkyle-afk/ugs-singlefile/main/", "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/"];
+  var PAGES = { videos: "videos.html", books: "books.html" };
+  var CACHE = {};
+  var here = "games", bar = null, view = null, top = null, frame = null, msg = null;
+
+  function mountBar() {
+    if (bar) return bar;
+    bar = document.createElement("div");
+    bar.id = "ugs3bar";
+    bar.innerHTML = '<button type="button" data-p="games">games</button><button type="button" data-p="videos">videos</button><button type="button" data-p="books">books</button>';
+    var home = document.getElementById("ugs3mount") || document.body;
+    home.appendChild(bar);
+    bar.addEventListener("click", function (e) {
+      var b = (e.target && e.target.closest) ? e.target.closest("button[data-p]") : null;
+      if (b) go(b.getAttribute("data-p"));
+    });
+    return bar;
+  }
+  function paint() {
+    var bs = mountBar().getElementsByTagName("button");
+    for (var i = 0; i < bs.length; i++) {
+      bs[i].className = (bs[i].getAttribute("data-p") === here) ? "on" : "";
+    }
+  }
+  function shell() {
+    if (view) return view;
+    view = document.createElement("div");
+    view.id = "ugs3view";
+    top = document.createElement("div");
+    top.className = "ugs3top";
+    msg = document.createElement("div");
+    msg.id = "ugs3msg";
+    frame = document.createElement("iframe");
+    frame.id = "ugs3frame";
+    frame.setAttribute("allow", "autoplay; fullscreen; encrypted-media; clipboard-write");
+    view.appendChild(top);
+    view.appendChild(msg);
+    view.appendChild(frame);
+    document.body.appendChild(view);
+    return view;
+  }
+  function show(text) {
+    if (frame) frame.style.display = "none";
+    if (msg) { msg.style.display = "block"; msg.textContent = text; }
+  }
+  function writeDoc(h) {
+    var d = null;
+    try { d = frame.contentDocument || frame.contentWindow.document; } catch (e) {}
+    if (!d) { show("this browser will not let the page load in here"); return; }
+    try {
+      d.open(); d.write(h); d.close();
+      frame.style.display = "block"; msg.style.display = "none";
+    } catch (e2) { show("could not open " + here); }
+  }
+  function looksRight(h, page) {
+    h = String(h);
+    if (h.length < 4000 || h.indexOf('id="grid"') === -1) return false;
+    if (page === "videos") return h.indexOf("<title>Videos</title>") !== -1;
+    if (page === "books") return h.indexOf("<title>Books</title>") !== -1;
+    return true;
+  }
+  function load(page, i) {
+    if (!PAGES[page] || i >= SRC.length) { show("could not load " + page + " right now"); return; }
+    show("loading " + page + "...");
+    fetch(SRC[i] + PAGES[page], { cache: "no-cache" }).then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      return r.text();
+    }).then(function (h) {
+      if (!looksRight(h, page)) throw new Error("unexpected page");
+      CACHE[page] = h;
+      if (here === page) writeDoc(h);
+    }).catch(function () { load(page, i + 1); });
+  }
+  function go(page) {
+    if (page === here) return;
+    if (page === "games") { back(); return; }
+    here = page;
+    shell();
+    view.style.display = "flex";
+    if (bar.parentNode !== top) top.appendChild(bar);
+    paint();
+    if (CACHE[page]) writeDoc(CACHE[page]); else load(page, 0);
+  }
+  function back() {
+    here = "games";
+    if (view) view.style.display = "none";
+    var home = document.getElementById("ugs3mount") || document.body;
+    if (bar && bar.parentNode !== home) home.appendChild(bar);
+    paint();
+  }
+  window.ugs3go = go;
+  paint();
+})();
+<\/script>
 </body>
 </html>`;
 
@@ -1027,98 +1134,6 @@ body{font-family:Georgia,'Times New Roman',serif;color:#f4f7f8;display:flex;alig
 </body>
 </html>`;
 
-const contactHTML = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0b0d12">
-<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
-<script>(function(){try{var f=localStorage.getItem("ug_disguise_favicon"),t=localStorage.getItem("ug_disguise_title");if(!f&&localStorage.getItem("ug_disguise")==="sls"){f="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/sls-favicon.png";}if(f){var l=document.querySelector('link[rel~="icon"]');if(l){l.href=f;}}if(t){document.title=t;}}catch(e){}})();<\/script>
-<title>Home</title>
-<style>
-@property --orb-h{syntax:'<number>';initial-value:210;inherits:false}
-:root{color-scheme:dark;--ink:#e8eaed;--muted:#9aa3b2;--line:#232838;--bg:#0b0d12;--card:#13161f}
-*{box-sizing:border-box;margin:0;padding:0;cursor:none!important}
-body{min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);padding:28px 16px}
-.wrap{width:100%;max-width:540px;text-align:center}
-h1{font-size:clamp(30px,6vw,44px);font-weight:800;background:linear-gradient(90deg,#ff5f6d,#ffc371,#f7ff47,#47f0a3,#4facfe,#a46bff,#ff5f6d);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:slide 6s linear infinite}
-@keyframes slide{to{background-position:300% 0}}
-.arcade{margin-top:10px;font-family:'Courier New',monospace;font-size:12px;letter-spacing:2px;color:var(--muted)}
-.form-card{position:relative;margin-top:26px;border-radius:14px;border:2px solid transparent;background:var(--card);background-clip:padding-box;padding:20px;text-align:left}
-.form-card::before{content:"";position:absolute;inset:-2px;z-index:-1;border-radius:16px;background:conic-gradient(from 0deg,#ff5f6d,#ffc371,#f7ff47,#47f0a3,#4facfe,#a46bff,#ff5f6d);animation:hue 6s linear infinite;opacity:.8}
-@keyframes hue{to{filter:hue-rotate(360deg)}}
-.form-card::after{content:"";position:absolute;inset:1px;z-index:-1;border-radius:13px;background:var(--card)}
-label{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px}
-.form-card label:first-child{margin-top:0}
-input[type="text"],textarea{width:100%;background:#0d1017;border:1px solid var(--line);border-radius:9px;color:var(--ink);font-family:inherit;font-size:14px;padding:10px 12px}
-textarea{min-height:110px;resize:vertical}
-input:focus,textarea:focus{outline:none;border-color:#a46bff;box-shadow:0 0 10px rgba(164,107,255,.4)}
-.send{margin-top:16px;width:100%;height:44px;border:none;border-radius:10px;cursor:pointer;font-family:'Courier New',monospace;font-weight:700;font-size:15px;letter-spacing:1px;color:#0b0d12;background:linear-gradient(90deg,#47f0a3,#4facfe,#a46bff)}
-.send:hover{filter:brightness(1.15)}
-.note{margin-top:14px;font-size:12px;color:var(--muted);line-height:1.5}
-.note a{color:#4facfe}
-#sent{display:none;margin-top:14px;padding:10px 12px;border:1px solid rgba(71,240,163,.5);border-radius:9px;color:#47f0a3;font-size:13px}
-#cursor-orb{position:fixed;left:0;top:0;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;--orb-h:210;background:radial-gradient(circle,hsl(var(--orb-h) 95% 62%/.5) 0%,hsl(calc(var(--orb-h) + 75) 95% 60%/.2) 70%,transparent 100%);border:2px solid hsl(var(--orb-h) 95% 72%/.9);box-shadow:0 0 12px hsl(var(--orb-h) 95% 62%/.55);pointer-events:none;z-index:2147483647;will-change:transform;animation:orb-hue 5s linear infinite}
-@keyframes orb-hue{from{--orb-h:0}to{--orb-h:360}}
-</style>
-</head>
-<body>
-<div class="wrap">
-<h1>contact</h1>
-<p class="arcade">&gt; INSERT MESSAGE TO SEND &lt;</p>
-<form class="form-card" id="cform">
-<label for="cname">name</label>
-<input type="text" id="cname" name="name" maxlength="80" autocomplete="nickname" placeholder="your name (or don't)">
-<label for="cmsg">message</label>
-<textarea id="cmsg" name="message" maxlength="2000" placeholder="broken game? game request? code permission? type it here" required></textarea>
-<button class="send" type="submit">SEND IT</button>
-<div id="sent" role="status" aria-live="polite">message received. if you asked for the code, we'll get back to you.</div>
-</form>
-<p class="note">want the site code? ask for permission here and we will give it to you.</p>
-</div>
-<div id="cursor-orb"></div>
-<script>
-(function () {
-    var f = document.getElementById("cform");
-    var sent = document.getElementById("sent");
-    var sendBtn = f.querySelector(".send");
-    f.addEventListener("submit", function (e) {
-        e.preventDefault();
-        var msg = document.getElementById("cmsg").value.trim();
-        var name = document.getElementById("cname").value.trim();
-        if (!msg) return;
-        sendBtn.disabled = true;
-        var old = sendBtn.textContent;
-        sendBtn.textContent = "sending...";
-        fetch("https://superagent-9b1c1681.base44.app/functions/ugsContactSubmit", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: msg, nickname: name })
-        }).then(function (r) { return r.ok ? r.json() : Promise.reject(); })
-          .then(function (j) { if (!j.ok) return Promise.reject(); sent.textContent = "message received. if you asked for the code, we'll get back to you."; sent.style.display = "block"; f.reset(); })
-          .catch(function () { sent.textContent = "couldn't send right now. try again later."; sent.style.display = "block"; })
-          .then(function () { sendBtn.disabled = false; sendBtn.textContent = old; });
-    });
-    var orb = document.getElementById("cursor-orb");
-    if (!orb) return;
-    var x = -100, y = -100, need = false, scale = 1, scaleTo = 1;
-    function paint() {
-        need = false;
-        scale += (scaleTo - scale) * 0.3;
-        if (Math.abs(scaleTo - scale) > 0.01) need = true;
-        orb.style.transform = "translate3d(" + x + "px," + y + "px,0) scale(" + scale.toFixed(2) + ")";
-        if (need) requestAnimationFrame(paint);
-    }
-    document.addEventListener("pointermove", function (e) { x = e.clientX; y = e.clientY; if (!need) { need = true; requestAnimationFrame(paint); } }, { passive: true });
-    document.addEventListener("pointerover", function (e) {
-        scaleTo = (e.target.closest && e.target.closest("button, a, .nav-card, .gcard, .pinbtn, input[type=button]")) ? 1.5 : 1;
-        if (!need) { need = true; requestAnimationFrame(paint); }
-    }, { passive: true });
-})();
-<\/script>
-</body>
-</html>`;
 </script>
 
 <div id="cursor-orb"></div>
