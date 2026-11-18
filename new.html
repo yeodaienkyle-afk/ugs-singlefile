@@ -550,7 +550,7 @@ var UG = (function () {
         card.addEventListener("click", function () { btn.click(); });
         card.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); btn.click(); } });
         img.addEventListener("error", function () { try { this.remove(); } catch (e) {} });
-        img.src = THUMB_BASE + encodeURIComponent(thumbName(name)) + ".jpg?v=5";
+        img.src = THUMB_BASE + encodeURIComponent(thumbName(name)) + ".jpg?v=6";
         var prev = btn.previousElementSibling;
         while (prev && prev.getAttribute && !prev.getAttribute("data-carded")) prev = prev.previousElementSibling;
         if (prev) {
@@ -631,7 +631,7 @@ var UG = (function () {
         mt.appendChild(t);
         card.appendChild(th);
         card.appendChild(mt);
-        img.src = THUMB_BASE + encodeURIComponent(thumbName(name)) + ".jpg?v=5";
+        img.src = THUMB_BASE + encodeURIComponent(thumbName(name)) + ".jpg?v=6";
         card.addEventListener("click", function () { var b = findBtn(name); if (b) b.click(); });
         card.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); var b = findBtn(name); if (b) b.click(); } });
         if (pinned) {
