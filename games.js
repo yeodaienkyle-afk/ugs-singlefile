@@ -3285,6 +3285,8 @@ let files = [
   "clRockPaperScissors",
   "clReactionTime",
   "clSolaraOS",
+  "clBlockBreaker",
+
 ];
 function generateAllSections() {
   try {
