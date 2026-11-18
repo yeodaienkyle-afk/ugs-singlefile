@@ -248,8 +248,8 @@ body {
 
 </script>
 <script>
-// IE 9+
-document.addEventListener('DOMContentLoaded', init);
+// the hub document.writes this shell into an already-open window, so init may be due now
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 
 // Canvas parameters
 var canvas;
