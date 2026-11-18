@@ -14,9 +14,12 @@ canvas { display: block; }
 <body>
 <script>
 
-/* ---- hub shim: this build has no parent window, so the game's own
-   postMessage handshake is answered here and progress lives in localStorage
-   under the same key the original trusted wrapper used. ---- */
+/* ---- hub shim ----
+   The Edge build runs the game inside an iframe and talks to a trusted parent.
+   With no parent, the game's own postMessage handshake is answered here and
+   progress lives in localStorage under the same key the wrapper used.
+   Two shapes matter: requestData wants {type:'init', data:{gameStats}},
+   while the boot's once() waits for a bare {gameStats}. ---- */
 (function () {
   var KEY = 'surfGameData';
   var DEFAULTS = {
@@ -41,11 +44,12 @@ canvas { display: block; }
   window.addEventListener('message', function (ev) {
     var d = ev.data;
     if (!d || !d.type) return;
-    var reply = function (payload) {
-      try { (ev.source || window).postMessage(payload, '*'); } catch (e) {}
-    };
-    if (d.type === 'requestData' || d.type === 'getGameData') {
-      reply({ type: 'init', data: { gameStats: JSON.stringify(read()) } });
+    var src = ev.source || window;
+    var send = function (payload) { try { src.postMessage(payload, '*'); } catch (e) {} };
+    if (d.type === 'requestData') {
+      send({ type: 'init', data: { gameStats: JSON.stringify(read()) } });
+    } else if (d.type === 'getGameData') {
+      send({ gameStats: JSON.stringify(read()) });
     } else if (d.type === 'saveGameData') {
       write(d.stats);
     }
