@@ -16,26 +16,21 @@ canvas { display: block; }
 <script>
 window.__log=[];
 function L(m){window.__log.push(m);var d=document.getElementById('dbg');if(d)d.textContent=window.__log.join('\n');}
-window.addEventListener('error',function(e){L('ERROR: '+(e.message||'')+' @'+(e.filename||'').split('/').pop()+':'+(e.lineno||''));});
+window.addEventListener('error',function(e){L('ERROR: '+(e.message||''));});
 window.addEventListener('unhandledrejection',function(e){L('REJECT: '+(e.reason&&e.reason.message||e.reason));});
 var _pm=window.postMessage;
-window.postMessage=function(m){try{L('-> post '+(m&&m.type));}catch(e){};return _pm.apply(window,arguments);};
+window.postMessage=function(m){try{L('-> post '+(m&&m.type)+(m&&m.gameStats!==undefined?' [gameStats]':''));}catch(e){};return _pm.apply(window,arguments);};
 window.addEventListener('message',function(e){try{L('<- msg '+(e.data&&e.data.type));}catch(err){}});
-setTimeout(function(){
-  var c=document.querySelectorAll('canvas');
-  L('canvases: '+c.length);
-  if(c[0]){L('canvas size: '+c[0].width+'x'+c[0].height);}
-  var gl=null; try{var t=document.createElement('canvas'); gl=t.getContext('webgl2')||t.getContext('webgl');}catch(e){}
-  L('webgl: '+(gl?'yes':'no'));
-  L('body children: '+document.body.children.length);
-  L('ls key: '+(function(){try{return localStorage.getItem('surfGameData')?'set':'unset';}catch(e){return 'blocked';}})());
-},4000);
+setTimeout(function(){var c=document.querySelectorAll('canvas');L('canvases: '+c.length);if(c[0])L('canvas: '+c[0].width+'x'+c[0].height);L('body kids: '+document.body.children.length);},5000);
 </script>
 <script>
 
-/* ---- hub shim: this build has no parent window, so the game's own
-   postMessage handshake is answered here and progress lives in localStorage
-   under the same key the original trusted wrapper used. ---- */
+/* ---- hub shim ----
+   The Edge build runs the game inside an iframe and talks to a trusted parent.
+   With no parent, the game's own postMessage handshake is answered here and
+   progress lives in localStorage under the same key the wrapper used.
+   Two shapes matter: requestData wants {type:'init', data:{gameStats}},
+   while the boot's once() waits for a bare {gameStats}. ---- */
 (function () {
   var KEY = 'surfGameData';
   var DEFAULTS = {
@@ -60,11 +55,12 @@ setTimeout(function(){
   window.addEventListener('message', function (ev) {
     var d = ev.data;
     if (!d || !d.type) return;
-    var reply = function (payload) {
-      try { (ev.source || window).postMessage(payload, '*'); } catch (e) {}
-    };
-    if (d.type === 'requestData' || d.type === 'getGameData') {
-      reply({ type: 'init', data: { gameStats: JSON.stringify(read()) } });
+    var src = ev.source || window;
+    var send = function (payload) { try { src.postMessage(payload, '*'); } catch (e) {} };
+    if (d.type === 'requestData') {
+      send({ type: 'init', data: { gameStats: JSON.stringify(read()) } });
+    } else if (d.type === 'getGameData') {
+      send({ gameStats: JSON.stringify(read()) });
     } else if (d.type === 'saveGameData') {
       write(d.stats);
     }
