@@ -1,0 +1,47 @@
+<!doctype html><meta charset=utf-8><title>probe</title>
+<style>
+ body{background:#0b0d12;color:#ddd;font:14px system-ui;padding:20px}
+ .row{display:flex;gap:12px;margin:14px 0}
+ .old .gthumb{position:relative;width:240px;height:150px;background:#222;overflow:hidden}
+ .old .gthumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+ .old .gthumb img.loaded{display:block}
+ .new .gthumb{position:relative;width:240px;height:150px;background:#222;overflow:hidden}
+ .new .gthumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .15s}
+ .new .gthumb img.loaded{opacity:1}
+ .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:800;color:#8899ff}
+</style>
+<h3>a: OLD (display:none + lazy)</h3>
+<div class="row old" id="rowOld"></div>
+<h3>b: NEW (opacity + lazy)</h3>
+<div class="row new" id="rowNew"></div>
+<p id="out">measuring…</p>
+<script>
+var URLS = [
+ 'https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/ugs-thumbnails/clCuphead.jpg?v=5',
+ 'https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/ugs-thumbnails/clBendy.jpg?v=5',
+ 'https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/ugs-thumbnails/cl1.jpg?v=5'
+];
+function add(row,url){
+  var t=document.createElement('div'); t.className='gthumb';
+  var i=document.createElement('img'); i.loading='lazy';
+  i.addEventListener('load',function(){this.classList.add('loaded');});
+  i.src=url;
+  var ph=document.createElement('div'); ph.className='ph'; ph.textContent='★';
+  t.appendChild(i); t.appendChild(ph); row.appendChild(t);
+  return i;
+}
+var imgs=[];
+URLS.forEach(function(u){ imgs.push({k:'old',el:add(document.getElementById('rowOld'),u)}); });
+URLS.forEach(function(u){ imgs.push({k:'new',el:add(document.getElementById('rowNew'),u)}); });
+setTimeout(function(){
+  var res={old:{loaded:0,visible:0},new:{loaded:0,visible:0}};
+  imgs.forEach(function(o){
+    var cs=getComputedStyle(o.el);
+    if(o.el.complete && o.el.naturalWidth>0) res[o.k].loaded++;
+    if(cs.display!=='none' && parseFloat(cs.opacity)>0.5 && o.el.naturalWidth>0) res[o.k].visible++;
+  });
+  var txt='OLD loaded='+res.old.loaded+' visible='+res.old.visible+' | NEW loaded='+res.new.loaded+' visible='+res.new.visible;
+  document.getElementById('out').textContent=txt;
+  document.title='RESULT '+txt;
+}, 4000);
+</script>
