@@ -506,6 +506,21 @@ body.listmode .buttons-container{display:grid}
 var UG = (function () {
     var hue = 0;
     var THUMB_BASE = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/ugs-thumbnails/";
+    // jsDelivr has been refusing cache misses on this repo (package size), so a
+    // cover that fails there is retried once against raw.githubusercontent.
+    var RAW_THUMBS = "https://raw.githubusercontent.com/yeodaienkyle-afk/ugs-singlefile/main/ugs-thumbnails/";
+    function thumbUrl(n, alt) {
+        var f = encodeURIComponent(thumbName(n)) + ".jpg";
+        return alt ? RAW_THUMBS + f : THUMB_BASE + f + "?v=6";
+    }
+    function wireThumb(img, n) {
+        img.addEventListener("error", function () {
+            if (this.dataset && this.dataset.alt) { try { this.remove(); } catch (e) {} return; }
+            try { this.dataset.alt = "1"; } catch (e) {}
+            this.src = thumbUrl(n, true);
+        });
+        img.src = thumbUrl(n, false);
+    }
     function thumbName(n) { var s = String(n); var i = s.toLowerCase().indexOf(" (maintenance)"); return i >= 0 ? s.slice(0, i) : s; }
     function nextHue() { hue = (hue + 7) % 360; return hue; }
     function buildCard(btn) {
@@ -549,8 +564,7 @@ var UG = (function () {
         card.appendChild(meta);
         card.addEventListener("click", function () { btn.click(); });
         card.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); btn.click(); } });
-        img.addEventListener("error", function () { try { this.remove(); } catch (e) {} });
-        img.src = THUMB_BASE + encodeURIComponent(thumbName(name)) + ".jpg?v=6";
+        wireThumb(img, name);
         var prev = btn.previousElementSibling;
         while (prev && prev.getAttribute && !prev.getAttribute("data-carded")) prev = prev.previousElementSibling;
         if (prev) {
@@ -631,7 +645,7 @@ var UG = (function () {
         mt.appendChild(t);
         card.appendChild(th);
         card.appendChild(mt);
-        img.src = THUMB_BASE + encodeURIComponent(thumbName(name)) + ".jpg?v=6";
+        wireThumb(img, name);
         card.addEventListener("click", function () { var b = findBtn(name); if (b) b.click(); });
         card.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); var b = findBtn(name); if (b) b.click(); } });
         if (pinned) {
