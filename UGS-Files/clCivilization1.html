@@ -14,6 +14,27 @@
 </head>
 <body>
 <div id="dos"></div>
+<script>
+/* storage shim: js-dos touches localStorage while it initialises, and a sandboxed
+   frame or a locked-down profile throws on that access and kills the player. */
+(function () {
+  var ok = true;
+  try { window.localStorage.getItem("probe"); } catch (e) { ok = false; }
+  if (ok) return;
+  var mem = {};
+  Object.defineProperty(window, "localStorage", {
+    configurable: true,
+    value: {
+      getItem: function (k) { return Object.prototype.hasOwnProperty.call(mem, k) ? mem[k] : null; },
+      setItem: function (k, v) { mem[k] = String(v); },
+      removeItem: function (k) { delete mem[k]; },
+      clear: function () { mem = {}; },
+      key: function (i) { return Object.keys(mem)[i] || null; },
+      get length() { return Object.keys(mem).length; }
+    }
+  });
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/js-dos@8.5.4/dist/js-dos.js"></script>
 <script>
 (function () {
@@ -25,9 +46,7 @@
   ];
   var el = document.getElementById("dos");
 
-  function fail(text) {
-    el.innerHTML = '<p id="msg">' + text + "</p>";
-  }
+  function fail(text) { el.innerHTML = '<p id="msg">' + text + "</p>"; }
 
   function grab(i) {
     if (i >= SOURCES.length) { fail("Could not load the game files. Check the connection and reload."); return; }
@@ -36,14 +55,12 @@
       return r.blob();
     }).then(function (blob) {
       boot(URL.createObjectURL(blob));
-    }).catch(function () {
-      grab(i + 1);
-    });
+    }).catch(function () { grab(i + 1); });
   }
 
   function boot(url) {
-    if (typeof Dos !== "function") { fail("The DOS player did not load."); return; }
-    Dos(el, {
+    if (typeof window.Dos !== "function") { fail("The DOS player did not load."); return; }
+    window.Dos(el, {
       url: url,
       pathPrefix: "https://cdn.jsdelivr.net/npm/js-dos@8.5.4/dist/",
       theme: "dark",
