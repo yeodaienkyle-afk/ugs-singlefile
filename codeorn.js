@@ -3285,6 +3285,7 @@ let files = [
   "clReactionTime",
   "clSolaraOS",
   "clEdgeSurf2",
+  "clCivilization1",
   "clBlockBreaker",
 
 ];
