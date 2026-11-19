@@ -3287,6 +3287,7 @@ let files = [
   "clSolaraOS",
   "clEdgeSurf2",
   "clCivilization1",
+  "clChessStockfish",
   "clBlockBreaker",
 
 ];
