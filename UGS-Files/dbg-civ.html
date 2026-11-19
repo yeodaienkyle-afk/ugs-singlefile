@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+<title>Home</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/js-dos@8.5.4/dist/js-dos.css">
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; }
+  #dos { width: 100vw; height: 100vh; }
+  #msg { color: #cbd5e1; font: 14px/1.5 system-ui, sans-serif; padding: 24px; }
+</style>
+</head>
+<body>
+<div id="log" style="position:fixed;left:0;top:0;z-index:99999;color:#0f0;background:rgba(0,0,0,.85);font:12px/1.45 monospace;padding:8px;white-space:pre-wrap;max-width:100%"></div>
+<script>
+window.__log = [];
+function L(m){ window.__log.push(String(m)); var el=document.getElementById('log'); if(el) el.textContent = window.__log.join('\n'); }
+window.addEventListener('error', function(e){ L('ERROR: ' + (e.message || e.type) + ' @' + (e.filename||'') + ':' + (e.lineno||'')); });
+window.addEventListener('unhandledrejection', function(e){ L('REJECT: ' + (e.reason && (e.reason.message || e.reason))); });
+</script>
+<div id="dos"></div>
+<script src="https://cdn.jsdelivr.net/npm/js-dos@8.5.4/dist/js-dos.js"></script>
+<script>
+(function () {
+  var SHA = "e52f371781c54773d0b4c59232e0baeb45d09351";
+  var BUNDLE = "UGS-Files/civ1.jsdos";
+  var SOURCES = [
+    "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@" + SHA + "/" + BUNDLE,
+    "https://raw.githubusercontent.com/yeodaienkyle-afk/ugs-singlefile/" + SHA + "/" + BUNDLE
+  ];
+  var el = document.getElementById("dos");
+
+  function fail(text) {
+    el.innerHTML = '<p id="msg">' + text + "</p>";
+  }
+
+  function grab(i) {
+    L("fetching source " + i + ": " + SOURCES[i]);
+    if (i >= SOURCES.length) { fail("Could not load the game files. Check the connection and reload."); return; }
+    fetch(SOURCES[i]).then(function (r) {
+      L("  status " + r.status + " type " + r.headers.get("content-type"));
+      if (!r.ok) throw new Error(r.status);
+      return r.blob();
+    }).then(function (blob) {
+      L("  blob bytes " + blob.size);
+      boot(URL.createObjectURL(blob));
+    }).catch(function () {
+      grab(i + 1);
+    });
+  }
+
+  function boot(url) {
+    L("Dos typeof: " + typeof Dos);
+    if (typeof Dos !== "function") { fail("The DOS player did not load."); return; }
+    Dos(el, {
+      url: url,
+      pathPrefix: "https://cdn.jsdelivr.net/npm/js-dos@8.5.4/dist/",
+      theme: "dark",
+      backend: "dosbox",
+      kiosk: true,
+      autoStart: true,
+      mouseCapture: true,
+      onEvent: function (ev, ci) { try { L("event: " + ev + (ci ? " ci=" + JSON.stringify(ci).slice(0,120) : "")); } catch (e) {} }
+    });
+    L("Dos() returned");
+  }
+
+  setTimeout(function () {
+    var c = document.querySelectorAll('canvas');
+    L('--- report --- canvases: ' + c.length + (c[0] ? ' size ' + c[0].width + 'x' + c[0].height : '') + ' | body kids: ' + document.body.children.length + ' | Dos: ' + typeof Dos);
+    var w = document.querySelector('#dos');
+    if (w) L('dos container html len: ' + w.innerHTML.length);
+  }, 8000);
+  grab(0);
+})();
+</script>
+</body>
+</html>
