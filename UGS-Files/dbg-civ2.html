@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+<title>Home</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/js-dos@8.5.4/dist/js-dos.css">
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; }
+  #dos { width: 100vw; height: 100vh; }
+  #msg { color: #cbd5e1; font: 14px/1.5 system-ui, sans-serif; padding: 24px; }
+</style>
+</head>
+<body>
+<div id="log" style="position:fixed;left:0;top:0;z-index:99999;color:#0f0;background:rgba(0,0,0,.85);font:12px/1.45 monospace;padding:8px;white-space:pre-wrap;max-width:100%"></div>
+<script>
+window.__log=[];function L(m){window.__log.push(String(m));var e=document.getElementById('log');if(e)e.textContent=window.__log.join('\n');}
+window.addEventListener('error',function(e){L('ERROR: '+(e.message||e.type));},true);
+window.addEventListener('unhandledrejection',function(e){L('REJECT: '+(e.reason&&(e.reason.message||e.reason)));});
+</script>
+<div id="dos"></div>
+<script>
+/* storage shim: js-dos touches localStorage while it initialises, and a sandboxed
+   frame or a locked-down profile throws on that access and kills the player. */
+(function () {
+  var ok = true;
+  try { window.localStorage.getItem("probe"); } catch (e) { ok = false; }
+  if (ok) return;
+  var mem = {};
+  Object.defineProperty(window, "localStorage", {
+    configurable: true,
+    value: {
+      getItem: function (k) { return Object.prototype.hasOwnProperty.call(mem, k) ? mem[k] : null; },
+      setItem: function (k, v) { mem[k] = String(v); },
+      removeItem: function (k) { delete mem[k]; },
+      clear: function () { mem = {}; },
+      key: function (i) { return Object.keys(mem)[i] || null; },
+      get length() { return Object.keys(mem).length; }
+    }
+  });
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/js-dos@8.5.4/dist/js-dos.js"></script>
+<script>
+(function () {
+  var SHA = "e52f371781c54773d0b4c59232e0baeb45d09351";
+  var BUNDLE = "UGS-Files/civ1.jsdos";
+  var SOURCES = [
+    "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@" + SHA + "/" + BUNDLE,
+    "https://raw.githubusercontent.com/yeodaienkyle-afk/ugs-singlefile/" + SHA + "/" + BUNDLE
+  ];
+  var el = document.getElementById("dos");
+
+  function fail(text) { el.innerHTML = '<p id="msg">' + text + "</p>"; }
+
+  function grab(i) {
+    L("fetch " + i);
+    if (i >= SOURCES.length) { fail("Could not load the game files. Check the connection and reload."); return; }
+    fetch(SOURCES[i]).then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      L("  status " + r.status);
+      return r.blob();
+    }).then(function (blob) {
+      L("  blob " + blob.size);
+      boot(URL.createObjectURL(blob));
+    }).catch(function () { grab(i + 1); });
+  }
+
+  function boot(url) {
+    L("Dos: " + typeof window.Dos);
+    if (typeof window.Dos !== "function") { fail("The DOS player did not load."); return; }
+    window.Dos(el, {
+      url: url,
+      pathPrefix: "https://cdn.jsdelivr.net/npm/js-dos@8.5.4/dist/",
+      theme: "dark",
+      backend: "dosbox",
+      kiosk: true,
+      autoStart: true,
+      mouseCapture: true,
+      onEvent: function (ev) { try { L("event " + ev); } catch (e) {} }
+    });
+    L("Dos called");
+  }
+
+  setTimeout(function () {
+    var c = document.querySelectorAll('canvas');
+    L('--- report: canvases ' + c.length + (c[0] ? ' ' + c[0].width + 'x' + c[0].height : '') + ' | kids ' + document.body.children.length + ' | Dos ' + typeof window.Dos);
+    var w = document.getElementById('dos');
+    if (w) L('dos inner len ' + w.innerHTML.length);
+  }, 9000);
+  grab(0);
+})();
+</script>
+</body>
+</html>
