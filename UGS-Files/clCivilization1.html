@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+<title>Home</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/js-dos@8.5.4/dist/js-dos.css">
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; }
+  #dos { width: 100vw; height: 100vh; }
+  #msg { color: #cbd5e1; font: 14px/1.5 system-ui, sans-serif; padding: 24px; }
+</style>
+</head>
+<body>
+<div id="dos"></div>
+<script src="https://cdn.jsdelivr.net/npm/js-dos@8.5.4/dist/js-dos.js"></script>
+<script>
+(function () {
+  var SHA = "e52f371781c54773d0b4c59232e0baeb45d09351";
+  var BUNDLE = "UGS-Files/civ1.jsdos";
+  var SOURCES = [
+    "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@" + SHA + "/" + BUNDLE,
+    "https://raw.githubusercontent.com/yeodaienkyle-afk/ugs-singlefile/" + SHA + "/" + BUNDLE
+  ];
+  var el = document.getElementById("dos");
+
+  function fail(text) {
+    el.innerHTML = '<p id="msg">' + text + "</p>";
+  }
+
+  function grab(i) {
+    if (i >= SOURCES.length) { fail("Could not load the game files. Check the connection and reload."); return; }
+    fetch(SOURCES[i]).then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      return r.blob();
+    }).then(function (blob) {
+      boot(URL.createObjectURL(blob));
+    }).catch(function () {
+      grab(i + 1);
+    });
+  }
+
+  function boot(url) {
+    if (typeof Dos !== "function") { fail("The DOS player did not load."); return; }
+    Dos(el, {
+      url: url,
+      pathPrefix: "https://cdn.jsdelivr.net/npm/js-dos@8.5.4/dist/",
+      theme: "dark",
+      backend: "dosbox",
+      kiosk: true,
+      autoStart: true,
+      mouseCapture: true
+    });
+  }
+
+  grab(0);
+})();
+</script>
+</body>
+</html>
