@@ -3285,6 +3285,7 @@ let files = [
   "clRockPaperScissors",
   "clReactionTime",
   "clSolaraOS",
+  "clPetRockSimulator",
   "clEdgeSurf2",
   "clCivilization1",
   "clChessStockfish",
