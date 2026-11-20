@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+<title>Home</title>
+<style>
+  html,body{margin:0;height:100%;background:#101418;color:#dfe6ee;font:14px/1.5 system-ui,sans-serif}
+  #s{display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:10px}
+  .bar{width:220px;height:4px;background:#243040;border-radius:2px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:#7ec87a;transition:width .2s}
+</style>
+</head>
+<body>
+<div id="s"><div>loading pet rock</div><div class="bar"><i id="b"></i></div></div>
+<script>
+(function () {
+  var SHA = "4b34209961eceaabf5cf6f3cd24138cc71e970a1";
+  var N = 11;
+  var BASES = [
+    "https://raw.githubusercontent.com/yeodaienkyle-afk/ugs-singlefile/" + SHA + "/UGS-Files/prs/",
+    "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@" + SHA + "/UGS-Files/prs/"
+  ];
+  var bar = document.getElementById("b");
+  function name(i) { return "part-" + (i < 10 ? "0" + i : "" + i) + ".txt"; }
+  function fetchAll(base, i, acc) {
+    if (i > N) return Promise.resolve(acc);
+    return fetch(base + name(i)).then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      return r.text();
+    }).then(function (t) {
+      acc.push(t);
+      bar.style.width = Math.round((i / N) * 100) + "%";
+      return fetchAll(base, i + 1, acc);
+    });
+  }
+  function tryBase(k) {
+    if (k >= BASES.length) {
+      document.getElementById("s").innerHTML = "<div>could not load the game files</div>";
+      return;
+    }
+    fetchAll(BASES[k], 1, []).then(function (parts) {
+      var html = parts.join("");
+      document.open(); document.write(html); document.close();
+    }).catch(function () { tryBase(k + 1); });
+  }
+  tryBase(0);
+})();
+</script>
+</body>
+</html>
