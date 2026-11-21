@@ -1036,6 +1036,7 @@ let files = [
   "clfnfdesolation",
   "clfnfdocumictxtv3",
   "clfnfdokitakeoverplus",
+  "clfnfdokitakeoverweb",
   "clfnfdropandroll",
   "clfnfdsides",
   "clfnfdustin",
