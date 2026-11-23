@@ -3102,6 +3102,7 @@ let files = [
   "clunownking",
   "cluntime",
   "cluntitledgoosegame",
+  "cluntitledgoosegameweb",
   "clupgradecomplete",
   "clupgradecomplete2",
   "clupslash",
