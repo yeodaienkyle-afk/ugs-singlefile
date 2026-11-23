@@ -729,6 +729,7 @@ let files = [
   "cldigdug",
   "cldigdug2",
   "cldigdug26",
+  "cldiggerscape",
   "cldigitalclock",
   "clDigOutofPrison",
   "cldigtochina",
