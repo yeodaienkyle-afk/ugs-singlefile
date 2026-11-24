@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+/* Address-bar disguise: the hub swaps its own URL for an educational path the instant it loads,
+   so the history entry (and the address bar) never records a game page. history.replaceState is
+   used instead of a hard location.replace so the card grid keeps running: a real navigation to
+   /education would hit the 404 page and the hub would be gone. Reloading /education still lands
+   on the educational 404 page, which is consistent with the URL. */
+(function () {
+  var EDU_PATH = "/education";           /* swap for "/studying" if you prefer */
+  try {
+    if (location.protocol === "file:" || location.pathname === EDU_PATH) return;
+    history.replaceState(history.state, "", EDU_PATH);
+  } catch (e) {}
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0b0d12">
