@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learning Portal | Course Materials</title>
+<meta name="description" content="Course materials, assignments and study resources.">
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+<style>
+  :root{
+    --ink:#16202c; --ink-soft:#4b5b6b; --muted:#75838f;
+    --line:#dfe5ec; --line-soft:#eaeff5;
+    --bg:#f6f8fa; --panel:#ffffff;
+    --navy:#1f3b5c; --navy-deep:#16293f;
+    --accent:#2f6fed; --accent-soft:#eaf1ff;
+    --green:#1f8a5f; --green-soft:#e7f5ee;
+    --amber:#b4751a; --amber-soft:#fdf3e3;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(22,32,44,.06), 0 8px 24px rgba(22,32,44,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+    font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent); text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    background:var(--navy); color:#fff;
+    display:flex; align-items:center; gap:18px;
+    padding:0 22px; height:60px; position:sticky; top:0; z-index:20;
+    box-shadow:0 1px 0 rgba(0,0,0,.15);
+  }
+  .brand{display:flex; align-items:center; gap:10px; font-weight:600; letter-spacing:.2px; white-space:nowrap}
+  .brand-mark{
+    width:30px; height:30px; border-radius:8px; background:#fff; color:var(--navy);
+    display:grid; place-items:center; font-weight:700; font-size:15px; flex:none;
+  }
+  .brand small{display:block; font-weight:400; font-size:11px; opacity:.7; letter-spacing:.4px; text-transform:uppercase}
+  .search{flex:1; max-width:520px; position:relative}
+  .search input{
+    width:100%; height:38px; border-radius:19px; border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.1); color:#fff; padding:0 16px 0 40px; font-size:14px;
+    outline:none; transition:background .15s, border-color .15s;
+  }
+  .search input::placeholder{color:rgba(255,255,255,.6)}
+  .search input:focus{background:#fff; color:var(--ink); border-color:#fff}
+  .search svg{position:absolute; left:14px; top:11px; width:16px; height:16px; opacity:.7; pointer-events:none}
+  .topbar-right{margin-left:auto; display:flex; align-items:center; gap:14px}
+  .term{
+    font-size:12px; padding:5px 10px; border-radius:999px;
+    background:rgba(255,255,255,.12); color:#eaf1ff; white-space:nowrap;
+  }
+  .avatar{
+    width:32px; height:32px; border-radius:50%; background:#8fb3e8; color:#16293f;
+    display:grid; place-items:center; font-size:13px; font-weight:700; flex:none;
+  }
+
+  /* ---------- layout ---------- */
+  .shell{display:flex; align-items:flex-start; gap:0; max-width:1240px; margin:0 auto}
+  .sidebar{
+    width:236px; flex:none; padding:22px 14px; position:sticky; top:60px;
+    align-self:flex-start;
+  }
+  .side-label{
+    font-size:11px; text-transform:uppercase; letter-spacing:.8px;
+    color:var(--muted); font-weight:700; margin:0 0 8px 10px;
+  }
+  .side-nav{list-style:none; margin:0 0 22px; padding:0}
+  .side-nav a{
+    display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:9px;
+    color:var(--ink-soft); font-size:14px; font-weight:500;
+  }
+  .side-nav a:hover{background:#eef2f7; text-decoration:none; color:var(--ink)}
+  .side-nav a.active{background:var(--accent-soft); color:var(--accent); font-weight:600}
+  .dot{width:7px; height:7px; border-radius:50%; background:currentColor; opacity:.5; flex:none}
+  .side-nav a.active .dot{opacity:1}
+
+  main{flex:1; min-width:0; padding:22px 22px 60px}
+  .crumbs{font-size:12.5px; color:var(--muted); margin-bottom:14px}
+  .crumbs span{margin:0 6px; opacity:.6}
+
+  /* ---------- hero ---------- */
+  .hero{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:30px 32px; display:flex; gap:28px; align-items:flex-start;
+    flex-wrap:wrap;
+  }
+  .hero-main{flex:1 1 420px; min-width:280px}
+  .chip{
+    display:inline-flex; align-items:center; gap:7px; font-size:11.5px; font-weight:700;
+    letter-spacing:.6px; text-transform:uppercase; color:var(--amber);
+    background:var(--amber-soft); border:1px solid #f2e2c6; padding:5px 10px; border-radius:999px;
+  }
+  h1{font-size:27px; line-height:1.25; margin:14px 0 10px; letter-spacing:-.3px}
+  .lede{color:var(--ink-soft); font-size:15.5px; max-width:62ch; margin:0 0 18px}
+  .actions{display:flex; gap:10px; flex-wrap:wrap}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px; height:40px; padding:0 18px;
+    border-radius:9px; font-size:14px; font-weight:600; border:1px solid transparent; cursor:pointer;
+  }
+  .btn-primary{background:var(--navy); color:#fff}
+  .btn-primary:hover{background:var(--navy-deep); text-decoration:none}
+  .btn-ghost{background:#fff; color:var(--ink); border-color:var(--line)}
+  .btn-ghost:hover{background:#f3f6fa; text-decoration:none}
+  .hero-aside{
+    flex:0 1 250px; min-width:220px; background:#f9fbfd; border:1px solid var(--line-soft);
+    border-radius:12px; padding:16px 18px;
+  }
+  .hero-aside h2{font-size:12px; text-transform:uppercase; letter-spacing:.7px; color:var(--muted); margin:0 0 10px}
+  .meta{list-style:none; margin:0; padding:0; font-size:13.5px; color:var(--ink-soft)}
+  .meta li{display:flex; justify-content:space-between; gap:12px; padding:6px 0; border-bottom:1px dashed var(--line-soft)}
+  .meta li:last-child{border-bottom:0}
+  .meta b{color:var(--ink); font-weight:600}
+
+  /* ---------- sections ---------- */
+  .section{margin-top:26px}
+  .section-head{display:flex; align-items:baseline; gap:12px; margin-bottom:12px}
+  .section-head h2{font-size:16px; margin:0; letter-spacing:-.1px}
+  .section-head p{margin:0; font-size:13px; color:var(--muted)}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(232px,1fr)); gap:14px}
+  .card{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px 17px;
+    box-shadow:0 1px 2px rgba(22,32,44,.04); transition:box-shadow .15s, transform .15s, border-color .15s;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .card:hover{box-shadow:var(--shadow); transform:translateY(-1px); border-color:#cfd9e4; text-decoration:none}
+  .card .kicker{font-size:11px; letter-spacing:.6px; text-transform:uppercase; color:var(--muted); font-weight:700}
+  .card h3{font-size:14.5px; margin:0; color:var(--ink); letter-spacing:-.1px}
+  .card p{margin:0; font-size:13px; color:var(--ink-soft)}
+  .card .foot{margin-top:auto; font-size:12.5px; color:var(--accent); font-weight:600}
+  .badge{
+    align-self:flex-start; font-size:11px; font-weight:700; letter-spacing:.4px;
+    padding:3px 8px; border-radius:6px; text-transform:uppercase;
+  }
+  .b-green{background:var(--green-soft); color:var(--green)}
+  .b-blue{background:var(--accent-soft); color:var(--accent)}
+  .b-amber{background:var(--amber-soft); color:var(--amber)}
+
+  /* ---------- help strip ---------- */
+  .help{
+    margin-top:26px; background:#fff; border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px 22px; display:flex; gap:18px; align-items:center; flex-wrap:wrap;
+  }
+  .help-icon{
+    width:38px; height:38px; border-radius:10px; background:var(--accent-soft); color:var(--accent);
+    display:grid; place-items:center; flex:none;
+  }
+  .help div{flex:1 1 320px; min-width:240px}
+  .help h2{font-size:14.5px; margin:0 0 3px}
+  .help p{margin:0; font-size:13px; color:var(--ink-soft)}
+
+  footer{
+    border-top:1px solid var(--line); background:#fff; margin-top:34px; padding:22px;
+    font-size:12.5px; color:var(--muted);
+  }
+  .foot-inner{max-width:1240px; margin:0 auto; display:flex; gap:18px; flex-wrap:wrap; justify-content:space-between}
+  .foot-links{display:flex; gap:16px; flex-wrap:wrap}
+
+  @media (max-width:860px){
+    .sidebar{display:none}
+    main{padding:18px 16px 48px}
+    .hero{padding:22px}
+    h1{font-size:22px}
+    .topbar{padding:0 14px; gap:12px}
+    .term{display:none}
+    .search{max-width:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">LP</span>
+    <span>Learning Portal<small>Curriculum Resources</small></span>
+  </div>
+  <div class="search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.6-3.6"></path>
+    </svg>
+    <input type="search" placeholder="Search lessons, units, and resources" aria-label="Search lessons, units and resources">
+  </div>
+  <div class="topbar-right">
+    <span class="term">Term 2 &middot; Week 9</span>
+    <span class="avatar" title="Student account">ST</span>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="sidebar" aria-label="Portal sections">
+    <p class="side-label">Classroom</p>
+    <ul class="side-nav">
+      <li><a href="#" class="active"><span class="dot"></span>Course materials</a></li>
+      <li><a href="#"><span class="dot"></span>Assignments</a></li>
+      <li><a href="#"><span class="dot"></span>Reading list</a></li>
+      <li><a href="#"><span class="dot"></span>Grades &amp; feedback</a></li>
+    </ul>
+    <p class="side-label">Study tools</p>
+    <ul class="side-nav">
+      <li><a href="#"><span class="dot"></span>Revision notes</a></li>
+      <li><a href="#"><span class="dot"></span>Practice quizzes</a></li>
+      <li><a href="#"><span class="dot"></span>Citation guide</a></li>
+      <li><a href="#"><span class="dot"></span>Academic integrity</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <div class="crumbs">
+      <a href="#">Home</a><span>/</span><a href="#">Course materials</a><span>/</span>Unit 4
+    </div>
+
+    <section class="hero">
+      <div class="hero-main">
+        <span class="chip">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
+            <path d="M12 8v5"></path><circle cx="12" cy="17" r="1"></circle>
+            <path d="M10.3 3.9 2.6 17.2a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path>
+          </svg>
+          Page not available
+        </span>
+        <h1>This lesson page isn&rsquo;t in the course index</h1>
+        <p class="lede">
+          The resource you followed may have been moved, renamed, or retired at the end of a term.
+          Nothing on your account has changed &mdash; your submissions, notes, and grades are all intact.
+          Use the sections below to get back to your coursework.
+        </p>
+        <div class="actions">
+          <a class="btn btn-primary" href="#">Return to course materials</a>
+          <a class="btn btn-ghost" href="#">Open my reading list</a>
+        </div>
+      </div>
+
+      <aside class="hero-aside" aria-label="Reference details">
+        <h2>Reference</h2>
+        <ul class="meta">
+          <li><span>Status code</span><b>404</b></li>
+          <li><span>Requested path</span><b id="req-path">/unit-4</b></li>
+          <li><span>Index updated</span><b>Nov 2026</b></li>
+          <li><span>Support</span><b>Library desk</b></li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Continue where you left off</h2>
+        <p>Suggested from your enrolled units</p>
+      </div>
+      <div class="grid">
+        <a class="card" href="#">
+          <span class="badge b-blue">Unit 4</span>
+          <span class="kicker">Biology</span>
+          <h3>Cell Structure and Transport</h3>
+          <p>Guided notes, labelled diagrams, and a 12-question checkpoint.</p>
+          <span class="foot">Open unit &rarr;</span>
+        </a>
+        <a class="card" href="#">
+          <span class="badge b-green">Unit 4</span>
+          <span class="kicker">Mathematics</span>
+          <h3>Linear Functions and Graphs</h3>
+          <p>Worked examples with graded practice on slope and intercepts.</p>
+          <span class="foot">Open unit &rarr;</span>
+        </a>
+        <a class="card" href="#">
+          <span class="badge b-amber">Due Fri</span>
+          <span class="kicker">English</span>
+          <h3>Argumentative Essay Draft</h3>
+          <p>Submit a 500-word draft with two cited sources and a works page.</p>
+          <span class="foot">Open assignment &rarr;</span>
+        </a>
+        <a class="card" href="#">
+          <span class="badge b-blue">New</span>
+          <span class="kicker">History</span>
+          <h3>Primary Source Analysis</h3>
+          <p>Practice sourcing, context, and corroboration with three documents.</p>
+          <span class="foot">Open unit &rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Study resources</h2>
+        <p>Open to every enrolled student</p>
+      </div>
+      <div class="grid">
+        <a class="card" href="#">
+          <span class="kicker">Reference</span>
+          <h3>Citation and Formatting Guide</h3>
+          <p>MLA and APA examples for books, articles, and web sources.</p>
+          <span class="foot">Read guide &rarr;</span>
+        </a>
+        <a class="card" href="#">
+          <span class="kicker">Skills</span>
+          <h3>How to Read a Rubric</h3>
+          <p>Turn assessment criteria into a checklist before you start writing.</p>
+          <span class="foot">Read guide &rarr;</span>
+        </a>
+        <a class="card" href="#">
+          <span class="kicker">Wellbeing</span>
+          <h3>Planning a Study Week</h3>
+          <p>Short sessions, spaced review, and how to avoid last-minute cramming.</p>
+          <span class="foot">Read guide &rarr;</span>
+        </a>
+        <a class="card" href="#">
+          <span class="kicker">Integrity</span>
+          <h3>Using Sources Honestly</h3>
+          <p>Quoting, paraphrasing, and when a citation is required.</p>
+          <span class="foot">Read guide &rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="help">
+      <span class="help-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"></circle><path d="M9.6 9.2a2.5 2.5 0 1 1 3.6 2.3c-.7.4-1.2 1-1.2 1.9"></path>
+          <circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"></circle>
+        </svg>
+      </span>
+      <div>
+        <h2>Still can&rsquo;t find the page?</h2>
+        <p>Ask a librarian or your subject teacher for the current link, or check the course index for this term&rsquo;s updated materials.</p>
+      </div>
+      <a class="btn btn-ghost" href="#">Contact the library desk</a>
+    </section>
+  </main>
+</div>
+
+<footer>
+  <div class="foot-inner">
+    <span>Learning Portal &middot; Curriculum Resources &middot; For enrolled students and staff</span>
+    <span class="foot-links">
+      <a href="#">Accessibility</a>
+      <a href="#">Privacy</a>
+      <a href="#">Help centre</a>
+      <a href="#">Report a broken link</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var el = document.getElementById("req-path");
+    if (!el) return;
+    var p = location.pathname.replace(/\/index\.html?$/i, "/");
+    el.textContent = p.length > 1 ? p : "/";
+  })();
+</script>
+</body>
+</html>
