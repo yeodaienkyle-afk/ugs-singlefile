@@ -15,9 +15,12 @@
    instead of a stale cached copy. Local copy first, then jsDelivr, then raw.githubusercontent. */
 (function () {
     var FILE = "new.html";
+    var ROOT = location.pathname.replace(/[^/]*$/, "");
+    var BASE = location.origin + ROOT;
     var bust = "?t=" + Date.now();
+    window.__UGS_ROOT = ROOT;          /* so the loaded page resolves 404.html from the real folder */
     var SOURCES = [
-        FILE + bust,
+        BASE + FILE + bust,
         "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/" + FILE + bust,
         "https://raw.githubusercontent.com/yeodaienkyle-afk/ugs-singlefile/main/" + FILE + bust
     ];
@@ -39,6 +42,7 @@
     }
 
     grab(0).then(function (html) {
+        try { history.replaceState(null, "", "/education"); } catch (e) {}
         document.open();
         document.write(html);
         document.close();
