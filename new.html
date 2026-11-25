@@ -2,17 +2,35 @@
 <html lang="en">
 <head>
 <script>
-/* Staff-domain gate. If a Google OAuth / ID token reachable from this page belongs to a
-   school staff account, the visitor is sent to the 404 page instead of the hub.
-   Banned: moe.gov.sg, schools.gov.sg, hq.moe.gov.sg (and their subdomains).
-   students.edu.sg is explicitly allowed. Runs before the URL disguise so the 404 path
-   is resolved against the real directory this page was served from. */
+/* Staff-domain gate with a lasting redirect. A Google OAuth / ID token that belongs to a
+   school staff account is not just bounced once: this browser is flagged, and every later
+   load of the hub (refresh, back button, typing the URL again) is redirected to the 404 page
+   until a student-domain token clears the flag.
+   Banned: moe.gov.sg, schools.gov.sg, hq.moe.gov.sg (subdomains included). students.edu.sg passes. */
 (function () {
   var ROOT = location.pathname.replace(/[^/]*$/, "");
   window.__UGS_ROOT = ROOT;
 
   var BANNED = ["moe.gov.sg", "schools.gov.sg", "hq.moe.gov.sg"];
   var ALLOWED = ["students.edu.sg"];
+  var FLAG = "ugs:blocked";
+  var TARGET = ROOT + "404.html";
+
+  function hasFlag() {
+    try { if (localStorage.getItem(FLAG) === "1") return true; } catch (e) {}
+    return document.cookie.indexOf(FLAG + "=1") !== -1;
+  }
+  function setFlag() {
+    try { localStorage.setItem(FLAG, "1"); } catch (e) {}
+    try { document.cookie = FLAG + "=1;path=/;max-age=2592000;samesite=lax"; } catch (e) {}
+  }
+  function clearFlag() {
+    try { localStorage.removeItem(FLAG); } catch (e) {}
+    try { document.cookie = FLAG + "=;path=/;max-age=0;samesite=lax"; } catch (e) {}
+  }
+
+  /* already flagged from an earlier visit: leave before anything renders */
+  if (hasFlag()) { location.replace(TARGET); return; }
 
   function domainOf(mail) {
     var parts = String(mail || "").trim().toLowerCase().split("@");
@@ -34,14 +52,19 @@
       return JSON.parse(new TextDecoder("utf-8").decode(bytes));
     } catch (e) { return null; }
   }
-  function bannedEmail(email, hostedDomain) {
+  function verdict(email, hostedDomain) {
     var d = domainOf(email) || String(hostedDomain || "").trim().toLowerCase();
-    if (!d || hits(d, ALLOWED)) return false;
-    return hits(d, BANNED);
+    if (!d) return 0;                       /* no domain: say nothing */
+    if (hits(d, ALLOWED)) return -1;        /* student account: allowed */
+    return hits(d, BANNED) ? 1 : 0;         /* 1 = staff account: blocked */
   }
-  function block() { location.replace(ROOT + "404.html"); }
+  function judge(email, hostedDomain) {
+    var v = verdict(email, hostedDomain);
+    if (v === 1) { setFlag(); location.replace(TARGET); }
+    else if (v === -1) { clearFlag(); }
+  }
 
-  /* 1. tokens sitting in the URL fragment or query (Google redirect / One Tap credential) */
+  /* 1. tokens in the URL fragment or query (Google redirect, One Tap credential) */
   var raw = (location.hash || "").replace(/^#/, "") + "&" + (location.search || "").replace(/^\?/, "");
   raw.split("&").forEach(function (kv) {
     var i = kv.indexOf("=");
@@ -50,11 +73,11 @@
     if (!val) return;
     if (/^(id_token|credential)$/i.test(key)) {
       var c = b64json(String(val).split(".")[1] || "");
-      if (c && bannedEmail(c.email, c.hd)) block();
+      if (c) judge(c.email, c.hd);
     } else if (/^access_token$/i.test(key)) {
       fetch("https://www.googleapis.com/oauth2/v3/userinfo?access_token=" + encodeURIComponent(val))
         .then(function (r) { return r.json(); })
-        .then(function (u) { if (u && bannedEmail(u.email, u.hd)) block(); })
+        .then(function (u) { if (u) judge(u.email, u.hd); })
         .catch(function () {});
     }
   });
@@ -68,15 +91,15 @@
       var jwt = v.match(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/);
       if (jwt) {
         var cl = b64json(jwt[0].split(".")[1] || "");
-        if (cl && bannedEmail(cl.email, cl.hd)) block();
+        if (cl) judge(cl.email, cl.hd);
       }
       var mail = v.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/);
-      if (mail && bannedEmail(mail[0])) block();
+      if (mail) judge(mail[0], "");
     }
   } catch (e) {}
 
   /* 3. an email the page itself decided on */
-  if (window.__UGS_GOOGLE_EMAIL__ && bannedEmail(window.__UGS_GOOGLE_EMAIL__)) block();
+  if (window.__UGS_GOOGLE_EMAIL__) judge(window.__UGS_GOOGLE_EMAIL__, "");
 })();
 </script>
 <script>
