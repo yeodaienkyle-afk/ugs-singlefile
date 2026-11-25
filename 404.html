@@ -3044,7 +3044,7 @@
   });
 })();
 </script>
-  <script>
+<script>
 /* ===== Dictionary, Music Studio (Evan Liao Music Lab), & Human Chess Bot ===== */
 (function () {
   "use strict";
@@ -3052,10 +3052,8 @@
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
-  // Inject styles for the 3 new modules
   const extraStyle = document.createElement("style");
   extraStyle.textContent = `
-    /* Dictionary */
     .dict-alpha{display:flex;flex-wrap:wrap;gap:4px;margin:10px 0}
     .dict-alpha button{min-width:30px;height:30px;border:1px solid var(--line);background:#fff;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;color:var(--ink-soft)}
     .dict-alpha button.on,.dict-alpha button:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
@@ -3069,7 +3067,6 @@
     .dict-ex{font-size:12.5px;color:var(--ink-soft);font-style:italic;border-left:2px solid var(--line);padding-left:8px}
     .dict-syn{font-size:11.5px;color:var(--muted);margin-top:auto}
 
-    /* Music Studio */
     .piano-wrap{position:relative;height:165px;user-select:none;margin:12px 0;overflow-x:auto;padding-bottom:6px}
     .piano-keys{position:relative;display:flex;height:150px;min-width:560px}
     .pkey-w{flex:1;background:#fff;border:1px solid #cbd5e1;border-radius:0 0 8px 8px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:8px;font-size:11px;font-weight:700;color:var(--ink-soft);cursor:pointer;position:relative;z-index:1;transition:background .08s}
@@ -3084,26 +3081,60 @@
     .beat-dot.on{background:var(--accent);transform:scale(1.22)}
     .beat-dot.accent.on{background:var(--amber)}
 
-    /* Human Chess Bot */
-    .chess-layout{display:grid;grid-template-columns:minmax(290px,490px) minmax(0,1fr);gap:18px;align-items:start}
-    @media(max-width:940px){.chess-layout{grid-template-columns:1fr}}
-    .chess-board-shell{display:flex;gap:10px;align-items:stretch}
+    .chess-layout{--csq:56px;--pcs:.72;--pc:calc(var(--csq)*var(--pcs));--c-light:#eef2f6;--c-dark:#7b9bb8;--c-sel:#fde047;--c-last:#f59e0b;--c-check:#fda4af;--pc-w:#ffffff;--pc-b:#1e293b;--pc-edge:#0f172a;--pc-w-txt:#0f172a;--pc-b-txt:#ffffff;
+      display:grid;grid-template-columns:max-content minmax(0,1fr);gap:18px;align-items:start}
+    @media(max-width:940px){.chess-layout{grid-template-columns:minmax(0,1fr)}}
+    .chess-board-panel{width:max-content;max-width:100%}
+    .chess-board-scroll{overflow-x:auto;overflow-y:hidden;padding-bottom:2px}
+    .chess-board-shell{display:flex;gap:10px;align-items:stretch;width:max-content}
     .eval-bar{width:20px;background:#1e293b;border-radius:8px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;border:1px solid var(--line);flex:none}
+    .chess-layout.no-eval .eval-bar{display:none}
     .eval-fill{background:#f8fafc;width:100%;transition:height .35s ease}
-    .chess-grid{display:grid;grid-template-columns:repeat(8,1fr);aspect-ratio:1/1;width:100%;border:2px solid var(--navy);border-radius:10px;overflow:hidden;user-select:none}
-    .csq{display:flex;align-items:center;justify-content:center;font-size:clamp(24px,4.2vw,38px);cursor:pointer;position:relative;line-height:1}
-    .csq.light{background:#eef2f6}
-    .csq.dark{background:#7b9bb8}
-    .csq.sel{background:#fde047 !important}
-    .csq.last{box-shadow:inset 0 0 0 3px rgba(245,158,11,.75)}
-    .csq.check{background:#fda4af !important}
+    /* Fixed-size board: its size depends only on --csq (square size), never on the window or container width */
+    .chess-grid{display:grid;grid-template-columns:repeat(8,var(--csq));grid-auto-rows:var(--csq);box-sizing:content-box;width:calc(var(--csq)*8);height:calc(var(--csq)*8);flex:none;border:2px solid var(--navy);border-radius:10px;overflow:hidden;user-select:none}
+    .csq{width:var(--csq);height:var(--csq);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;line-height:1;overflow:hidden}
+    .csq.light{background:var(--c-light)}
+    .csq.dark{background:var(--c-dark)}
+    .csq.sel{background:var(--c-sel) !important}
+    .csq.last{box-shadow:inset 0 0 0 3px var(--c-last)}
+    .csq.check{background:var(--c-check) !important}
     .csq.legal::after{content:"";width:28%;height:28%;border-radius:50%;background:rgba(22,41,63,.35);position:absolute}
     .csq.legal.cap::after{width:82%;height:82%;background:transparent;border:3px solid rgba(184,46,67,.65)}
-    .csq-coord{position:absolute;font-size:9.5px;font-weight:700;opacity:.65;pointer-events:none}
+    .chess-layout.no-hints .csq.legal::after{display:none}
+    .csq-coord{position:absolute;font-size:9.5px;font-weight:700;opacity:.9;pointer-events:none;z-index:1}
+    .csq.light .csq-coord{color:var(--c-dark)}
+    .csq.dark .csq-coord{color:var(--c-light)}
+    .chess-layout.no-coords .csq-coord{display:none}
     .csq-rank{top:2px;left:3px}
     .csq-file{bottom:1px;right:3px}
+    /* pieces */
+    .cpc{display:block;line-height:1;pointer-events:none;font-size:var(--pc);text-align:center}
+    .cpc.pw{--pc-fill:var(--pc-w);--pc-txt:var(--pc-w-txt)}
+    .cpc.pb{--pc-fill:var(--pc-b);--pc-txt:var(--pc-b-txt)}
+    .cpc-hollow{position:relative;isolation:isolate}
+    .cpc-hollow.pw{color:var(--pc-edge)}
+    .cpc-hollow.pw::before{content:attr(data-f);position:absolute;left:0;right:0;top:0;z-index:-1;color:var(--pc-fill)}
+    .cpc-hollow.pb{color:var(--pc-fill);text-shadow:1px 0 0 var(--pc-edge),-1px 0 0 var(--pc-edge),0 1px 0 var(--pc-edge),0 -1px 0 var(--pc-edge),1px 1px 0 var(--pc-edge),-1px -1px 0 var(--pc-edge),1px -1px 0 var(--pc-edge),-1px 1px 0 var(--pc-edge)}
+    .cpc-svg svg{display:block;width:calc(var(--pc)*1.1);height:calc(var(--pc)*1.1);overflow:visible}
+    .cpc-svg .ol{fill:var(--pc-edge);stroke:var(--pc-edge);stroke-width:3;stroke-linejoin:round}
+    .cpc-svg .fl{fill:var(--pc-fill);stroke:none}
+    .cpc-svg .dt{fill:none;stroke:var(--pc-txt);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+    .cpc-svg .dd{fill:var(--pc-txt);stroke:none}
+    .cpc-solid{color:var(--pc-fill);text-shadow:1px 0 0 var(--pc-edge),-1px 0 0 var(--pc-edge),0 1px 0 var(--pc-edge),0 -1px 0 var(--pc-edge),1px 1px 0 var(--pc-edge),-1px -1px 0 var(--pc-edge),1px -1px 0 var(--pc-edge),-1px 1px 0 var(--pc-edge)}
+    .cpc-letters{font-family:Georgia,"Times New Roman",serif;font-weight:800;font-size:calc(var(--pc)*.95);color:var(--pc-fill);text-shadow:1px 0 0 var(--pc-edge),-1px 0 0 var(--pc-edge),0 1px 0 var(--pc-edge),0 -1px 0 var(--pc-edge),1px 1px 0 var(--pc-edge),-1px -1px 0 var(--pc-edge),1px -1px 0 var(--pc-edge),-1px 1px 0 var(--pc-edge)}
+    .cpc-badge{box-sizing:border-box;width:var(--pc);height:var(--pc);border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--pc-fill);color:var(--pc-txt);border:2px solid var(--pc-edge);font-weight:800;font-size:calc(var(--pc)*.5);box-shadow:0 1px 3px rgba(0,0,0,.35)}
+    /* customize panel */
+    .chc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .chc-colors{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;margin-top:10px}
+    .chc-col input[type=color]{width:100%;height:32px;padding:2px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+    .chc-col input[type=color]:disabled{opacity:.4;cursor:not-allowed}
+    .chc-range{display:flex;align-items:center;gap:8px}
+    .chc-range input{flex:1;min-width:0}
+    .chc-range output{font-family:var(--mono);font-size:12px;min-width:44px;text-align:right;color:var(--ink)}
+    .chc-checks{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12.5px}
+    .chc-checks label{display:flex;align-items:center;gap:6px;cursor:pointer}
+    .chc-note{font-size:11.5px;color:var(--muted);margin:8px 0 0}
     .pgn-box{max-height:150px;overflow-y:auto;background:#f9fbfd;border:1px solid var(--line-soft);border-radius:9px;padding:8px 10px;font-family:var(--mono);font-size:12.5px}
-    .bot-badge-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
   `;
   document.head.appendChild(extraStyle);
 
@@ -3182,9 +3213,7 @@
     }
   });
 
-  /* =========================================================================
-     MODULE 1: COMPREHENSIVE DICTIONARY (220+ WORDS + QUIZ + SEARCH)
-     ========================================================================= */
+  /* ===== MODULE 1: DICTIONARY ===== */
   const DICTIONARY = [
     ["abate","verb","/əˈbeɪt/","Academic","To become less intense or widespread.","The storm finally began to abate after midnight.","subside, diminish, lessen"],
     ["aberration","noun","/ˌæbəˈreɪʃn/","Academic","A departure from what is normal, usual, or expected.","A snowstorm in April is a rare weather aberration.","anomaly, deviation, oddity"],
@@ -3552,7 +3581,6 @@
         renderDict();
       });
 
-      // Vocabulary Quiz
       let dqOk = 0, dqTot = 0;
       function nextVocabQ() {
         const target = DICTIONARY[Math.floor(Math.random() * DICTIONARY.length)];
@@ -3607,9 +3635,7 @@
     }
   });
 
-  /* =========================================================================
-     MODULE 2: EVAN LIAO MUSIC STUDIO (PIANO, SCALES/CHORDS, EAR TRAINER, METRONOME)
-     ========================================================================= */
+  /* ===== MODULE 2: EVAN LIAO MUSIC STUDIO ===== */
   registerModule({
     id: "x-music", label: "Music Studio", pill: "Audio", chip: "Evan Liao Music Lab",
     badge: "Interactive Audio", badgeCls: "b-amber", kicker: "Music Theory & Ear Training",
@@ -3765,7 +3791,6 @@
         </div>
       `;
 
-      // Render 2 octaves (MIDI 60 = C4 to 83 = B5)
       const piano = $("#pianoKeys", body);
       const whiteOffsets = [0, 2, 4, 5, 7, 9, 11];
       const blackMap = { 0: 1, 1: 3, 3: 6, 4: 8, 5: 10 };
@@ -3827,7 +3852,6 @@
         steps.forEach((st, i) => playTone(root + st, 0.65, wave, i * 0.22));
       };
 
-      // Keyboard shortcuts when Music Studio is active
       const keyShortcuts = { a:60, w:61, s:62, e:63, d:64, f:65, t:66, g:67, y:68, h:69, u:70, j:71, k:72 };
       document.addEventListener("keydown", e => {
         if (!customMods["x-music"].panel.classList.contains("active")) return;
@@ -3836,7 +3860,6 @@
         if (m) playTone(m, 0.6, $("#musWave", body).value);
       });
 
-      // Interval Ear Quiz
       let earRoot = 60, earTarget = INTERVALS[4], earOk = 0, earTot = 0;
       function playCurrentInterval() {
         playTone(earRoot, 0.55, "triangle", 0);
@@ -3882,7 +3905,6 @@
       $("#earNewBtn", body).onclick = () => { newEarQuestion(); playCurrentInterval(); };
       newEarQuestion();
 
-      // Metronome
       let metTimer = null, beatIdx = 0, tapTimes = [];
       function drawDots() {
         const n = Number($("#metMeter", body).value);
@@ -3942,9 +3964,7 @@
     }
   });
 
-  /* =========================================================================
-     MODULE 3: HUMAN CHESS BOT (MAIA 1100–1900 + STOCKFISH + THINKING TIME SIM)
-     ========================================================================= */
+  /* ===== MODULE 3: HUMAN CHESS BOT ===== */
   registerModule({
     id: "x-chess", label: "Human Chess Bot", pill: "Maia AI", chip: "yeodaienkyle-afk/Human-Chess-Bot",
     badge: "Maia & Stockfish", badgeCls: "b-green", kicker: "Strategy & AI Simulation",
@@ -3958,6 +3978,7 @@
         wK: "♔", wQ: "♕", wR: "♖", wB: "♗", wN: "♘", wP: "♙",
         bK: "♚", bQ: "♛", bR: "♜", bB: "♝", bN: "♞", bP: "♟"
       };
+      const SOLID = { K: "\u265A", Q: "\u265B", R: "\u265C", B: "\u265D", N: "\u265E", P: "\u265F" };
       const VAL = { P: 100, N: 320, B: 330, R: 500, Q: 900, K: 20000 };
       const PST_P = [
         0,0,0,0,0,0,0,0, 50,50,50,50,50,50,50,50, 10,10,20,30,30,20,10,10, 5,5,10,25,25,10,5,5,
@@ -3970,14 +3991,16 @@
 
       body.innerHTML = `
         <div class="chess-layout">
-          <section class="panel-box" style="padding:14px">
+          <section class="panel-box chess-board-panel" style="padding:14px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px">
               <strong id="chTopLabel">Bot: Maia 1500 (Black)</strong>
               <span id="chBotClock" class="mono" style="background:#f1f5f9;padding:2px 8px;border-radius:6px;font-weight:700">Last think: —</span>
             </div>
-            <div class="chess-board-shell">
-              <div class="eval-bar" title="White vs Black Position Evaluation"><div id="chEvalFill" class="eval-fill" style="height:50%"></div></div>
-              <div id="chessGrid" class="chess-grid" aria-label="Chess board"></div>
+            <div class="chess-board-scroll">
+              <div class="chess-board-shell">
+                <div class="eval-bar" title="White vs Black Position Evaluation"><div id="chEvalFill" class="eval-fill" style="height:50%"></div></div>
+                <div id="chessGrid" class="chess-grid" aria-label="Chess board"></div>
+              </div>
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:13px">
               <strong id="chBotLabel">You (White)</strong>
@@ -4052,11 +4075,57 @@
               <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:4px">Move Log &amp; Thinking Telemetry</div>
               <div id="chMoveLog" class="pgn-box">Select a piece to begin.</div>
             </section>
+
+            <section class="panel-box" id="chCustom">
+              <div class="section-head" style="margin-bottom:10px">
+                <div class="section-head-left"><h2>Customize Board &amp; Pieces</h2><p>Changes apply instantly and are saved on this device</p></div>
+                <button type="button" class="btn btn-ghost btn-sm" id="chcReset">Reset</button>
+              </div>
+              <div class="chc-grid">
+                <label class="xlab">Board theme
+                  <select id="chcBoard" class="xsel"></select>
+                </label>
+                <label class="xlab">Piece shape
+                  <select id="chcStyle" class="xsel">
+                    <option value="hollow">Classic outline</option>
+                    <option value="solid">Solid glyph</option>
+                    <option value="staunton">Flat Staunton</option>
+                    <option value="geometric">Geometric</option>
+                    <option value="badge">Round badges</option>
+                    <option value="letters">Bold letters</option>
+                  </select>
+                </label>
+                <label class="xlab">Piece colour set
+                  <select id="chcPieceTheme" class="xsel"></select>
+                </label>
+                <label class="xlab">Square size
+                  <span class="chc-range"><input type="range" id="chcSq" min="36" max="84" step="2"><output id="chcSqVal"></output></span>
+                </label>
+                <label class="xlab">Piece size
+                  <span class="chc-range"><input type="range" id="chcPcs" min="40" max="95" step="1"><output id="chcPcsVal"></output></span>
+                </label>
+              </div>
+              <div class="chc-colors">
+                <label class="xlab chc-col">Light squares<input type="color" id="chcLight"></label>
+                <label class="xlab chc-col">Dark squares<input type="color" id="chcDark"></label>
+                <label class="xlab chc-col">Selected<input type="color" id="chcSel"></label>
+                <label class="xlab chc-col">Last move<input type="color" id="chcLast"></label>
+                <label class="xlab chc-col">Check<input type="color" id="chcCheck"></label>
+                <label class="xlab chc-col">White pieces<input type="color" id="chcPW"></label>
+                <label class="xlab chc-col">Black pieces<input type="color" id="chcPB"></label>
+                <label class="xlab chc-col">Piece outline<input type="color" id="chcEdge"></label>
+              </div>
+              <p class="chc-note" id="chcNote"></p>
+              <div class="chc-checks">
+                <label><input type="checkbox" id="chcCoords"> Coordinates</label>
+                <label><input type="checkbox" id="chcHints"> Legal-move hints</label>
+                <label><input type="checkbox" id="chcEval"> Evaluation bar</label>
+              </div>
+            </section>
           </div>
         </div>
       `;
 
-      // Populate rating dropdown when switching between Maia and Stockfish
       $("#chBotMode", body).onchange = () => {
         const isMaia = $("#chBotMode", body).value === "maia";
         $("#chRatingLabel", body).firstChild.textContent = isMaia ? "Maia Simulated ELO" : "Stockfish Skill Level";
@@ -4068,7 +4137,6 @@
         updateLabels();
       };
 
-      // Complete legal chess state & rules
       let state = null, selectedSq = null, legalForSel = [], lastMove = null, hintMove = null;
       let prevThinkSec = 1.4, botTimer = null, historyStack = [], moveLogs = [];
       let userAccScores = [], botAccScores = [];
@@ -4254,7 +4322,6 @@
         }
       }
 
-      // Human-Chess-Bot Thinking Time Formula (Inverted U-curve + complexity + AR(1) rho=0.4 + log-normal + 21.26% premove)
       function simulateHumanThinkSeconds(s, chosenMove, allMoves) {
         if (!$("#chSimDelay", body).checked) return 0.25;
         const mode = $("#chBotMode", body).value;
@@ -4263,18 +4330,16 @@
 
         const isRecapture = Boolean(s.board[chosenMove.to]);
         const isForced = allMoves.length <= 2;
-        if ((isRecapture || isForced) && Math.random() < 0.2126) return 0.18; // Research premove rate
+        if ((isRecapture || isForced) && Math.random() < 0.2126) return 0.18;
 
         const ply = moveLogs.length;
-        // Inverted U-curve: opening fast -> middlegame slow -> endgame fast
         const phaseBase = ply < 10 ? 1.1 : ply < 44 ? 2.6 : 1.4;
         const complexity = Math.min(1.65, 0.75 + allMoves.length / 45);
         const moveMod = isForced ? 0.45 : (isRecapture || chosenMove.castle ? 0.65 : 1.0);
         const tcScale = tc === "bullet" ? 0.4 : tc === "rapid" ? 2.5 : 1.0;
 
         const rawMean = phaseBase * complexity * moveMod * tcScale;
-        const correlated = 0.6 * rawMean + 0.4 * prevThinkSec; // AR(1), rho = 0.4
-        // Log-normal jitter
+        const correlated = 0.6 * rawMean + 0.4 * prevThinkSec;
         const u1 = Math.max(1e-6, Math.random()), u2 = Math.random();
         const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
         const sampled = Math.max(0.25, Math.min(9.5, correlated * Math.exp(0.32 * z)));
@@ -4297,7 +4362,6 @@
         scored.sort((a, b) => maximizing ? b.sc - a.sc : a.sc - b.sc);
 
         const bestScore = scored[0].sc;
-        // Maia human-like temperature softmax by ELO (1100 plays natural inaccuracies; 1900 plays close to top choices)
         const temp = mode === "maia"
           ? Math.max(22, (2050 - rating) * 0.24)
           : Math.max(5, (20 - rating) * 14);
@@ -4366,7 +4430,7 @@
           }
 
           const p = state.board[sq];
-          if (p) cell.appendChild(document.createTextNode(UNICODE[p]));
+          if (p) cell.appendChild(pieceEl(p));
           cell.onclick = () => onSquareClick(sq);
           grid.appendChild(cell);
         }
@@ -4522,10 +4586,174 @@
         renderBoard();
       };
 
+      /* ---------- Board & piece customization ---------- */
+      const CH_KEY = "lpx_chessCfg";
+      const BOARD_THEMES = {
+        classic:  { label: "Classic Blue",     light: "#eef2f6", dark: "#7b9bb8", sel: "#fde047", last: "#f59e0b", check: "#fda4af" },
+        green:    { label: "Tournament Green", light: "#eeeed2", dark: "#769656", sel: "#f6f669", last: "#e0b020", check: "#f08080" },
+        wood:     { label: "Walnut Wood",      light: "#f0d9b5", dark: "#b58863", sel: "#f7ec74", last: "#d98e04", check: "#f4a0a0" },
+        midnight: { label: "Midnight",         light: "#aab4c0", dark: "#445468", sel: "#fcd34d", last: "#f59e0b", check: "#fb7185" },
+        lavender: { label: "Lavender",         light: "#ece6f7", dark: "#8e7cc3", sel: "#fde68a", last: "#f59e0b", check: "#fda4af" },
+        coral:    { label: "Coral",            light: "#fdeee8", dark: "#d98a73", sel: "#fde047", last: "#e0752d", check: "#fda4af" },
+        grey:     { label: "Greyscale",        light: "#f1f1f1", dark: "#9a9a9a", sel: "#fde047", last: "#f59e0b", check: "#fda4af" }
+      };
+      const PIECE_THEMES = {
+        ivory:   { label: "Ivory & Ebony",     pw: "#ffffff", pb: "#1e293b", edge: "#0f172a" },
+        gold:    { label: "Gold & Navy",       pw: "#fcd34d", pb: "#1e3a8a", edge: "#0f172a" },
+        rose:    { label: "Rose & Crimson",    pw: "#fca5a5", pb: "#7f1d1d", edge: "#111827" },
+        mint:    { label: "Mint & Forest",     pw: "#bbf7d0", pb: "#14532d", edge: "#052e16" },
+        neon:    { label: "Cyan & Magenta",    pw: "#67e8f9", pb: "#c026d3", edge: "#0f172a" },
+        silver:  { label: "Silver & Bronze",   pw: "#e5e7eb", pb: "#92400e", edge: "#1f2937" },
+        classic: { label: "Pure White & Black",pw: "#ffffff", pb: "#111111", edge: "#000000" },
+        sunset:  { label: "Orange & Plum",     pw: "#fdba74", pb: "#6b21a8", edge: "#1e1b4b" }
+      };
+      const CH_DEFAULTS = Object.assign(
+        { board: "classic", pieces: "ivory", pieceStyle: "hollow", sq: 56, pcs: 72, coords: true, hints: true, evalBar: true },
+        { light: BOARD_THEMES.classic.light, dark: BOARD_THEMES.classic.dark, sel: BOARD_THEMES.classic.sel, last: BOARD_THEMES.classic.last, check: BOARD_THEMES.classic.check },
+        { pw: PIECE_THEMES.ivory.pw, pb: PIECE_THEMES.ivory.pb, edge: PIECE_THEMES.ivory.edge }
+      );
+      let cfg = Object.assign({}, CH_DEFAULTS);
+      try { Object.assign(cfg, JSON.parse(localStorage.getItem(CH_KEY)) || {}); } catch (e) {}
+      const saveCfg = () => { try { localStorage.setItem(CH_KEY, JSON.stringify(cfg)); } catch (e) {} };
+      const layoutEl = $(".chess-layout", body);
+
+      const SVG_SETS = {
+        staunton: {
+          P: '<circle cx="22.5" cy="13" r="5.5"/><path d="M22.5 17C15 22 15 30 14 35H31C30 30 30 22 22.5 17Z"/><rect x="11" y="34" width="23" height="5" rx="1.5"/>',
+          R: '<path d="M12 11h4v3h3.5v-3h6v3H29v-3h4v8l-3 3v12l3 3v3H12v-3l3-3V22l-3-3z"/>',
+          N: '<path d="M13 39C13 30 16 26 20 22C17 22 15 24 12 26L11 24C13 19 17 14 22 10L23 6L26 9C33 11 34 19 33 26L33 34C33 36 34 37 34 39Z"/>',
+          B: '<circle cx="22.5" cy="9" r="3"/><path d="M22.5 12C30 19 31 25 27 30H18C14 25 15 19 22.5 12Z"/><path d="M17 30h11l3 4H14z"/><rect x="11" y="34" width="23" height="5" rx="1.5"/>',
+          Q: '<path d="M9 13L14 28L16 13L19.5 27L22.5 11L25.5 27L29 13L31 28L36 13L33 36H12Z"/><circle cx="9" cy="12" r="2.3"/><circle cx="16" cy="10.5" r="2.3"/><circle cx="22.5" cy="8.5" r="2.3"/><circle cx="29" cy="10.5" r="2.3"/><circle cx="36" cy="12" r="2.3"/><rect x="11" y="35" width="23" height="5" rx="1.5"/>',
+          K: '<path d="M22.5 13C13 13 9 22 13 30L12 36H33L32 30C36 22 32 13 22.5 13Z"/><rect x="11" y="35" width="23" height="5" rx="1.5"/><rect x="20.5" y="3" width="4" height="11" rx="1"/><rect x="17" y="6" width="11" height="4" rx="1"/>'
+        },
+        geometric: {
+          P: '<circle cx="22.5" cy="25" r="9.5"/>',
+          N: '<path d="M13 37L13 22L27 8L33 20L25 22L33 37Z"/>',
+          B: '<path d="M22.5 6L34 22.5L22.5 39L11 22.5Z"/>',
+          R: '<rect x="11" y="15" width="23" height="23" rx="2"/><rect x="11" y="8" width="6" height="9"/><rect x="19.5" y="8" width="6" height="9"/><rect x="28" y="8" width="6" height="9"/>',
+          Q: '<path d="M22.5 5L35 12.5L35 31.5L22.5 39L10 31.5L10 12.5Z"/>',
+          K: '<rect x="10" y="16" width="25" height="23" rx="4"/><rect x="20.5" y="3" width="4" height="14"/><rect x="16" y="7" width="13" height="4"/>'
+        }
+      };
+      const SVG_DETAIL = {
+        staunton: {
+          N: '<circle class="dd" cx="21.5" cy="15" r="1.4"/>',
+          B: '<path class="dt" d="M22.5 17v7M19.5 20.5h6"/>',
+          R: '<path class="dt" d="M15 22h15"/>',
+          Q: '<path class="dt" d="M15 31h15"/>',
+          K: '<path class="dt" d="M16 30h13"/>'
+        },
+        geometric: {
+          Q: '<circle class="dt" cx="22.5" cy="22" r="5.5"/>',
+          B: '<path class="dt" d="M22.5 15v15M15 22.5h15"/>',
+          N: '<circle class="dd" cx="23" cy="17" r="1.6"/>',
+          K: '<path class="dt" d="M15 27h15"/>'
+        }
+      };
+
+      function pieceEl(p) {
+        const el = document.createElement("span");
+        const st = cfg.pieceStyle, t = p[1];
+        el.className = "cpc " + (st === "staunton" || st === "geometric" ? "cpc-svg" : "cpc-" + st) + " " + (p[0] === "w" ? "pw" : "pb");
+        if (st === "hollow") {
+          el.textContent = UNICODE[p] + "\uFE0E";
+          if (p[0] === "w") el.setAttribute("data-f", SOLID[t] + "\uFE0E");
+        } else if (st === "solid") {
+          el.textContent = SOLID[t] + "\uFE0E";
+        } else if (SVG_SETS[st]) {
+          const shape = SVG_SETS[st][t], det = (SVG_DETAIL[st] || {})[t] || "";
+          el.innerHTML = '<svg viewBox="0 0 45 45" aria-hidden="true"><g class="ol">' + shape + '</g><g class="fl">' + shape + '</g>' + det + '</svg>';
+        } else {
+          el.textContent = t;
+        }
+        return el;
+      }
+
+      function textOn(hex) {
+        const m = /^#?([0-9a-f]{6})$/i.exec(hex || "");
+        if (!m) return "#0f172a";
+        const n = parseInt(m[1], 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+        return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? "#0f172a" : "#ffffff";
+      }
+
+      function applyCfg() {
+        const st = layoutEl.style;
+        st.setProperty("--csq", cfg.sq + "px");
+        st.setProperty("--pcs", String(cfg.pcs / 100));
+        st.setProperty("--c-light", cfg.light);
+        st.setProperty("--c-dark", cfg.dark);
+        st.setProperty("--c-sel", cfg.sel);
+        st.setProperty("--c-last", cfg.last);
+        st.setProperty("--c-check", cfg.check);
+        st.setProperty("--pc-w", cfg.pw);
+        st.setProperty("--pc-b", cfg.pb);
+        st.setProperty("--pc-edge", cfg.edge);
+        st.setProperty("--pc-w-txt", textOn(cfg.pw));
+        st.setProperty("--pc-b-txt", textOn(cfg.pb));
+        layoutEl.classList.toggle("no-coords", !cfg.coords);
+        layoutEl.classList.toggle("no-hints", !cfg.hints);
+        layoutEl.classList.toggle("no-eval", !cfg.evalBar);
+      }
+
+      const opt = (v, l) => `<option value="${v}">${l}</option>`;
+      $("#chcBoard", body).innerHTML = Object.keys(BOARD_THEMES).map(k => opt(k, BOARD_THEMES[k].label)).join("") + opt("custom", "Custom");
+      $("#chcPieceTheme", body).innerHTML = Object.keys(PIECE_THEMES).map(k => opt(k, PIECE_THEMES[k].label)).join("") + opt("custom", "Custom");
+
+      function syncControls() {
+        $("#chcBoard", body).value = cfg.board;
+        $("#chcPieceTheme", body).value = cfg.pieces;
+        $("#chcStyle", body).value = cfg.pieceStyle;
+        $("#chcSq", body).value = cfg.sq;
+        $("#chcSqVal", body).textContent = (cfg.sq * 8) + "px";
+        $("#chcPcs", body).value = cfg.pcs;
+        $("#chcPcsVal", body).textContent = cfg.pcs + "%";
+        [["Light","light"],["Dark","dark"],["Sel","sel"],["Last","last"],["Check","check"],["PW","pw"],["PB","pb"],["Edge","edge"]]
+          .forEach(([id, k]) => { $("#chc" + id, body).value = cfg[k]; });
+        $("#chcCoords", body).checked = cfg.coords;
+        $("#chcHints", body).checked = cfg.hints;
+        $("#chcEval", body).checked = cfg.evalBar;
+        $("#chcPW", body).disabled = false;
+        $("#chcPB", body).disabled = false;
+        $("#chcNote", body).textContent = "Pick any colour for white and black pieces. The board stays a fixed size; use Square size to make it bigger or smaller.";
+      }
+
+      function changed(rerender) {
+        applyCfg(); saveCfg(); syncControls();
+        if (rerender && state) renderBoard();
+      }
+
+      $("#chcBoard", body).onchange = e => {
+        const t = BOARD_THEMES[e.target.value];
+        cfg.board = e.target.value;
+        if (t) Object.assign(cfg, { light: t.light, dark: t.dark, sel: t.sel, last: t.last, check: t.check });
+        changed(false);
+      };
+      $("#chcPieceTheme", body).onchange = e => {
+        const t = PIECE_THEMES[e.target.value];
+        cfg.pieces = e.target.value;
+        if (t) Object.assign(cfg, { pw: t.pw, pb: t.pb, edge: t.edge });
+        changed(false);
+      };
+      $("#chcStyle", body).onchange = e => { cfg.pieceStyle = e.target.value; changed(true); };
+      $("#chcSq", body).oninput = e => { cfg.sq = +e.target.value; changed(false); };
+      $("#chcPcs", body).oninput = e => { cfg.pcs = +e.target.value; changed(false); };
+      [["Light","light","board"],["Dark","dark","board"],["Sel","sel","board"],["Last","last","board"],["Check","check","board"],
+       ["PW","pw","pieces"],["PB","pb","pieces"],["Edge","edge","pieces"]].forEach(([id, k, group]) => {
+        $("#chc" + id, body).oninput = e => { cfg[k] = e.target.value; cfg[group] = "custom"; applyCfg(); saveCfg(); $("#chc" + (group === "board" ? "Board" : "PieceTheme"), body).value = "custom"; };
+      });
+      $("#chcCoords", body).onchange = e => { cfg.coords = e.target.checked; changed(false); };
+      $("#chcHints", body).onchange = e => { cfg.hints = e.target.checked; changed(false); };
+      $("#chcEval", body).onchange = e => { cfg.evalBar = e.target.checked; changed(false); };
+      $("#chcReset", body).onclick = () => { cfg = Object.assign({}, CH_DEFAULTS); changed(true); };
+
+      applyCfg();
+      syncControls();
+
       resetMatch();
     }
   });
 })();
 </script>
+
 </body>
 </html>
