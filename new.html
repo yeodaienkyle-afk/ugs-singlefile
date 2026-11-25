@@ -3,9 +3,9 @@
 <head>
 <script>
 /* Staff-domain gate with a lasting redirect. A Google OAuth / ID token that belongs to a
-   school staff account is not just bounced once: this browser is flagged, and every later
-   load of the hub (refresh, back button, typing the URL again) is redirected to the 404 page
-   until a student-domain token clears the flag.
+   school staff account does not just bounce once: this browser is flagged, so every later
+   load of the hub (refresh, back button, typing the URL again) is redirected to the 404 page.
+   A student-domain token clears the flag again.
    Banned: moe.gov.sg, schools.gov.sg, hq.moe.gov.sg (subdomains included). students.edu.sg passes. */
 (function () {
   var ROOT = location.pathname.replace(/[^/]*$/, "");
@@ -28,9 +28,13 @@
     try { localStorage.removeItem(FLAG); } catch (e) {}
     try { document.cookie = FLAG + "=;path=/;max-age=0;samesite=lax"; } catch (e) {}
   }
+  function bounce() { location.replace(TARGET); }
 
-  /* already flagged from an earlier visit: leave before anything renders */
-  if (hasFlag()) { location.replace(TARGET); return; }
+  var decided = false, pending = 0;
+  function settle() {
+    if (decided || pending > 0) return;
+    if (hasFlag()) bounce();          /* flagged earlier and no token to judge now */
+  }
 
   function domainOf(mail) {
     var parts = String(mail || "").trim().toLowerCase().split("@");
@@ -52,16 +56,11 @@
       return JSON.parse(new TextDecoder("utf-8").decode(bytes));
     } catch (e) { return null; }
   }
-  function verdict(email, hostedDomain) {
-    var d = domainOf(email) || String(hostedDomain || "").trim().toLowerCase();
-    if (!d) return 0;                       /* no domain: say nothing */
-    if (hits(d, ALLOWED)) return -1;        /* student account: allowed */
-    return hits(d, BANNED) ? 1 : 0;         /* 1 = staff account: blocked */
-  }
   function judge(email, hostedDomain) {
-    var v = verdict(email, hostedDomain);
-    if (v === 1) { setFlag(); location.replace(TARGET); }
-    else if (v === -1) { clearFlag(); }
+    var d = domainOf(email) || String(hostedDomain || "").trim().toLowerCase();
+    if (!d) return;                                  /* no domain: no opinion */
+    if (hits(d, ALLOWED)) { clearFlag(); decided = true; return; }
+    if (hits(d, BANNED)) { setFlag(); decided = true; bounce(); }
   }
 
   /* 1. tokens in the URL fragment or query (Google redirect, One Tap credential) */
@@ -75,10 +74,12 @@
       var c = b64json(String(val).split(".")[1] || "");
       if (c) judge(c.email, c.hd);
     } else if (/^access_token$/i.test(key)) {
+      pending++;
       fetch("https://www.googleapis.com/oauth2/v3/userinfo?access_token=" + encodeURIComponent(val))
         .then(function (r) { return r.json(); })
         .then(function (u) { if (u) judge(u.email, u.hd); })
-        .catch(function () {});
+        .catch(function () {})
+        .then(function () { pending--; settle(); });
     }
   });
 
@@ -100,6 +101,8 @@
 
   /* 3. an email the page itself decided on */
   if (window.__UGS_GOOGLE_EMAIL__) judge(window.__UGS_GOOGLE_EMAIL__, "");
+
+  settle();
 })();
 </script>
 <script>
