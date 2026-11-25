@@ -2,6 +2,84 @@
 <html lang="en">
 <head>
 <script>
+/* Staff-domain gate. If a Google OAuth / ID token reachable from this page belongs to a
+   school staff account, the visitor is sent to the 404 page instead of the hub.
+   Banned: moe.gov.sg, schools.gov.sg, hq.moe.gov.sg (and their subdomains).
+   students.edu.sg is explicitly allowed. Runs before the URL disguise so the 404 path
+   is resolved against the real directory this page was served from. */
+(function () {
+  var ROOT = location.pathname.replace(/[^/]*$/, "");
+  window.__UGS_ROOT = ROOT;
+
+  var BANNED = ["moe.gov.sg", "schools.gov.sg", "hq.moe.gov.sg"];
+  var ALLOWED = ["students.edu.sg"];
+
+  function domainOf(mail) {
+    var parts = String(mail || "").trim().toLowerCase().split("@");
+    return parts.length === 2 ? parts[1] : "";
+  }
+  function hits(domain, list) {
+    for (var i = 0; i < list.length; i++) {
+      var d = list[i];
+      if (domain === d || domain.slice(-(d.length + 1)) === "." + d) return true;
+    }
+    return false;
+  }
+  function b64json(part) {
+    try {
+      var s = part.replace(/-/g, "+").replace(/_/g, "/");
+      while (s.length % 4) s += "=";
+      var bin = atob(s), bytes = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return JSON.parse(new TextDecoder("utf-8").decode(bytes));
+    } catch (e) { return null; }
+  }
+  function bannedEmail(email, hostedDomain) {
+    var d = domainOf(email) || String(hostedDomain || "").trim().toLowerCase();
+    if (!d || hits(d, ALLOWED)) return false;
+    return hits(d, BANNED);
+  }
+  function block() { location.replace(ROOT + "404.html"); }
+
+  /* 1. tokens sitting in the URL fragment or query (Google redirect / One Tap credential) */
+  var raw = (location.hash || "").replace(/^#/, "") + "&" + (location.search || "").replace(/^\?/, "");
+  raw.split("&").forEach(function (kv) {
+    var i = kv.indexOf("=");
+    if (i < 1) return;
+    var key = decodeURIComponent(kv.slice(0, i)), val = decodeURIComponent(kv.slice(i + 1));
+    if (!val) return;
+    if (/^(id_token|credential)$/i.test(key)) {
+      var c = b64json(String(val).split(".")[1] || "");
+      if (c && bannedEmail(c.email, c.hd)) block();
+    } else if (/^access_token$/i.test(key)) {
+      fetch("https://www.googleapis.com/oauth2/v3/userinfo?access_token=" + encodeURIComponent(val))
+        .then(function (r) { return r.json(); })
+        .then(function (u) { if (u && bannedEmail(u.email, u.hd)) block(); })
+        .catch(function () {});
+    }
+  });
+
+  /* 2. a Firebase / Google user cached in storage by the sign-in layer */
+  try {
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i) || "";
+      if (!/authUser|google|oauth|id_token/i.test(k)) continue;
+      var v = localStorage.getItem(k) || "";
+      var jwt = v.match(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/);
+      if (jwt) {
+        var cl = b64json(jwt[0].split(".")[1] || "");
+        if (cl && bannedEmail(cl.email, cl.hd)) block();
+      }
+      var mail = v.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/);
+      if (mail && bannedEmail(mail[0])) block();
+    }
+  } catch (e) {}
+
+  /* 3. an email the page itself decided on */
+  if (window.__UGS_GOOGLE_EMAIL__ && bannedEmail(window.__UGS_GOOGLE_EMAIL__)) block();
+})();
+</script>
+<script>
 /* Address-bar disguise: the hub swaps its own URL for an educational path the instant it loads,
    so the history entry (and the address bar) never records a game page. history.replaceState is
    used instead of a hard location.replace so the card grid keeps running: a real navigation to
