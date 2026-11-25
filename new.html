@@ -2,10 +2,12 @@
 <html lang="en">
 <head>
 <script>
-/* Staff-domain gate with a lasting redirect. A Google OAuth / ID token that belongs to a
-   school staff account does not just bounce once: this browser is flagged, so every later
-   load of the hub (refresh, back button, typing the URL again) is redirected to the 404 page.
-   A student-domain token clears the flag again.
+/* Staff-domain gate, re-checked continuously. A Google OAuth / ID token belonging to a school
+   staff account is not just bounced once: this browser is flagged, so every later load of the
+   hub (refresh, back button, typing the URL again) is redirected to the 404 page. A
+   student-domain token clears the flag.
+   The check re-runs on load, on tab focus / visibility change, on hash and storage changes, and
+   on a timer, so a token that only appears after the page is up (One Tap, late sign-in) is caught.
    Banned: moe.gov.sg, schools.gov.sg, hq.moe.gov.sg (subdomains included). students.edu.sg passes. */
 (function () {
   var ROOT = location.pathname.replace(/[^/]*$/, "");
@@ -15,6 +17,7 @@
   var ALLOWED = ["students.edu.sg"];
   var FLAG = "ugs:blocked";
   var TARGET = ROOT + "404.html";
+  var TICK_MS = 8000;
 
   function hasFlag() {
     try { if (localStorage.getItem(FLAG) === "1") return true; } catch (e) {}
@@ -28,12 +31,10 @@
     try { localStorage.removeItem(FLAG); } catch (e) {}
     try { document.cookie = FLAG + "=;path=/;max-age=0;samesite=lax"; } catch (e) {}
   }
-  function bounce() { location.replace(TARGET); }
-
-  var decided = false, pending = 0;
-  function settle() {
-    if (decided || pending > 0) return;
-    if (hasFlag()) bounce();          /* flagged earlier and no token to judge now */
+  function bounce() {
+    if (window.__ugsBouncing) return;
+    window.__ugsBouncing = 1;
+    location.replace(TARGET);
   }
 
   function domainOf(mail) {
@@ -56,53 +57,80 @@
       return JSON.parse(new TextDecoder("utf-8").decode(bytes));
     } catch (e) { return null; }
   }
-  function judge(email, hostedDomain) {
+  /* 1 = staff, -1 = student, 0 = no opinion */
+  function verdict(email, hostedDomain) {
     var d = domainOf(email) || String(hostedDomain || "").trim().toLowerCase();
-    if (!d) return;                                  /* no domain: no opinion */
-    if (hits(d, ALLOWED)) { clearFlag(); decided = true; return; }
-    if (hits(d, BANNED)) { setFlag(); decided = true; bounce(); }
+    if (!d) return 0;
+    if (hits(d, ALLOWED)) return -1;
+    return hits(d, BANNED) ? 1 : 0;
+  }
+  function act(v) {
+    if (v === 1) { setFlag(); bounce(); }
+    else if (v === -1) { clearFlag(); }
   }
 
-  /* 1. tokens in the URL fragment or query (Google redirect, One Tap credential) */
-  var raw = (location.hash || "").replace(/^#/, "") + "&" + (location.search || "").replace(/^\?/, "");
-  raw.split("&").forEach(function (kv) {
-    var i = kv.indexOf("=");
-    if (i < 1) return;
-    var key = decodeURIComponent(kv.slice(0, i)), val = decodeURIComponent(kv.slice(i + 1));
-    if (!val) return;
-    if (/^(id_token|credential)$/i.test(key)) {
-      var c = b64json(String(val).split(".")[1] || "");
-      if (c) judge(c.email, c.hd);
-    } else if (/^access_token$/i.test(key)) {
-      pending++;
-      fetch("https://www.googleapis.com/oauth2/v3/userinfo?access_token=" + encodeURIComponent(val))
-        .then(function (r) { return r.json(); })
-        .then(function (u) { if (u) judge(u.email, u.hd); })
-        .catch(function () {})
-        .then(function () { pending--; settle(); });
-    }
-  });
+  /* scan every token source the page can see; returns 1, -1 or 0 */
+  function scan() {
+    var out = 0;
+    function take(v) { if (v === 1) out = 1; else if (v === -1 && out === 0) out = -1; }
 
-  /* 2. a Firebase / Google user cached in storage by the sign-in layer */
-  try {
-    for (var i = 0; i < localStorage.length; i++) {
-      var k = localStorage.key(i) || "";
-      if (!/authUser|google|oauth|id_token/i.test(k)) continue;
-      var v = localStorage.getItem(k) || "";
-      var jwt = v.match(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/);
-      if (jwt) {
-        var cl = b64json(jwt[0].split(".")[1] || "");
-        if (cl) judge(cl.email, cl.hd);
+    /* a. URL fragment or query: Google redirect, One Tap credential, access token */
+    var raw = (location.hash || "").replace(/^#/, "") + "&" + (location.search || "").replace(/^\?/, "");
+    raw.split("&").forEach(function (kv) {
+      var i = kv.indexOf("=");
+      if (i < 1) return;
+      var key = decodeURIComponent(kv.slice(0, i)), val = decodeURIComponent(kv.slice(i + 1));
+      if (!val) return;
+      if (/^(id_token|credential)$/i.test(key)) {
+        var c = b64json(String(val).split(".")[1] || "");
+        if (c) take(verdict(c.email, c.hd));
+      } else if (/^access_token$/i.test(key)) {
+        fetch("https://www.googleapis.com/oauth2/v3/userinfo?access_token=" + encodeURIComponent(val))
+          .then(function (r) { return r.json(); })
+          .then(function (u) { if (u) act(verdict(u.email, u.hd)); })
+          .catch(function () {});
       }
-      var mail = v.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/);
-      if (mail) judge(mail[0], "");
-    }
-  } catch (e) {}
+    });
 
-  /* 3. an email the page itself decided on */
-  if (window.__UGS_GOOGLE_EMAIL__) judge(window.__UGS_GOOGLE_EMAIL__, "");
+    /* b. a Firebase / Google user cached in storage by the sign-in layer */
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i) || "";
+        if (!/authUser|google|oauth|id_token/i.test(k)) continue;
+        var v = localStorage.getItem(k) || "";
+        var jwt = v.match(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/);
+        if (jwt) {
+          var cl = b64json(jwt[0].split(".")[1] || "");
+          if (cl) take(verdict(cl.email, cl.hd));
+        }
+        var mail = v.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/);
+        if (mail) take(verdict(mail[0], ""));
+      }
+    } catch (e) {}
 
-  settle();
+    /* c. an email the page itself decided on */
+    if (window.__UGS_GOOGLE_EMAIL__) take(verdict(window.__UGS_GOOGLE_EMAIL__, ""));
+
+    return out;
+  }
+
+  function check() {
+    if (window.__ugsBouncing) return;
+    var v = scan();
+    if (v) { act(v); return; }
+    if (hasFlag()) bounce();      /* flagged earlier and no token to judge now */
+  }
+
+  check();                                                  /* immediately, before render */
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", check);
+  }
+  window.addEventListener("load", check);
+  window.addEventListener("focus", check);
+  window.addEventListener("hashchange", check);
+  window.addEventListener("storage", check);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) check(); });
+  setInterval(check, TICK_MS);
 })();
 </script>
 <script>
