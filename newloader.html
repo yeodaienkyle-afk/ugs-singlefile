@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png">
+<title>Home</title>
+</head>
+<body>
+
+<div id="app">loading...</div>
+
+<script>
+/* Loads new.html with a cache-breaker so an edit to new.html shows up on the next visit
+   instead of a stale cached copy. Local copy first, then jsDelivr, then raw.githubusercontent. */
+(function () {
+    var FILE = "new.html";
+    var bust = "?t=" + Date.now();
+    var SOURCES = [
+        FILE + bust,
+        "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/" + FILE + bust,
+        "https://raw.githubusercontent.com/yeodaienkyle-afk/ugs-singlefile/main/" + FILE + bust
+    ];
+
+    function grab(i) {
+        if (i >= SOURCES.length) throw new Error("all sources failed");
+        return fetch(SOURCES[i], { cache: "no-store" })
+            .then(function (r) {
+                if (!r.ok) throw new Error(r.status);
+                return r.text();
+            })
+            .then(function (html) {
+                if (!html || html.length < 2000 || html.toLowerCase().indexOf("<body") === -1) {
+                    throw new Error("unexpected page");
+                }
+                return html;
+            })
+            .catch(function () { return grab(i + 1); });
+    }
+
+    grab(0).then(function (html) {
+        document.open();
+        document.write(html);
+        document.close();
+    }).catch(function (err) {
+        var app = document.getElementById("app");
+        if (app) app.textContent = "Failed to load: " + err.message;
+    });
+})();
+</script>
+
+</body>
+</html>
