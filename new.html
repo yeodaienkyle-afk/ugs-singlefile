@@ -10,7 +10,7 @@
    on a timer, so a token that only appears after the page is up (One Tap, late sign-in) is caught.
    Banned: moe.gov.sg, schools.gov.sg, hq.moe.gov.sg (subdomains included). students.edu.sg passes. */
 (function () {
-  var ROOT = location.pathname.replace(/[^/]*$/, "");
+  var ROOT = window.__UGS_ROOT || location.pathname.replace(/[^/]*$/, "");
   window.__UGS_ROOT = ROOT;
 
   var BANNED = ["moe.gov.sg", "schools.gov.sg", "hq.moe.gov.sg"];
