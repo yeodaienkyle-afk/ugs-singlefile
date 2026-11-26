@@ -134,6 +134,7 @@ button.eq:active{background:#1d4ed8}
     if (done) { cur = ""; done = false; }
     cur += k;
     typed += k;
+    if (djb2(norm(typed)) === KEY) { open(); return; }
     paint();
   }
 
