@@ -206,11 +206,11 @@ svg.icon{width:22px;height:22px;fill:#9aa3b2}
 <div class="launcher-hero"><h1 id="hero-logo" class="big-logo">free tutoring</h1><p class="tagline">the only class you never skip</p></div>
 
 <div class="nav-grid">
-<div class="nav-card" onclick="openPage(gamesHTML)"><div class="nav-icon"><img src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/controller-icon.png" alt="" draggable="false"/></div><div class="nav-name">games</div><div class="nav-desc">full game list &middot; opens as about:blank</div></div>
+<div class="nav-card" onclick="openPage(gamesHTML)"><div class="nav-icon"><img src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/controller-icon.png" alt="" draggable="false"/></div><div class="nav-name">entertainment</div><div class="nav-desc">full entertainment list &middot; opens as about:blank</div></div>
 <div class="nav-card" onclick="openPage(informationHTML)"><div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.4"/><circle cx="12" cy="7.9" r=".6" fill="currentColor"/></svg></div><div class="nav-name">information</div><div class="nav-desc">night sky &middot; opens as about:blank</div></div>
 </div>
 
-<p class="hint">games open in new tabs labelled about:blank. if nothing happens when you click, allow popups for this page.</p>
+<p class="hint">entertainment opens in new tabs labelled about:blank. if nothing happens when you click, allow popups for this page.</p>
 
 <script>
 function openPage(htmlContent) {
@@ -437,7 +437,7 @@ body.listmode .buttons-container{display:grid}
 
 <div class="settings-panel" id="settings">
 <h3>Settings</h3>
-<div class="set-row"><div class="set-label">Game view</div><div class="seg"><button id="view-cards" class="active">cards</button><button id="view-list">list</button></div></div>
+<div class="set-row"><div class="set-label">Entertainment view</div><div class="seg"><button id="view-cards" class="active">cards</button><button id="view-list">list</button></div></div>
 <div class="set-row"><div class="set-label">Auto-rotate strips</div><button id="rot-toggle" class="toggle on">ON</button></div>
 <div class="set-row"><div class="set-label">Rainbow glow</div><button id="glow-toggle" class="toggle on">ON</button></div>
 <div class="set-row"><div class="set-label">Tab disguise</div><div class="seg"><button id="dis-sls">sls</button><button id="dis-classroom" class="active">google classroom</button></div></div>
@@ -447,8 +447,8 @@ body.listmode .buttons-container{display:grid}
 </div>
 
 <div class="toolbar">
-<div class="search-glow"><div class="searchbox"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><input type="text" placeholder="find the game to your heart's desire" id="searchInput" autocomplete="off" spellcheck="false"></div></div>
-<span id="game-count">loading games...</span>
+<div class="search-glow"><div class="searchbox"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><input type="text" placeholder="find the entertainment to your heart's desire" id="searchInput" autocomplete="off" spellcheck="false"></div></div>
+<span id="game-count">loading entertainment...</span>
 <button id="lolbutton">not loading? click here</button>
 </div>
 
@@ -464,7 +464,7 @@ body.listmode .buttons-container{display:grid}
         var lm = document.body.classList.contains("listmode");
         document.querySelectorAll('.buttons-container input[type="button"]').forEach(function(b){ if(b.offsetParent!==null || (lm && b.style.display!=="none")) n++; });
         document.querySelectorAll(".gcard").forEach(function(c){ if(!c.classList.contains("mini") && c.offsetParent!==null) n++; });
-        countEl.textContent = n > 0 ? (n + (n === 1 ? " game" : " games")) : "loading games...";
+        countEl.textContent = n > 0 ? (n + " entertainment") : "loading entertainment...";
     }
     if (searchInput) {
         var searchTimer = null;
@@ -500,7 +500,7 @@ body.listmode .buttons-container{display:grid}
                     empty.style.cssText = "text-align:center;padding:60px 20px;color:#9aa3b2;font-size:15px;";
                     document.getElementById("sections-container").appendChild(empty);
                 }
-                empty.textContent = 'no games match "' + query + '"';
+                empty.textContent = 'no entertainment matches "' + query + '"';
             } else if (empty) {
                 empty.remove();
             }
@@ -839,7 +839,7 @@ var UG = (function () {
         if (!pins.length && !recs.length) {
             var hint = document.createElement("span");
             hint.className = "xpill muted";
-            hint.textContent = "right-click any game to pin it";
+            hint.textContent = "right-click any entertainment to pin it";
             row.appendChild(hint);
             return;
         }
@@ -964,7 +964,7 @@ var UG = (function () {
     var pending = null;
     document.addEventListener("click", function (e) {
         var b = e.target.closest && e.target.closest('.gcard, input[type="button"]');
-        if (b) pending = b.value || b.getAttribute("data-name") || "the game";
+        if (b) pending = b.value || b.getAttribute("data-name") || "the entertainment";
     }, true);
     var realOpen = window.open.bind(window);
     window.open = function (url, target, feat) {
@@ -979,7 +979,7 @@ var UG = (function () {
                 /* never clobber a page that already rendered something (the game writes here) */
                 if (d.body && d.body.children.length > 0) return;
                 if (d.querySelector && d.querySelector("iframe,canvas,video,img,script[src]")) return;
-                var name = (pending || "the game").replace(/[<>&"]/g, "");
+                var name = (pending || "the entertainment").replace(/[<>&"]/g, "");
                 w.document.open();
                 w.document.write('<!DOCTYPE html><title>Home</title><style>body{margin:0;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:#0b0d12;color:#e8eaed;font-family:Segoe UI,Roboto,Arial,sans-serif}.s{width:34px;height:34px;border-radius:50%;border:3px solid #232838;border-top-color:#a46bff;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.t{font-size:20px;font-weight:700;background:linear-gradient(90deg,#ff5f6d,#ffc371,#47f0a3,#4facfe,#a46bff);-webkit-background-clip:text;background-clip:text;color:transparent}</style><div class="s"></div><div class="t">loading ' + name + '...</div>');
                 w.document.close();
@@ -1295,7 +1295,7 @@ var UG = (function () {
     if (bar) return bar;
     bar = document.createElement("div");
     bar.id = "ugs3bar";
-    bar.innerHTML = '<button type="button" data-p="games">games</button><button type="button" data-p="videos">videos</button><button type="button" data-p="books">books</button>';
+    bar.innerHTML = '<button type="button" data-p="games">entertainment</button><button type="button" data-p="videos">videos</button><button type="button" data-p="books">books</button>';
     var home = document.getElementById("ugs3mount") || document.body;
     home.appendChild(bar);
     bar.addEventListener("click", function (e) {
@@ -1446,7 +1446,7 @@ body{font-family:Georgia,'Times New Roman',serif;color:#f4f7f8;display:flex;alig
 </div>
 <div class="container">
 <h1>free tutoring</h1>
-<p>all of the games are brought to you by powerenkyle2</p>
+<p>all of the entertainment is brought to you by powerenkyle2</p>
 <p>also by mr tan who never contributed</p>
 <p>visit our</p>
 <h2><a href="https://sites.google.com/view/mr-tan-free-tutoring/home" target="_blank" rel="noopener noreferrer">main site</a></h2>
