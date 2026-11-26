@@ -225,6 +225,7 @@ let files = [
   "clangrybirds",
   "clangrybirds-space",
   "clangrybirds2",
+  "clangrybirds2web",
   "clangrybirdsshowdown",
   "clangrybirdsslingshotfrenzy",
   "clangrybirdsspace",
