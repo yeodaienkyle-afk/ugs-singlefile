@@ -206,7 +206,7 @@ svg.icon{width:22px;height:22px;fill:#9aa3b2}
 <div class="launcher-hero"><h1 id="hero-logo" class="big-logo">free tutoring</h1><p class="tagline">the only class you never skip</p></div>
 
 <div class="nav-grid">
-<div class="nav-card" onclick="openPage(entertainmentHTML)"><div class="nav-icon"><img src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/controller-icon.png" alt="" draggable="false"/></div><div class="nav-name">entertainment</div><div class="nav-desc">full entertainment list &middot; opens as about:blank</div></div>
+<div class="nav-card" onclick="openPage(gamesHTML)"><div class="nav-icon"><img src="https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/controller-icon.png" alt="" draggable="false"/></div><div class="nav-name">entertainment</div><div class="nav-desc">full entertainment list &middot; opens as about:blank</div></div>
 <div class="nav-card" onclick="openPage(informationHTML)"><div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.4"/><circle cx="12" cy="7.9" r=".6" fill="currentColor"/></svg></div><div class="nav-name">information</div><div class="nav-desc">night sky &middot; opens as about:blank</div></div>
 </div>
 
@@ -249,7 +249,7 @@ var PHRASES = ["free tutoring","ported by powerenkyle2","must have been the wind
 </script>
 
 <script>
-const entertainmentHTML = `<!DOCTYPE html>
+const gamesHTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -315,7 +315,7 @@ body.noglow *{box-shadow:none!important}
 #searchInput::placeholder{color:#6b7385}
 #lolbutton{height:38px;padding:0 18px;border:1px solid rgba(255,255,255,.14);border-radius:19px;background:#12161f;color:#c9d2e0;font-size:13px;font-weight:500;cursor:pointer}
 #lolbutton:hover{border-color:#a46bff;box-shadow:0 0 12px rgba(164,107,255,.45);color:#fff}
-#entertainment-count{height:38px;padding:0 16px;display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:19px;background:#12161f;color:var(--muted);font-size:12px;white-space:nowrap}
+#game-count{height:38px;padding:0 16px;display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:19px;background:#12161f;color:var(--muted);font-size:12px;white-space:nowrap}
 #sections-container{max-width:1240px;margin:0 auto;padding:10px 20px 40px}
 .letter-section{background:transparent;margin-bottom:26px;scroll-margin-top:90px} body.listmode.cv .letter-section{content-visibility:auto}
 #sidebar{position:fixed;right:6px;top:50%;transform:translateY(-50%);z-index:40;display:flex;flex-direction:column;gap:2px;max-height:78vh;overflow-y:auto;scrollbar-width:none;padding:6px 4px;background:rgba(13,16,23,.85);border:1px solid var(--line);border-radius:10px}
@@ -448,7 +448,7 @@ body.listmode .buttons-container{display:grid}
 
 <div class="toolbar">
 <div class="search-glow"><div class="searchbox"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><input type="text" placeholder="find the entertainment to your heart's desire" id="searchInput" autocomplete="off" spellcheck="false"></div></div>
-<span id="entertainment-count">loading entertainment...</span>
+<span id="game-count">loading entertainment...</span>
 <button id="lolbutton">not loading? click here</button>
 </div>
 
@@ -458,7 +458,7 @@ body.listmode .buttons-container{display:grid}
 <script>
 (function () {
     var searchInput = document.getElementById("searchInput");
-    var countEl = document.getElementById("entertainment-count");
+    var countEl = document.getElementById("game-count");
     function updateCount() {
         var n = 0;
         var lm = document.body.classList.contains("listmode");
@@ -1067,10 +1067,10 @@ var UG = (function () {
 (function () {
     var t = Date.now();
     var s = document.createElement("script");
-    s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@master/entertainment.js?v=" + t;
+    s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@master/games.js?v=" + t;
     s.onerror = function () {
-        s.onerror = function () { s.onerror = null; s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@master/entertainment.js?t=" + t; };
-        s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@master/entertainment.js?v=" + t;
+        s.onerror = function () { s.onerror = null; s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@master/games.js?t=" + t; };
+        s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@master/games.js?v=" + t;
     };
     document.body.appendChild(s);
 })();
@@ -1284,18 +1284,18 @@ var UG = (function () {
 <\/script>
 
 <script>
-/* the three bars: entertainment / videos / books, all inside this one tab */
+/* the three bars: games / videos / books, all inside this one tab */
 (function () {
   var SRC = ["https://raw.githubusercontent.com/yeodaienkyle-afk/ugs-singlefile/main/", "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile/"];
   var PAGES = { videos: "videos.html", books: "books.html" };
   var CACHE = {};
-  var here = "entertainment", bar = null, view = null, top = null, frame = null, msg = null;
+  var here = "games", bar = null, view = null, top = null, frame = null, msg = null;
 
   function mountBar() {
     if (bar) return bar;
     bar = document.createElement("div");
     bar.id = "ugs3bar";
-    bar.innerHTML = '<button type="button" data-p="entertainment">entertainment</button><button type="button" data-p="videos">videos</button><button type="button" data-p="books">books</button>';
+    bar.innerHTML = '<button type="button" data-p="games">entertainment</button><button type="button" data-p="videos">videos</button><button type="button" data-p="books">books</button>';
     var home = document.getElementById("ugs3mount") || document.body;
     home.appendChild(bar);
     bar.addEventListener("click", function (e) {
@@ -1361,7 +1361,7 @@ var UG = (function () {
   }
   function go(page) {
     if (page === here) return;
-    if (page === "entertainment") { back(); return; }
+    if (page === "games") { back(); return; }
     here = page;
     document.body.className = document.body.className.replace(/\s*ugs3lib/,"") + " ugs3lib";
     shell();
@@ -1371,7 +1371,7 @@ var UG = (function () {
     if (CACHE[page]) writeDoc(CACHE[page]); else load(page, 0);
   }
   function back() {
-    here = "entertainment";
+    here = "games";
     document.body.className = document.body.className.replace(/\s*ugs3lib/,"");
     if (view) view.style.display = "none";
     var home = document.getElementById("ugs3mount") || document.body;
@@ -1385,7 +1385,7 @@ var UG = (function () {
 </body>
 </html>`;
 
-const gamehubHTML = entertainmentHTML
+const gamehubHTML = gamesHTML
     .replace("<title>Home</title>", "<title>Game Hub</title>")
     .replace('<h1 id="site-title" class="site-title">free tutoring</h1>', '<h1 id="site-title" class="site-title">game hub</h1>')
     .replace('"free tutoring",', '"game hub", "free tutoring",')
