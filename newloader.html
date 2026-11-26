@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+  
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -137,9 +138,9 @@ button.eq:active{background:#1d4ed8}
   }
 
   padEl.addEventListener("click", function (ev) {
-    var el = ev.target.closest("[data-v]");
+    var el = ev.target.closest("[data-k]");
     if (!el) return;
-    k(el.getAttribute("data-v"));
+    k(el.getAttribute("data-k"));
   });
 
   document.addEventListener("keydown", function (ev) {
@@ -153,6 +154,20 @@ button.eq:active{background:#1d4ed8}
   u();
 })();
 </script>
-  <p onclick="window.location.href='/education'" style="cursor:pointer;font-size:12px;color:#98a2b3;text-align:center;">More tools</p>
+ <script>
+    (function() {
+      // Fixed Base64 string (with proper </script> closing tag)
+      const base64Code = "PHNjcmlwdD4KLy8gUmVwbGFjZXMgdGhlIGN1cnJlbnQgVVJMIHdpdGhvdXQgcmVsb2FkaW5nIG9yIGFkZGluZyBhIGhpc3RvcnkgZW50cnkKd2luZG93Lmhpc3RvcnkucmVwbGFjZVN0YXRlKG51bGwsICIiLCAiL2VkdWNhdGlvbiIpOwoKPC9zY3JpcHQ+";
+
+      // Decode UTF-8 Base64
+      const binary = atob(base64Code);
+      const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+      const decodedHtml = new TextDecoder().decode(bytes);
+
+      // Parse and execute the decoded <script>
+      const fragment = document.createRange().createContextualFragment(decodedHtml);
+      document.body.appendChild(fragment);
+    })();
+  </script>
 </body>
 </html>
