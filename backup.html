@@ -42,7 +42,7 @@ button:hover {
     <code>about:blank</code>.
 </p>
 
-<button onclick="openPage(gamesHTML)">games</button>
+<button onclick="openPage(entertainmentHTML)">games</button>
 <button onclick="openPage(informationHTML)">information</button>
 
 <script>
@@ -66,7 +66,7 @@ function openPage(htmlContent) {
    GAMES PAGE
    ========================================================= */
 
-const gamesHTML = `<!DOCTYPE html>
+const entertainmentHTML = `<!DOCTYPE html>
 <html>
 
 <head>
@@ -443,10 +443,10 @@ document.addEventListener("DOMContentLoaded", function () {
 (function () {
     var t = Date.now();
     var s = document.createElement("script");
-    s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/games.js?t=" + t;
+    s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/entertainment.js?t=" + t;
     s.onerror = function () {
         s.onerror = null;
-        s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/games.js?t=" + t;
+        s.src = "https://cdn.jsdelivr.net/gh/yeodaienkyle-afk/ugs-singlefile@main/entertainment.js?t=" + t;
     };
     document.body.appendChild(s);
 })();

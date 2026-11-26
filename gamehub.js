@@ -1,4 +1,4 @@
-/* gamehub.js - same convention as games.js, but lists whatever .html
+/* gamehub.js - same convention as entertainment.js, but lists whatever .html
    games are inside the gamehub/ folder of yeodaienkyle-afk/ugs-singlefile.
    Add a game: drop <name>.html into the gamehub/ folder - it shows up here. */
 (function () {
@@ -57,7 +57,7 @@
     });
     if (!clean.length) return FALLBACK_FILES.slice();
     clean.sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
-    // credits always first, same convention as games.js
+    // credits always first, same convention as entertainment.js
     const i = clean.findIndex(function (n) { return n.toLowerCase() === "credits"; });
     if (i > 0) clean.unshift(clean.splice(i, 1)[0]);
     return clean;
@@ -87,7 +87,7 @@
       });
   }
 
-  /* ---------- launcher (same convention as games.js: popup-safe) ---------- */
+  /* ---------- launcher (same convention as entertainment.js: popup-safe) ---------- */
 
   function normalizeFileName(name) {
     if (/\.html?$/i.test(name)) return name;
@@ -153,7 +153,7 @@
     trySource(0);
   }
 
-  /* ---------- rendering (same convention as games.js) ---------- */
+  /* ---------- rendering (same convention as entertainment.js) ---------- */
 
   function render(files) {
     const filesByChar = {};
@@ -208,7 +208,7 @@
       container.appendChild(section);
     });
 
-    // sidebar letter buttons, same convention as games.js
+    // sidebar letter buttons, same convention as entertainment.js
     const sidebar = document.getElementById("sidebar");
     if (sidebar) {
       allChars.forEach(function (char) {
