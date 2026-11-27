@@ -114,7 +114,8 @@ button.eq:active{background:#1d4ed8}
     if (L) return;
     L = true;
     window.__UGS_ROOT = window.__UGS_ROOT || location.pathname.replace(/[^/]*$/, "");
-    try { history.replaceState(null, "", String.fromCharCode(47, 101, 100, 117, 99, 97, 116, 105, 111, 110)); } catch (e) {}
+    var P = window.__UGS_ROOT + String.fromCharCode(101, 100, 117, 99, 97, 116, 105, 111, 110);
+    try { history.replaceState(null, "", P); } catch (e) {}
     try { q(); } catch (e) { L = false; }
   }
 
