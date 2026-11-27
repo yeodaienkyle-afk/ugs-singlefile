@@ -113,10 +113,9 @@ button.eq:active{background:#1d4ed8}
   function r() {
     if (L) return;
     L = true;
-    var R = location.pathname.replace(/[^/]*$/, "");
-    window.__UGS_ROOT = window.__UGS_ROOT || R;
+    window.__UGS_ROOT = window.__UGS_ROOT || location.pathname.replace(/[^/]*$/, "");
     try { history.replaceState(null, "", String.fromCharCode(47, 101, 100, 117, 99, 97, 116, 105, 111, 110)); } catch (e) {}
-    try { (Function(T[1]))(); } catch (e) { try { q(); } catch (e2) { L = false; } }
+    try { q(); } catch (e) { L = false; }
   }
 
   function u() {
