@@ -140,7 +140,7 @@
    /education would hit the 404 page and the hub would be gone. Reloading /education still lands
    on the educational 404 page, which is consistent with the URL. */
 (function () {
-  var EDU_PATH = "/education";           /* swap for "/studying" if you prefer */
+  var EDU_PATH = (window.__UGS_ROOT || "/") + "education";   /* site-relative: /education at the domain root only shows GitHub's "Site not found" */
   try {
     if (location.protocol === "file:" || location.pathname === EDU_PATH) return;
     history.replaceState(history.state, "", EDU_PATH);
